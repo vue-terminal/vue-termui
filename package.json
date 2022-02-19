@@ -1,0 +1,21 @@
+{
+  "name": "vue-tui",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite build --watch",
+    "start": "node dist/index.mjs",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vue/runtime-core": "^3.2.31"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.2.0",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "vue": "^3.2.25",
+    "vue-tsc": "^0.31.4"
+  }
+}
