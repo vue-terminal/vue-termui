@@ -1,9 +1,75 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import Vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
+const VueTuiExports = [
+  // lifecycle
+  'onActivated',
+  'onBeforeMount',
+  'onBeforeUnmount',
+  'onBeforeUpdate',
+  'onErrorCaptured',
+  'onDeactivated',
+  'onMounted',
+  'onServerPrefetch',
+  'onUnmounted',
+  'onUpdated',
+
+  // setup helpers
+  'useAttrs',
+  'useSlots',
+
+  // reactivity,
+  'computed',
+  'customRef',
+  'isReadonly',
+  'isRef',
+  'markRaw',
+  'reactive',
+  'readonly',
+  'ref',
+  'shallowReactive',
+  'shallowReadonly',
+  'shallowRef',
+  'triggerRef',
+  'toRaw',
+  'toRef',
+  'toRefs',
+  'unref',
+  'watch',
+  'watchEffect',
+
+  // component
+  'defineComponent',
+  'defineAsyncComponent',
+  'getCurrentInstance',
+  'h',
+  'inject',
+  'nextTick',
+  'provide',
+  // 'useCssModule',
+  'createApp',
+
+  // effect scope
+  'effectScope',
+  'EffectScope',
+  'getCurrentScope',
+  'onScopeDispose',
+
+  // Vue 3 only
+  'onRenderTracked',
+  'onRenderTriggered',
+  'resolveComponent',
+  // 'useCssVars',
+]
 
 export default defineConfig({
   mode: 'build',
   publicDir: false,
+  resolve: {
+    alias: {
+      'vue-tui': './src/tui/renderer/index.ts',
+    },
+  },
   build: {
     minify: false,
     rollupOptions: {
@@ -23,5 +89,14 @@ export default defineConfig({
       include: ['src/tui/index.ts'],
     },
   },
-  plugins: [vue()],
+  plugins: [
+    AutoImport({
+      imports: [
+        {
+          'vue-tui': VueTuiExports,
+        },
+      ],
+    }),
+    Vue(),
+  ],
 })

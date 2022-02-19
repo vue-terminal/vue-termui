@@ -1,4 +1,4 @@
 import App from './App.vue'
-import { createApp } from './renderer'
+import { createApp } from 'vue-tui'
 
 createApp(App).mount()
