@@ -8,6 +8,7 @@ export default defineConfig({
     minify: false,
     rollupOptions: {
       input: ['src/tui/index.ts'],
+      external: ['events', 'assert', 'node:events', 'node:assert'],
 
       output: {
         // file: 'dist/[name].haha.mjs',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from './renderer'
+import { ref, onMounted, onUnmounted } from './renderer'
 const n = ref(0)
 
 onMounted(() => {
@@ -7,6 +7,10 @@ onMounted(() => {
   setInterval(() => {
     n.value++
   }, 1000)
+})
+
+onUnmounted(() => {
+  console.log('removed')
 })
 </script>
 

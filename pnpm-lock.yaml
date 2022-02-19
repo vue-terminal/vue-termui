@@ -1,6 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@types/node': ^17.0.18
   '@vitejs/plugin-vue': ^2.2.0
   '@vue/runtime-core': ^3.2.31
   typescript: ^4.5.4
@@ -12,6 +13,7 @@ dependencies:
   '@vue/runtime-core': 3.2.31
 
 devDependencies:
+  '@types/node': 17.0.18
   '@vitejs/plugin-vue': 2.2.2_vite@2.8.4+vue@3.2.31
   typescript: 4.5.5
   vite: 2.8.4
@@ -53,6 +55,10 @@ packages:
 
   /@emmetio/scanner/1.0.0:
     resolution: {integrity: sha512-8HqW8EVqjnCmWXVpqAOZf+EGESdkR27odcMMMGefgKXtar00SoYNSryGv//TELI4T3QFsECo78p+0lmalk/CFA==}
+    dev: true
+
+  /@types/node/17.0.18:
+    resolution: {integrity: sha512-eKj4f/BsN/qcculZiRSujogjvp5O/k4lOW5m35NopjZM/QwLOR075a8pJW5hD+Rtdm2DaCVPENS6KtSQnUD6BA==}
     dev: true
 
   /@vitejs/plugin-vue/2.2.2_vite@2.8.4+vue@3.2.31:

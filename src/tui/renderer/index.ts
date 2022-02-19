@@ -1,10 +1,14 @@
 import { createRenderer } from '@vue/runtime-core'
-import type { RendererNode, RendererElement } from '@vue/runtime-core'
+import { onExit } from '../deps/signal-exit'
+import type { App, Component } from '@vue/runtime-core'
 
 export interface TuiNode {}
 export interface TuiElement extends TuiNode {}
 
-const { render, createApp } = createRenderer<TuiNode, TuiElement>({
+const { render, createApp: baseCreateApp } = createRenderer<
+  TuiNode,
+  TuiElement
+>({
   patchProp(el, key, prevValue, nextValue) {
     console.log('patchProp', { el, key, nextValue })
   },
@@ -51,8 +55,32 @@ const { render, createApp } = createRenderer<TuiNode, TuiElement>({
   },
 })
 
-// `render` is the low-level API
-// `createApp` returns an app instance
+type TODO = any
+
+export interface TuiApp extends Omit<App<TODO>, 'mount'> {
+  mount(): void
+}
+
+function createApp(
+  rootComponent: Component,
+  rootProps?: Record<string, unknown> | null
+) {
+  const app = baseCreateApp(rootComponent, rootProps)
+  const mount = app.mount
+  // TODO: actually build a host
+  const host = { ROOT: true }
+  const newApp = app as unknown as TuiApp
+  newApp.mount = () => {
+    mount(host)
+  }
+
+  onExit(() => {
+    newApp.unmount()
+  })
+
+  return newApp
+}
+
 export { render, createApp }
 
 // re-export Vue core APIs
