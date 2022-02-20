@@ -60,6 +60,9 @@ const VueTuiExports = [
   'onRenderTriggered',
   'resolveComponent',
   // 'useCssVars',
+
+  // vue-termui API
+  'useLog',
 ]
 
 export default defineConfig({
@@ -67,14 +70,28 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: {
-      'vue-tui': './src/tui/renderer/index.ts',
+      'vue-termui': './src/tui/renderer/index.ts',
     },
   },
   build: {
+    target: 'esnext',
     minify: false,
     rollupOptions: {
       input: ['src/tui/index.ts'],
-      external: ['events', 'assert', 'node:events', 'node:assert'],
+      external: [
+        '@vue/runtime-core',
+        'cli-cursor',
+        'events',
+        'assert',
+        'node:events',
+        'node:assert',
+        'yoga-layout-prebuilt',
+        'widest-line',
+        'chalk',
+        'cli-boxes',
+        'cli-truncate',
+        'wrap-ansi',
+      ],
 
       output: {
         // file: 'dist/[name].haha.mjs',
@@ -93,7 +110,7 @@ export default defineConfig({
     AutoImport({
       imports: [
         {
-          'vue-tui': VueTuiExports,
+          'vue-termui': VueTuiExports,
         },
       ],
     }),

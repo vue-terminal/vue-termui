@@ -1,15 +1,18 @@
 <script setup lang="ts">
 const n = ref(0)
 
+const log = useLog()
+
 onMounted(() => {
-  console.log('mounted!')
+  log('mounted!')
   setInterval(() => {
     n.value++
   }, 1000)
 })
 
 onUnmounted(() => {
-  console.log('removed')
+  const instance = getCurrentInstance()
+  log('removed:', JSON.stringify(instance?.vnode.el, null, 2))
 })
 </script>
 

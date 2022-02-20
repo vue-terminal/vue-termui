@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "lib": ["esnext"],
     "paths": {
-      "vue-tui": ["src/tui/renderer/index.ts"]
+      "vue-termui": ["src/tui/renderer/index.ts"]
     }
   },
   "include": [

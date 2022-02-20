@@ -1,4 +1,4 @@
 import App from './App.vue'
-import { createApp } from 'vue-tui'
+import { createApp } from 'vue-termui'
 
-createApp(App).mount()
+await createApp(App).mount()
