@@ -79,18 +79,23 @@ export default defineConfig({
     rollupOptions: {
       input: ['src/tui/index.ts'],
       external: [
-        '@vue/runtime-core',
-        'cli-cursor',
         'events',
         'assert',
         'node:events',
         'node:assert',
-        'yoga-layout-prebuilt',
-        'widest-line',
+        '@vue/runtime-core',
+        'ansi-escapes',
         'chalk',
         'cli-boxes',
+        'cli-cursor',
         'cli-truncate',
+        'indent-string',
+        'slice-ansi',
+        'string-width',
+        'type-fest',
+        'widest-line',
         'wrap-ansi',
+        'yoga-layout-prebuilt',
       ],
 
       output: {
