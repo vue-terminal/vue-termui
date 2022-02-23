@@ -5,7 +5,7 @@ import cliCursor from 'cli-cursor'
 export interface LogUpdate {
   clear: () => void
   done: () => void
-  (...strs: string[]): void
+  (text: string): void
 }
 
 export function createLog(
@@ -16,13 +16,13 @@ export function createLog(
   let previousOutput = ''
   let hasHiddenCursor = false
 
-  const render = (...strs: string[]) => {
+  const render = (text: string) => {
     if (!showCursor && !hasHiddenCursor) {
       cliCursor.hide()
       hasHiddenCursor = true
     }
 
-    const output = strs.join(' ') + '\n'
+    const output = text + '\n'
     if (output === previousOutput) {
       return
     }

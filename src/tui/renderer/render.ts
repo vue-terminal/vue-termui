@@ -9,7 +9,8 @@ interface Result {
   staticOutput: string
 }
 
-export function render(node: DOMElement, terminalWidth: number): Result {
+export function renderRoot(node: DOMElement, terminalWidth: number): Result {
+  // console.log('renderRoot', node)
   node.yogaNode!.setWidth(terminalWidth)
 
   if (node.yogaNode) {

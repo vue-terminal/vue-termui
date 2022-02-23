@@ -7,6 +7,7 @@ export class TuiNode {
   parentNode: DOMElement | null
   yogaNode?: Yoga.YogaNode
   internal_static?: boolean
+  internal_transform?: OutputTransformer
   style: Styles = {}
 
   constructor(parentNode: DOMElement | null) {
@@ -20,7 +21,6 @@ export type NodeName = DOMElementName | '#text' | '#comment'
 export class DOMElement extends TuiNode {
   nodeName: DOMElementName
   childNodes: DOMNode[] = []
-  internal_transform?: OutputTransformer
   staticNode?: DOMElement
 
   constructor(nodeName: DOMElementName, parentNode: DOMElement | null = null) {

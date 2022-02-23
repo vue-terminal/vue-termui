@@ -9,7 +9,7 @@ import {
   TextNode,
   DOMElementName,
 } from './dom'
-import { logSymbol } from './injectionSymbols'
+import { logSymbol, rootNodeSymbol, stdoutSymbol } from './injectionSymbols'
 
 function removeNode(node: DOMNode) {
   // recurse for children
@@ -155,9 +155,11 @@ function createApp(
     ...rootProps
   }: RootProps & TuiAppOptions = {}
 ) {
-  const log = createLog(process.stdout)
+  const log = createLog(stdout)
 
-  const app = baseCreateApp(rootComponent, rootProps).provide(logSymbol, log)
+  const app = baseCreateApp(rootComponent, rootProps)
+    .provide(logSymbol, log)
+    .provide(stdoutSymbol, stdout)
 
   // FIXME: not used but vue complains about tui-test ....
   const TUI_ELEMENT_RE = /^tui-/
@@ -180,6 +182,9 @@ function createApp(
     stdout.on('resize', onResize)
     const rootEl = new DOMElement('ink-root')
     rootEl.toString = () => `<Root>`
+
+    newApp.provide(rootNodeSymbol, rootEl)
+
     mount(rootEl)
     return newApp
   }
@@ -234,7 +239,14 @@ export { render, createApp }
 // re-export Vue core APIs
 export * from '@vue/runtime-core'
 
-export { useLog, logSymbol } from './injectionSymbols'
+export {
+  useLog,
+  logSymbol,
+  useRootNode,
+  rootNodeSymbol,
+  stdoutSymbol,
+  useStdout,
+} from './injectionSymbols'
 
 export class TuiError extends Error {
   code: number | null

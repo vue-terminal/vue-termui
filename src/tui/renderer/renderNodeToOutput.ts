@@ -1,5 +1,5 @@
 import Yoga from 'yoga-layout-prebuilt'
-import { DOMElement, getMaxWidth } from './dom'
+import { DOMElement, DOMNode, getMaxWidth } from './dom'
 import widestLine from 'widest-line'
 import indentString from 'indent-string'
 import { wrapText } from './text'
@@ -13,10 +13,9 @@ import { Output, OutputTransformer } from './Output'
 // and use it as offset for the rest of the nodes
 // Only first node is taken into account, because other text nodes can't have margin or padding,
 // so their coordinates will be relative to the first node anyway
-const applyPaddingToText = (node: DOMElement, text: string): string => {
-  const yogaNode = node.childNodes[0]?.yogaNode
-
-  if (yogaNode) {
+const applyPaddingToText = (node: DOMNode, text: string): string => {
+  if ('childNodes' in node && node.childNodes[0]?.yogaNode) {
+    const yogaNode = node.childNodes[0]?.yogaNode
     const offsetX = yogaNode.getComputedLeft()
     const offsetY = yogaNode.getComputedTop()
     text = '\n'.repeat(offsetY) + indentString(text, offsetX)
@@ -27,7 +26,7 @@ const applyPaddingToText = (node: DOMElement, text: string): string => {
 
 // After nodes are laid out, render each to output object, which later gets rendered to terminal
 const renderNodeToOutput = (
-  node: DOMElement,
+  node: DOMNode,
   output: Output,
   options: {
     offsetX?: number
@@ -66,7 +65,25 @@ const renderNodeToOutput = (
       newTransformers = [node.internal_transform, ...transformers]
     }
 
-    if (node.nodeName === 'ink-text') {
+    if (node.nodeName === '#text') {
+      let text = node.nodeValue
+
+      if (text.length > 0) {
+        const currentWidth = widestLine(text)
+        const maxWidth = getMaxWidth(yogaNode)
+
+        if (currentWidth > maxWidth) {
+          const textWrap = node.style.textWrap ?? 'wrap'
+          text = wrapText(text, maxWidth, textWrap)
+        }
+
+        text = applyPaddingToText(node, text)
+        console.log('#text', { text, maxWidth })
+        output.write(x, y, text, { transformers: newTransformers })
+      }
+
+      return
+    } else if (node.nodeName === 'ink-text') {
       let text = squashTextNodes(node)
 
       if (text.length > 0) {
@@ -83,21 +100,19 @@ const renderNodeToOutput = (
       }
 
       return
+    } else if (node.nodeName === 'ink-root') {
+      for (const childNode of node.childNodes) {
+        renderNodeToOutput(childNode, output, {
+          offsetX: x,
+          offsetY: y,
+          transformers: newTransformers,
+          skipStaticElements,
+        })
+      }
     }
 
     // if (node.nodeName === 'ink-box') {
     // renderBorder(x, y, node, output)
-    // }
-
-    // if (node.nodeName === 'ink-root' || node.nodeName === 'ink-box') {
-    //   for (const childNode of node.childNodes) {
-    //     renderNodeToOutput(childNode as DOMElement, output, {
-    //       offsetX: x,
-    //       offsetY: y,
-    //       transformers: newTransformers,
-    //       skipStaticElements,
-    //     })
-    //   }
     // }
   }
 }

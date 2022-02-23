@@ -63,6 +63,8 @@ const VueTuiExports = [
 
   // vue-termui API
   'useLog',
+  'useRootNode',
+  'useStdout',
 ]
 
 export default defineConfig({
@@ -75,6 +77,7 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    sourcemap: true,
     minify: false,
     rollupOptions: {
       input: ['src/tui/index.ts'],
@@ -119,6 +122,13 @@ export default defineConfig({
         },
       ],
     }),
-    Vue({ customElement: [/^tui-\w+/] }),
+    Vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) =>
+            tag.startsWith('ink-') || tag.startsWith('tui-'),
+        },
+      },
+    }),
   ],
 })
