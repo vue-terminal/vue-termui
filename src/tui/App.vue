@@ -10,10 +10,21 @@ onMounted(() => {
   }, 1000)
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const instance = getCurrentInstance()
-  log('removed:', JSON.stringify(instance?.vnode.el, null, 2))
+  log('removed')
+  // console.log(instance?.vnode.el)
 })
 </script>
 
-<template>Counter: {{ n }}</template>
+<template>
+  <div>
+    Counter: {{ n }}
+    <!-- <tui-test hey="true" disabled> child </tui-test> -->
+    <!-- <div class="hello">child</div>
+    <p ref="root">
+      child
+      <span>hey</span>
+    </p> -->
+  </div>
+</template>

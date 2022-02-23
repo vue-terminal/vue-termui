@@ -119,6 +119,6 @@ export default defineConfig({
         },
       ],
     }),
-    Vue(),
+    Vue({ customElement: [/^tui-\w+/] }),
   ],
 })

@@ -35,6 +35,20 @@ function removeNode(node: DOMNode) {
   // Queue an update of dom
 }
 
+function insertNode(el: DOMNode, parent: DOMElement) {
+  if (el.parentNode) {
+    // TODO: is this possible?
+    console.error('TODO: REMOVE ME')
+  }
+
+  parent.childNodes.push(el)
+
+  if (parent.yogaNode && el.yogaNode) {
+    parent.yogaNode.insertChild(el.yogaNode, parent.yogaNode.getChildCount())
+  }
+  el.parentNode = parent
+}
+
 const { render, createApp: baseCreateApp } = createRenderer<
   DOMNode,
   DOMElement
@@ -42,26 +56,24 @@ const { render, createApp: baseCreateApp } = createRenderer<
   patchProp(el, key, prevValue, nextValue) {
     console.log('patchProp', { el, key, nextValue })
   },
-  insert: (el, parent) => {
-    parent.childNodes.push(el)
-
-    if (parent.yogaNode && el.yogaNode) {
-      parent.yogaNode.insertChild(el.yogaNode, parent.yogaNode.getChildCount())
-    }
-  },
+  insert: insertNode,
   remove: removeNode,
   createElement(type) {
     // TODO: runtime check valid values
+    // console.log('createElement', type)
     return new DOMElement(type as DOMElementName)
   },
   createComment(text) {
+    console.log('createComment', text)
     return new CommentNode(text)
   },
   createText(text) {
+    console.log('createText', text)
     return new TextNode(text)
   },
 
   parentNode(node) {
+    // console.log('parentNode', node)
     return node.parentNode
   },
   nextSibling(node) {
@@ -71,17 +83,27 @@ const { render, createApp: baseCreateApp } = createRenderer<
   },
 
   setElementText(node, text) {
-    console.log('setElementText', node, text)
+    // console.log('setElementText', node, text)
+    const textNode = node.childNodes.find(
+      (node) => node.nodeName === '#text'
+    ) as TextNode | null
+    if (textNode) {
+      textNode.nodeValue = text
+    } else {
+      insertNode(new TextNode(text), node)
+    }
   },
   setText(node, text) {
+    console.log('setText', text)
     if (node.nodeName === '#text' || node.nodeName === '#comment') {
       node.nodeValue = text
     } else {
+      console.error('TODO: setText', text)
+      this.setElementText(node, text)
     }
-    // console.log('setText', node, text)
   },
   cloneNode(node) {
-    console.log('clone')
+    console.error('TODO: clone')
     return node
   },
   // setScopeId(el, id) {
@@ -136,6 +158,15 @@ function createApp(
   const log = createLog(process.stdout)
 
   const app = baseCreateApp(rootComponent, rootProps).provide(logSymbol, log)
+
+  // FIXME: not used but vue complains about tui-test ....
+  const TUI_ELEMENT_RE = /^tui-/
+  app.config.compilerOptions.isCustomElement = (tag) => {
+    console.log('test ', tag)
+    return true
+    return TUI_ELEMENT_RE.test(tag)
+  }
+
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
 
@@ -143,11 +174,13 @@ function createApp(
     // log('Resize')
   }
   newApp.mount = () => {
-    cliCursor.hide()
+    cliCursor.hide(stdout)
     log.clear()
 
     stdout.on('resize', onResize)
-    mount(new DOMElement('ink-root'))
+    const rootEl = new DOMElement('ink-root')
+    rootEl.toString = () => `<Root>`
+    mount(rootEl)
     return newApp
   }
 
@@ -175,7 +208,7 @@ function createApp(
 
   let interval: NodeJS.Timeout | undefined
   if (waitUntilExit) {
-    interval = setInterval(noop, 1000)
+    interval = setInterval(noop, 999999)
   }
 
   const removeOnExitListener = onExit((code, signal) => {
@@ -188,7 +221,7 @@ function createApp(
       } else {
         rejectExitPromise(new TuiError(code, signal))
       }
-      cliCursor.show()
+      cliCursor.show(stdout)
       newApp.unmount()
     }
   })
