@@ -2,7 +2,6 @@
 import ansiEscapes from 'ansi-escapes'
 import { renderRoot } from './renderer/render'
 
-const n = ref(0)
 const log = useLog()
 
 onBeforeUpdate(() => {})
@@ -12,7 +11,7 @@ const stdout = useStdout()
 
 let lastOutput: string = ''
 
-onUpdated(() => {
+function myRenderThatShouldBeOutside() {
   // console.log('need update', i?.root.vnode.el)
   const { output, outputHeight, staticOutput } = renderRoot(
     rootNode,
@@ -37,23 +36,21 @@ onUpdated(() => {
   }
 
   lastOutput = output
-})
+}
 
+onMounted(myRenderThatShouldBeOutside)
+onUpdated(myRenderThatShouldBeOutside)
+
+const n = ref(0)
 onMounted(() => {
-  log('mounted!')
   setInterval(() => {
     n.value++
   }, 1000)
 })
-
-onBeforeUnmount(() => {
-  const instance = getCurrentInstance()
-  log('removed')
-  // console.log(instance?.vnode.el)
-})
 </script>
 
 <template>
+  <ink-text v-for="i in n">Hello ({{ i }}) at {{ new Date() }}</ink-text>
   <!-- <div> -->
   <ink-text>Counter: {{ n }} </ink-text>
   <!-- <tui-test hey="true" disabled> child </tui-test> -->

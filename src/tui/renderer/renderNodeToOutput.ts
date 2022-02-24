@@ -66,6 +66,7 @@ const renderNodeToOutput = (
     }
 
     if (node.nodeName === '#text') {
+      // TODO: remove this, only allow text inside Text or span component
       let text = node.nodeValue
 
       if (text.length > 0) {
@@ -78,7 +79,7 @@ const renderNodeToOutput = (
         }
 
         text = applyPaddingToText(node, text)
-        console.log('#text', { text, maxWidth })
+        // console.log('#text', { text, maxWidth })
         output.write(x, y, text, { transformers: newTransformers })
       }
 

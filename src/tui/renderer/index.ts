@@ -54,7 +54,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
   DOMElement
 >({
   patchProp(el, key, prevValue, nextValue) {
-    console.log('patchProp', { el, key, nextValue })
+    console.log('TODO: patchProp', { el, key, nextValue })
   },
   insert: insertNode,
   remove: removeNode,
@@ -64,11 +64,11 @@ const { render, createApp: baseCreateApp } = createRenderer<
     return new DOMElement(type as DOMElementName)
   },
   createComment(text) {
-    console.log('createComment', text)
+    // console.log('createComment', text)
     return new CommentNode(text)
   },
   createText(text) {
-    console.log('createText', text)
+    // console.log('createText', text)
     return new TextNode(text)
   },
 
@@ -94,7 +94,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
     }
   },
   setText(node, text) {
-    console.log('setText', text)
+    // console.log('setText', text)
     if (node.nodeName === '#text' || node.nodeName === '#comment') {
       node.nodeValue = text
     } else {
