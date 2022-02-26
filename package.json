@@ -24,15 +24,16 @@
     "type-fest": "^2.12.0",
     "widest-line": "^4.0.1",
     "wrap-ansi": "^8.0.1",
+    "ws": "^8.5.0",
     "yoga-layout-prebuilt": "^1.10.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.18",
+    "@types/node": "^17.0.21",
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1",
     "@vitejs/plugin-vue": "^2.2.0",
     "typescript": "^4.5.4",
-    "unplugin-auto-import": "^0.6.0",
+    "unplugin-auto-import": "^0.6.1",
     "vite": "^2.8.0",
     "vue": "^3.2.25",
     "vue-tsc": "^0.31.4"
