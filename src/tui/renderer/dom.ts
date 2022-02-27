@@ -15,7 +15,7 @@ export class TuiNode {
   }
 }
 
-export type DOMElementName = 'ink-text' | 'ink-virtual-text' | 'ink-root'
+export type DOMElementName = 'tui-text' | 'tui-virtual-text' | 'tui-root'
 export type NodeName = DOMElementName | '#text' | '#comment'
 
 export class DOMElement extends TuiNode {
@@ -27,9 +27,9 @@ export class DOMElement extends TuiNode {
     super(parentNode)
     this.nodeName = nodeName
 
-    if (nodeName !== 'ink-virtual-text') {
+    if (nodeName !== 'tui-virtual-text') {
       this.yogaNode = Yoga.Node.create()
-      if (nodeName === 'ink-text') {
+      if (nodeName === 'tui-text') {
         this.yogaNode.setMeasureFunc(measureTextNode.bind(null, this))
       }
     }

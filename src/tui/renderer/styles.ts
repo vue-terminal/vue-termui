@@ -4,15 +4,17 @@ import type { Boxes } from 'cli-boxes'
 import type { LiteralUnion } from 'type-fest'
 import type { ForegroundColor } from 'chalk'
 
+export type TextWrap =
+  | 'wrap'
+  | 'end'
+  | 'middle'
+  | 'truncate-end'
+  | 'truncate'
+  | 'truncate-middle'
+  | 'truncate-start'
+
 export interface Styles {
-  readonly textWrap?:
-    | 'wrap'
-    | 'end'
-    | 'middle'
-    | 'truncate-end'
-    | 'truncate'
-    | 'truncate-middle'
-    | 'truncate-start'
+  readonly textWrap?: TextWrap
 
   readonly position?: 'absolute' | 'relative'
 

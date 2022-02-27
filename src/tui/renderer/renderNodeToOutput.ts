@@ -84,7 +84,7 @@ const renderNodeToOutput = (
       }
 
       return
-    } else if (node.nodeName === 'ink-text') {
+    } else if (node.nodeName === 'tui-text') {
       let text = squashTextNodes(node)
 
       if (text.length > 0) {
@@ -101,7 +101,7 @@ const renderNodeToOutput = (
       }
 
       return
-    } else if (node.nodeName === 'ink-root') {
+    } else if (node.nodeName === 'tui-root') {
       for (const childNode of node.childNodes) {
         renderNodeToOutput(childNode, output, {
           offsetX: x,
@@ -112,7 +112,7 @@ const renderNodeToOutput = (
       }
     }
 
-    // if (node.nodeName === 'ink-box') {
+    // if (node.nodeName === 'tui-box') {
     // renderBorder(x, y, node, output)
     // }
   }

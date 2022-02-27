@@ -60,8 +60,8 @@ function measureText(text: string): TextSize {
 // Squashing text nodes allows to combine multiple text nodes into one and write
 // to `Output` instance only once. For example, <Text>hello{' '}world</Text>
 // is actually 3 text nodes, which would result 3 writes to `Output`.
-//
-// Also, this is necessary for libraries like ink-link (https://github.com/sindresorhus/ink-link),
+// TODO:
+// Also, this is necessary for libraries like tui-link (https://github.com/sindresorhus/tui-link),
 // which need to wrap all children at once, instead of wrapping 3 text nodes separately.
 export function squashTextNodes(node: DOMElement): string {
   let text = ''
@@ -74,8 +74,8 @@ export function squashTextNodes(node: DOMElement): string {
         nodeText = childNode.nodeValue
       } else {
         if (
-          childNode.nodeName === 'ink-text' ||
-          childNode.nodeName === 'ink-virtual-text'
+          childNode.nodeName === 'tui-text' ||
+          childNode.nodeName === 'tui-virtual-text'
         ) {
           nodeText = squashTextNodes(childNode)
         }

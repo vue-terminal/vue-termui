@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import ansiEscapes from 'ansi-escapes'
+import { Span } from './renderer/components'
 import { renderRoot } from './renderer/render'
+import { provide } from '@vue/runtime-core'
+import { scheduleUpdateSymbol } from './renderer/injectionSymbols'
 
 const log = useLog()
 
@@ -38,8 +41,29 @@ function myRenderThatShouldBeOutside() {
   lastOutput = output
 }
 
-onMounted(myRenderThatShouldBeOutside)
-onUpdated(myRenderThatShouldBeOutside)
+let interval: NodeJS.Timer
+let needsUpdate = false
+onMounted(() => {
+  interval = setInterval(() => {
+    if (needsUpdate) {
+      myRenderThatShouldBeOutside()
+      needsUpdate = false
+    }
+  }, 32)
+  myRenderThatShouldBeOutside()
+})
+onUnmounted(() => {
+  clearInterval(interval)
+})
+
+function scheduleUpdate() {
+  needsUpdate = true
+}
+provide(scheduleUpdateSymbol, scheduleUpdate)
+
+onUpdated(() => {
+  scheduleUpdate()
+})
 
 const n = ref(0)
 onMounted(() => {
@@ -50,14 +74,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <ink-text v-for="i in n">Hello ({{ i }}) at {{ new Date() }}</ink-text>
-  <!-- <div> -->
-  <ink-text>Counter: {{ n }} </ink-text>
-  <!-- <tui-test hey="true" disabled> child </tui-test> -->
-  <!-- <div class="hello">child</div>
-    <p ref="root">
-      child
-      <span>hey</span>
-    </p> -->
-  <!-- </div> -->
+  <Span>Counter: {{ n }} </Span>
 </template>

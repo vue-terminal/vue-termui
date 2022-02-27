@@ -35,16 +35,35 @@ function removeNode(node: DOMNode) {
   // Queue an update of dom
 }
 
-function insertNode(el: DOMNode, parent: DOMElement) {
+function insertNode(el: DOMNode, parent: DOMElement, anchor?: DOMNode) {
+  // avoid adding empty node texts that are added by whitespace in between components:
+  // <One/> <Two/> -> renders an empty text space between one and two
+  // FIXME: can't do this because then vue fails at changing them
+  // if (
+  //   el.nodeName === '#comment' ||
+  //   (el.nodeName === '#text' && !el.nodeValue)
+  // ) {
+  //   return
+  // }
+
   if (el.parentNode) {
     // TODO: is this possible?
     console.error('TODO: REMOVE ME')
   }
 
-  parent.childNodes.push(el)
+  const insertAt = anchor ? parent.childNodes.indexOf(anchor) : -1 // insert at the end
+
+  if (insertAt >= 0) {
+    parent.childNodes.splice(insertAt, 0, el)
+  } else {
+    parent.childNodes.push(el)
+  }
 
   if (parent.yogaNode && el.yogaNode) {
-    parent.yogaNode.insertChild(el.yogaNode, parent.yogaNode.getChildCount())
+    parent.yogaNode.insertChild(
+      el.yogaNode,
+      insertAt >= 0 ? insertAt : parent.yogaNode.getChildCount()
+    )
   }
   el.parentNode = parent
 }
@@ -54,7 +73,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
   DOMElement
 >({
   patchProp(el, key, prevValue, nextValue) {
-    console.log('TODO: patchProp', { el, key, nextValue })
+    // console.log('TODO: patchProp', { el, key, nextValue })
   },
   insert: insertNode,
   remove: removeNode,
@@ -79,7 +98,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
   nextSibling(node) {
     if (!node.parentNode) return null
     const index = node.parentNode.childNodes.indexOf(node)
-    return index > -1 ? node.parentNode.childNodes[index + 1] : null
+    return (index >= 0 && node.parentNode.childNodes[index + 1]) || null
   },
 
   setElementText(node, text) {
@@ -164,7 +183,7 @@ function createApp(
   // FIXME: not used but vue complains about tui-test ....
   const TUI_ELEMENT_RE = /^tui-/
   app.config.compilerOptions.isCustomElement = (tag) => {
-    console.log('test ', tag)
+    // console.log('test ', tag)
     return true
     return TUI_ELEMENT_RE.test(tag)
   }
@@ -180,7 +199,7 @@ function createApp(
     log.clear()
 
     stdout.on('resize', onResize)
-    const rootEl = new DOMElement('ink-root')
+    const rootEl = new DOMElement('tui-root')
     rootEl.toString = () => `<Root>`
 
     newApp.provide(rootNodeSymbol, rootEl)
@@ -247,6 +266,8 @@ export {
   stdoutSymbol,
   useStdout,
 } from './injectionSymbols'
+
+export * from './components'
 
 export class TuiError extends Error {
   code: number | null

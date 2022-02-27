@@ -98,6 +98,7 @@ export default defineConfig({
         'type-fest',
         'widest-line',
         'wrap-ansi',
+        'yoga-layout',
         'yoga-layout-prebuilt',
       ],
 
@@ -125,8 +126,11 @@ export default defineConfig({
     Vue({
       template: {
         compilerOptions: {
-          isCustomElement: (tag) =>
-            tag.startsWith('ink-') || tag.startsWith('tui-'),
+          whitespace: 'condense',
+          comments: false,
+          isNativeTag: () => false,
+          // getTextMode: node => ???,
+          isCustomElement: (tag) => tag.startsWith('tui-'),
         },
       },
     }),
