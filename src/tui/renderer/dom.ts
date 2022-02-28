@@ -26,10 +26,47 @@ export class DOMElement extends TuiNode {
   constructor(nodeName: DOMElementName, parentNode: DOMElement | null = null) {
     super(parentNode)
     this.nodeName = nodeName
+    // text elements create their yoga nodes when they are inserted
+    // because they need to know their parent to become a virtual text (no yoga node)
+    // or a regular text node
+    if (nodeName !== 'tui-text' && nodeName !== 'tui-virtual-text') {
+      this.ensureYogaNode()
+    }
+  }
 
-    if (nodeName !== 'tui-virtual-text') {
+  insertNode(el: DOMNode, anchor?: DOMNode | null) {
+    if (
+      (this.nodeName === 'tui-text' || this.nodeName === 'tui-virtual-text') &&
+      el.nodeName === 'tui-text'
+    ) {
+      el.nodeName = 'tui-virtual-text'
+    }
+
+    if (el.nodeName !== '#text' && el.nodeName !== '#comment') {
+      el.ensureYogaNode()
+    }
+
+    const insertAt = anchor ? this.childNodes.indexOf(anchor) : -1 // insert at the end
+
+    if (insertAt >= 0) {
+      this.childNodes.splice(insertAt, 0, el)
+    } else {
+      this.childNodes.push(el)
+    }
+
+    if (this.yogaNode && el.yogaNode) {
+      this.yogaNode.insertChild(
+        el.yogaNode,
+        insertAt >= 0 ? insertAt : this.yogaNode.getChildCount()
+      )
+    }
+    el.parentNode = this
+  }
+
+  ensureYogaNode() {
+    if (!this.yogaNode && this.nodeName !== 'tui-virtual-text') {
       this.yogaNode = Yoga.Node.create()
-      if (nodeName === 'tui-text') {
+      if (this.nodeName === 'tui-text') {
         this.yogaNode.setMeasureFunc(measureTextNode.bind(null, this))
       }
     }

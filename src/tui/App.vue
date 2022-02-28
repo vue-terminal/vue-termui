@@ -7,7 +7,7 @@ import { scheduleUpdateSymbol } from './renderer/injectionSymbols'
 
 const log = useLog()
 
-onBeforeUpdate(() => {})
+onBeforeUpdate(() => { })
 
 const rootNode = useRootNode()
 const stdout = useStdout()
@@ -65,6 +65,11 @@ onUpdated(() => {
   scheduleUpdate()
 })
 
+onErrorCaptured((error, target) => {
+  console.error(error)
+  console.log(target)
+})
+
 const n = ref(0)
 onMounted(() => {
   setInterval(() => {
@@ -74,5 +79,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <Span>Counter: {{ n }} </Span>
+  <Span>
+    Counter:
+    <Span>heeh</Span>
+    {{ n }}
+    <Span>heeh {{ n }} isOdd: {{ n % 2 }}</Span>
+  </Span>
 </template>

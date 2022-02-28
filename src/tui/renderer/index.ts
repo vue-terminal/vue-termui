@@ -26,6 +26,8 @@ function removeNode(node: DOMNode) {
     // remove the yoga node as well
     if (node.yogaNode) {
       node.parentNode.yogaNode?.removeChild(node.yogaNode)
+      node.yogaNode.unsetMeasureFunc()
+      node.yogaNode.freeRecursive()
     }
 
     // detach from parent
@@ -35,39 +37,6 @@ function removeNode(node: DOMNode) {
   // Queue an update of dom
 }
 
-function insertNode(el: DOMNode, parent: DOMElement, anchor?: DOMNode) {
-  // avoid adding empty node texts that are added by whitespace in between components:
-  // <One/> <Two/> -> renders an empty text space between one and two
-  // FIXME: can't do this because then vue fails at changing them
-  // if (
-  //   el.nodeName === '#comment' ||
-  //   (el.nodeName === '#text' && !el.nodeValue)
-  // ) {
-  //   return
-  // }
-
-  if (el.parentNode) {
-    // TODO: is this possible?
-    console.error('TODO: REMOVE ME')
-  }
-
-  const insertAt = anchor ? parent.childNodes.indexOf(anchor) : -1 // insert at the end
-
-  if (insertAt >= 0) {
-    parent.childNodes.splice(insertAt, 0, el)
-  } else {
-    parent.childNodes.push(el)
-  }
-
-  if (parent.yogaNode && el.yogaNode) {
-    parent.yogaNode.insertChild(
-      el.yogaNode,
-      insertAt >= 0 ? insertAt : parent.yogaNode.getChildCount()
-    )
-  }
-  el.parentNode = parent
-}
-
 const { render, createApp: baseCreateApp } = createRenderer<
   DOMNode,
   DOMElement
@@ -75,7 +44,9 @@ const { render, createApp: baseCreateApp } = createRenderer<
   patchProp(el, key, prevValue, nextValue) {
     // console.log('TODO: patchProp', { el, key, nextValue })
   },
-  insert: insertNode,
+  insert(el, parent, anchor) {
+    parent.insertNode(el, anchor)
+  },
   remove: removeNode,
   createElement(type) {
     // TODO: runtime check valid values
@@ -109,7 +80,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
     if (textNode) {
       textNode.nodeValue = text
     } else {
-      insertNode(new TextNode(text), node)
+      node.insertNode(new TextNode(text))
     }
   },
   setText(node, text) {
