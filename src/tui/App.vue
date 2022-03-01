@@ -79,10 +79,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <Span>
+  <Span color="green">
     Counter:
-    <Span>heeh</Span>
-    {{ n }}
-    <Span>heeh {{ n }} isOdd: {{ n % 2 }}</Span>
+    <Span bold>{{ n }}</Span>.
+    <Span color="whiteBright">
+      is it Odd?
+      <Span :inverse="n % 2 == 0">
+        {{
+          n % 2 == 0 ? 'No' : 'Yes'
+        }}
+      </Span>
+    </Span>
   </Span>
 </template>

@@ -41,8 +41,13 @@ const { render, createApp: baseCreateApp } = createRenderer<
   DOMNode,
   DOMElement
 >({
-  patchProp(el, key, prevValue, nextValue) {
+  patchProp(el, key: keyof DOMElement, prevValue, nextValue) {
     // console.log('TODO: patchProp', { el, key, nextValue })
+    if (key === 'style') {
+      el.style = nextValue
+    } else if (key === 'internal_transform') {
+      el.internal_transform = nextValue
+    }
   },
   insert(el, parent, anchor) {
     parent.insertNode(el, anchor)
