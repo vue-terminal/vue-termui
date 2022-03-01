@@ -124,6 +124,18 @@ export default defineConfig({
       ],
     }),
     Vue({
+      script: {
+        templateOptions: {
+          compilerOptions: {
+            nodeTransforms: [
+              (node, context) => {
+                // context.
+                // return () => { }
+              },
+            ],
+          },
+        },
+      },
       template: {
         compilerOptions: {
           whitespace: 'condense',
