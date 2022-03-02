@@ -15,7 +15,11 @@ export class TuiNode {
   }
 }
 
-export type DOMElementName = 'tui-text' | 'tui-virtual-text' | 'tui-root'
+export type DOMElementName =
+  | 'tui-text'
+  | 'tui-virtual-text'
+  | 'tui-root'
+  | 'tui-box'
 export type NodeName = DOMElementName | '#text' | '#comment'
 
 export class DOMElement extends TuiNode {

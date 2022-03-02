@@ -72,6 +72,9 @@ const VueTuiExports: ImportsMap[string] = [
   ['TuiText', 'Span'],
   'TuiNewline',
   ['TuiNewline', 'Br'],
+  'TuiBox',
+  ['TuiBox', 'Div'],
+  ['TuiBox', 'Box'],
 ]
 
 export default defineConfig({

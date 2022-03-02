@@ -347,7 +347,7 @@ const applyBorderStyles = (node: YogaNode, style: Styles): void => {
   }
 }
 
-export default (node: YogaNode, style: Styles = {}): void => {
+export function applyStyles(node: YogaNode, style: Styles = {}) {
   applyPositionStyles(node, style)
   applyMarginStyles(node, style)
   applyPaddingStyles(node, style)

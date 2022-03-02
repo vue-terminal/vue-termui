@@ -6,6 +6,7 @@ import { wrapText } from './text'
 import { squashTextNodes } from './text'
 // import renderBorder from './render-border'
 import { Output, OutputTransformer } from './Output'
+import { renderBorders } from './renderBorders'
 
 // If parent container is `<Box>`, text nodes will be treated as separate nodes in
 // the tree and will have their own coordinates in the layout.
@@ -65,26 +66,7 @@ const renderNodeToOutput = (
       newTransformers = [node.internal_transform, ...transformers]
     }
 
-    if (node.nodeName === '#text') {
-      // TODO: remove this, only allow text inside Text or span component
-      let text = node.nodeValue
-
-      if (text.length > 0) {
-        const currentWidth = widestLine(text)
-        const maxWidth = getMaxWidth(yogaNode)
-
-        if (currentWidth > maxWidth) {
-          const textWrap = node.style.textWrap ?? 'wrap'
-          text = wrapText(text, maxWidth, textWrap)
-        }
-
-        text = applyPaddingToText(node, text)
-        // console.log('#text', { text, maxWidth })
-        output.write(x, y, text, { transformers: newTransformers })
-      }
-
-      return
-    } else if (node.nodeName === 'tui-text') {
+    if (node.nodeName === 'tui-text') {
       let text = squashTextNodes(node)
 
       if (text.length > 0) {
@@ -101,7 +83,13 @@ const renderNodeToOutput = (
       }
 
       return
-    } else if (node.nodeName === 'tui-root') {
+    }
+
+    if (node.nodeName === 'tui-box') {
+      renderBorders(x, y, node, output)
+    }
+
+    if (node.nodeName === 'tui-root' || node.nodeName === 'tui-box') {
       for (const childNode of node.childNodes) {
         renderNodeToOutput(childNode, output, {
           offsetX: x,
@@ -111,10 +99,6 @@ const renderNodeToOutput = (
         })
       }
     }
-
-    // if (node.nodeName === 'tui-box') {
-    // renderBorder(x, y, node, output)
-    // }
   }
 }
 

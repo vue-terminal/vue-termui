@@ -11,6 +11,7 @@ import {
 } from './dom'
 import { logSymbol, rootNodeSymbol, stdoutSymbol } from './injectionSymbols'
 import { TuiText, TuiNewline, TuiApp as RootApp } from './components'
+import { applyStyles } from './styles'
 
 function removeNode(node: DOMNode) {
   // recurse for children
@@ -46,6 +47,9 @@ const { render, createApp: baseCreateApp } = createRenderer<
     // console.log('TODO: patchProp', { el, key, nextValue })
     if (key === 'style') {
       el.style = nextValue
+      if (el.yogaNode) {
+        applyStyles(el.yogaNode, nextValue)
+      }
     } else if (key === 'internal_transform') {
       el.internal_transform = nextValue
     }
