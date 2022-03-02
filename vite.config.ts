@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
-const VueTuiExports = [
+import { ImportsMap } from 'unplugin-auto-import/types'
+
+const VueTuiExports: ImportsMap[string] = [
   // lifecycle
   'onActivated',
   'onBeforeMount',
@@ -65,6 +67,11 @@ const VueTuiExports = [
   'useLog',
   'useRootNode',
   'useStdout',
+  // components
+  'TuiText',
+  ['TuiText', 'Span'],
+  'TuiNewline',
+  ['TuiNewline', 'Br'],
 ]
 
 export default defineConfig({

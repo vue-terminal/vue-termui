@@ -10,6 +10,7 @@ import {
   DOMElementName,
 } from './dom'
 import { logSymbol, rootNodeSymbol, stdoutSymbol } from './injectionSymbols'
+import { TuiText, TuiNewline, TuiApp as RootApp } from './components'
 
 function removeNode(node: DOMNode) {
   // recurse for children
@@ -152,20 +153,23 @@ function createApp(
 ) {
   const log = createLog(stdout)
 
-  const app = baseCreateApp(rootComponent, rootProps)
+  const app = baseCreateApp(RootApp, {
+    root: rootComponent,
+    ...rootProps,
+  })
     .provide(logSymbol, log)
     .provide(stdoutSymbol, stdout)
 
-  // FIXME: not used but vue complains about tui-test ....
-  const TUI_ELEMENT_RE = /^tui-/
-  app.config.compilerOptions.isCustomElement = (tag) => {
-    // console.log('test ', tag)
-    return true
-    return TUI_ELEMENT_RE.test(tag)
-  }
+  // FIXME: do we need this?
+  app.config.compilerOptions.isCustomElement = (tag) =>
+    tag.startsWith('Tui') || tag.startsWith('tui-')
 
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
+  newApp.component('Span', TuiText)
+  newApp.component('TuiText', TuiText)
+  newApp.component('Br', TuiNewline)
+  newApp.component('TuiNewline', TuiNewline)
 
   const onResize = () => {
     // log('Resize')
@@ -233,6 +237,7 @@ export { render, createApp }
 
 // re-export Vue core APIs
 export * from '@vue/runtime-core'
+// export * from './vue-runtimeExports'
 
 export {
   useLog,

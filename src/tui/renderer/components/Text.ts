@@ -10,8 +10,8 @@ const defaultStyle: Styles = {
   flexDirection: 'row',
 }
 
-export const Span = defineComponent({
-  name: 'Span',
+export const TuiText = defineComponent({
+  name: 'TuiText',
 
   props: {
     color: String as PropType<ForegroundColor>,
