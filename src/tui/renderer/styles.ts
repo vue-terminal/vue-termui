@@ -128,6 +128,16 @@ export interface Styles {
   readonly minHeight?: number | string
 
   /**
+   * Sets a maximum width of the element.
+   */
+  readonly maxWidth?: number | string
+
+  /**
+   * Sets a maximum height of the element.
+   */
+  readonly maxHeight?: number | string
+
+  /**
    * Set this property to `none` to hide the element.
    */
   readonly display?: 'flex' | 'none'
@@ -294,6 +304,7 @@ const applyDimensionStyles = (node: YogaNode, style: Styles): void => {
   if ('width' in style) {
     if (typeof style.width === 'number') {
       node.setWidth(style.width)
+      // TODO: handle strings with endsWith %
     } else if (typeof style.width === 'string') {
       node.setWidthPercent(Number.parseInt(style.width, 10))
     } else {
@@ -324,6 +335,15 @@ const applyDimensionStyles = (node: YogaNode, style: Styles): void => {
       node.setMinHeightPercent(Number.parseInt(style.minHeight, 10))
     } else {
       node.setMinHeight(style.minHeight ?? 0)
+    }
+  }
+
+  if ('maxWidth' in style) {
+    const { maxWidth } = style
+    if (typeof maxWidth === 'string' && maxWidth.endsWith('%')) {
+      node.setMaxHeightPercent(Number.parseInt(maxWidth, 10))
+    } else {
+      node.setMaxWidth(maxWidth ?? 0)
     }
   }
 }

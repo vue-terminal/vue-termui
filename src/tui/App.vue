@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import { Boxes } from 'cli-boxes'
 import { TuiBox as Box } from 'vue-termui'
 
 const n = ref(0)
+const styles: Array<keyof Boxes> = [
+  'arrow',
+  'bold',
+  'classic',
+  'double',
+  'doubleSingle',
+  'round',
+  'single',
+  'singleDouble',
+]
 onMounted(() => {
   setInterval(() => {
     n.value++
@@ -10,8 +21,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <Box align-items="flex-end" justify="center" width="80" height="50">
-    <span color="red"
+  <Box
+    :borderStyle="styles[n % styles.length]"
+    :marginX="0"
+    :paddingX="1"
+    width="100%"
+    :maxWidth="80"
+    color="red"
+  >
+    <span
       >Counter: <span bold>{{ n }}</span
       >.
       <br />
@@ -21,8 +39,8 @@ onMounted(() => {
           {{ n % 2 == 0 ? 'No' : 'Yes' }}
         </span>
       </span>
-      <!-- <br /> -->
-      <!-- <Span inverse color="yellow">Hello</Span> -->
+      <br />
+      <Span color="yellow">Current style: {{ styles[n % styles.length] }}</Span>
     </span>
   </Box>
 </template>
