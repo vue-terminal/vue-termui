@@ -17,10 +17,10 @@
   },
   "include": [
     "auto-imports.d.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.d.ts",
+    "packages/*/src/**/*.vue",
+    "packages/*/vite.config.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

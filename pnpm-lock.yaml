@@ -24,6 +24,9 @@ importers:
       vue: 3.2.31
       vue-tsc: 0.31.4_typescript@4.6.2
 
+  packages/playground:
+    specifiers: {}
+
   packages/termui:
     specifiers:
       '@types/slice-ansi': ^5.0.0
@@ -60,6 +63,14 @@ importers:
     devDependencies:
       '@types/slice-ansi': 5.0.0
       '@types/wrap-ansi': 8.0.1
+
+  packages/xterm-playground:
+    specifiers:
+      vue-termui: workspace:*
+      xterm: ^4.18.0
+    dependencies:
+      vue-termui: link:../termui
+      xterm: 4.18.0
 
 packages:
 
@@ -1692,6 +1703,10 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+    dev: false
+
+  /xterm/4.18.0:
+    resolution: {integrity: sha512-JQoc1S0dti6SQfI0bK1AZvGnAxH4MVw45ZPFSO6FHTInAiau3Ix77fSxNx3mX4eh9OL4AYa8+4C8f5UvnSfppQ==}
     dev: false
 
   /y18n/5.0.8:

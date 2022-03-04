@@ -1,0 +1,14 @@
+{
+  "name": "xterm-playground",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue-termui": "workspace:*",
+    "xterm": "^4.18.0"
+  }
+}
