@@ -1,11 +1,15 @@
 {
   "name": "vue-termui",
-  "private": false,
   "version": "0.0.1",
+  "author": "Eduardo San Martin Morote",
+  "license": "MIT",
+  "private": false,
   "type": "module",
-  "types": "./dist/src",
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/src"
+    },
     "./vite": "./src/vite/index.ts"
   },
   "files": [
@@ -37,5 +41,17 @@
   "devDependencies": {
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1"
-  }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/posva/vue-termui.git",
+    "directory": "packages/termui"
+  },
+  "bugs": {
+    "url": "https://github.com/posva/vue-termui/issues"
+  },
+  "homepage": "https://github.com/posva/vue-termui#readme"
 }
