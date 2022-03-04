@@ -3,11 +3,15 @@
   "private": false,
   "version": "0.0.0",
   "type": "module",
+  "types": "./dist/src",
   "exports": {
     ".": "./dist/index.mjs",
     "./vite": "./src/vite/index.ts"
   },
   "files": [
+    "dist/index.mjs",
+    "dist/src/**/*.d.ts",
+    "src/vite",
     "LICENSE"
   ],
   "scripts": {

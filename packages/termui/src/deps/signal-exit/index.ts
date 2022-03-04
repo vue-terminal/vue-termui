@@ -1,7 +1,7 @@
 // @ts-nocheck
 import assert from 'node:assert'
 import EE from 'node:events'
-import allSignals from './signals'
+import allSignals, { Signal } from './signals'
 export type { Signal } from './signals'
 
 let signals = allSignals
@@ -47,9 +47,13 @@ if (emitter && !emitter.infinite) {
   emitter.infinite = true
 }
 
+export interface Options {
+  alwaysLast?: boolean
+}
+
 export function onExit(
-  cb: (code: number | null, signal: signalExit.Signal | null) => void,
-  opts?: signalExit.Options
+  cb: (code: number | null, signal: Signal | null) => void,
+  opts?: Options
 ): () => void {
   /* istanbul ignore if */
   if (!processOk(global.process)) {

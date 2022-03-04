@@ -273,9 +273,9 @@ export * from './components'
 
 export class TuiError extends Error {
   code: number | null
-  signal: Signal
+  signal: Signal | null
 
-  constructor(code: number | null, signal: Signal) {
+  constructor(code: number | null, signal: Signal | null) {
     super(`Program Interrupted with "${signal}" ${code ? `(${code})` : ''}`)
     this.code = code
     this.signal = signal

@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'VueTermui',
-      fileName: (format) => 'index.mjs',
+      fileName: () => 'index.mjs',
       formats: ['es'],
     },
     rollupOptions: {
