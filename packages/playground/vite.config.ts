@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
 
 export default defineConfig({
   mode: 'build',
   publicDir: false,
   resolve: {
     alias: {
-      // 'vue-termui': '../termui/src/index.ts',
+      'vue-termui': resolve('../termui/src/index.ts'),
     },
   },
   build: {

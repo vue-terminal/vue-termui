@@ -1,40 +1,49 @@
-import { createServer } from 'vite'
 import { ViteNodeServer } from 'vite-node/server'
 import { ViteNodeRunner } from 'vite-node/client'
+import { normalizeId } from 'vite-node/utils'
+import { createServer } from 'vite'
 
-async function main() {
-  // create vite server
-  const server = await createServer()
-  // this is need to initialize the plugins
+async function run() {
+  const server = await createServer({
+    logLevel: 'error',
+    clearScreen: false,
+  })
   await server.pluginContainer.buildStart({})
-  server.printUrls()
 
-  // create vite-node server
-  const node = new ViteNodeServer(server)
+  const node = new ViteNodeServer(server, {})
 
-  // create vite-node runner
   const runner = new ViteNodeRunner({
     root: server.config.root,
     base: server.config.base,
-    async resolveId(id, importer) {
+    fetchModule(id) {
+      return node.fetchModule(id)
+    },
+    resolveId(id, importer) {
       return node.resolveId(id, importer)
     },
-    // // when having the server and runner in a different context,
-    // // you will need to handle the communication between them
-    // // and pass to this function
-    async fetchModule(id) {
-      return node.fetchModule(id)
+    requestStubs: {
+      '/@vite/client': {
+        injectQuery: (id: string) => id,
+        createHotContext() {
+          return {
+            accept: () => {
+              // your custom logic
+            },
+            prune: () => {},
+          }
+        },
+        updateStyle() {},
+      },
     },
   })
 
-  // import('http:localhost:3000/demo/App.vue').then(console.log)
-  console.log(await runner.directRequest('./index.ts', './index.ts', []))
+  server.watcher.on('change', (i) => {
+    console.error('changed file', i)
+  })
 
-  // execute the file
-  // await runner.executeFile('./index.ts')
-
-  // close the vite server
-  await server.close()
+  // provide the vite define variable in this context
+  await runner.executeId('/@vite/env')
+  await runner.executeId('/index.ts')
 }
 
-main()
+run()

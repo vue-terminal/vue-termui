@@ -21,5 +21,3 @@ onMounted(() => {
 
   <div id="terminal"></div>
 </template>
-
-<style></style>

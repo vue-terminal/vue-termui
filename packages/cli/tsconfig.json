@@ -5,12 +5,17 @@
     "module": "esnext",
     "sourceMap": true,
     "lib": ["esnext"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "vue-termui": ["../termui/src/index.ts"]
+    }
   },
   "include": [
     "bin",
     "demo/**/*.vue",
+    "index.ts",
     "demo/*.vue",
+    "demo/*.d.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.vue",

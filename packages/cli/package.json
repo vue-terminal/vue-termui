@@ -8,8 +8,10 @@
     "build": "tsup-node --format esm --target esnext bin/index.ts"
   },
   "dependencies": {
-    "vue-termui": "workspace:*",
-    "vite-node": "^0.5.9"
+    "vite-node": "^0.5.9",
+    "vue-termui": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esno": "^0.14.1"
+  }
 }
