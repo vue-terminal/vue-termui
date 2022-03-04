@@ -1,0 +1,15 @@
+{
+  "name": "@vue-termui/cli",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "start": "node dist/index.mjs",
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "vue-termui": "workspace:*",
+    "vite-node": "^0.5.9"
+  },
+  "devDependencies": {}
+}
