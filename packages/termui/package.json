@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./vite": "./vite/index.ts"
+    ".": "./dist/index.mjs",
+    "./vite": "./src/vite/index.ts"
   },
   "files": [
     "LICENSE"
   ],
   "scripts": {
+    "types": "tsc --emitDeclarationOnly",
     "build": "vite build"
   },
   "dependencies": {

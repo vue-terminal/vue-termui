@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "outDir": "dist",
     "target": "esnext",
     "useDefineForClassFields": false,
     "module": "esnext",
@@ -10,6 +11,8 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "composite": true,
+    "skipLibCheck": true,
     "lib": ["esnext"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "vite.config.ts"]
