@@ -2,6 +2,11 @@
   "name": "vue-termui",
   "private": false,
   "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./vite": "./vite/index.ts"
+  },
   "files": [
     "LICENSE"
   ],
