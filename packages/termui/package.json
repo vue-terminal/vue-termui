@@ -11,9 +11,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev": "vite build --watch",
-    "start": "node dist/index.mjs",
-    "build": "echo TODO:"
+    "build": "vite build"
   },
   "dependencies": {
     "@vue/runtime-core": "^3.2.31",
