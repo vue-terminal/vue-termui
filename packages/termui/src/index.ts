@@ -82,6 +82,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
     return (index >= 0 && node.parentNode.childNodes[index + 1]) || null
   },
 
+  // TODO: When is this called?
   setElementText(node, text) {
     // console.log('setElementText', node, text)
     const textNode = node.childNodes.find(
@@ -92,11 +93,18 @@ const { render, createApp: baseCreateApp } = createRenderer<
     } else {
       node.insertNode(new TextNode(text))
     }
+    node.yogaNode?.markDirty()
   },
   setText(node, text) {
     // console.log('setText', text)
     if (node.nodeName === '#text' || node.nodeName === '#comment') {
       node.nodeValue = text
+      // mark the closest parent as dirty
+      let parent = node.parentNode
+      while (parent && !parent.yogaNode) {
+        parent = parent.parentNode
+      }
+      parent?.yogaNode?.markDirty()
     } else {
       console.error('TODO: setText', text)
       this.setElementText(node, text)
