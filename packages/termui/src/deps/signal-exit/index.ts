@@ -6,8 +6,11 @@ export type { Signal } from './signals'
 
 let signals = allSignals
 
+const hasProcess = typeof process !== 'undefined'
+
 const processOk = function (process: NodeJS.Process) {
   return (
+    hasProcess &&
     process &&
     typeof process === 'object' &&
     typeof process.removeListener === 'function' &&
@@ -22,22 +25,24 @@ const processOk = function (process: NodeJS.Process) {
 
 // some kind of non-node environment, just no-op
 /* istanbul ignore if */
-var isWin = /^win/i.test(process.platform)
+var isWin = hasProcess && /^win/i.test(process.platform)
 
 var emitter
-if (process.__signal_exit_emitter__) {
-  emitter = process.__signal_exit_emitter__
-} else {
-  emitter = process.__signal_exit_emitter__ = new EE()
-  emitter.count = 0
-  emitter.emitted = {}
+if (hasProcess) {
+  if (process.__signal_exit_emitter__) {
+    emitter = process.__signal_exit_emitter__
+  } else {
+    emitter = process.__signal_exit_emitter__ = new EE()
+    emitter.count = 0
+    emitter.emitted = {}
+  }
 }
 
 // Because this emitter is a global, we have to check to see if a
 // previous version of this library failed to enable infinite listeners.
 // I know what you're about to say.  But literally everything about
 // signal-exit is a compromise with evil.  Get used to it.
-if (!emitter.infinite) {
+if (emitter && !emitter.infinite) {
   emitter.setMaxListeners(Infinity)
   emitter.infinite = true
 }
@@ -165,7 +170,7 @@ var load = function load() {
 
 export { load }
 
-var originalProcessReallyExit = process.reallyExit
+var originalProcessReallyExit = hasProcess ? process.reallyExit : () => {}
 var processReallyExit = function processReallyExit(code) {
   /* istanbul ignore if */
   if (!processOk(global.process)) {
@@ -179,7 +184,7 @@ var processReallyExit = function processReallyExit(code) {
   originalProcessReallyExit.call(process, process.exitCode)
 }
 
-var originalProcessEmit = process.emit
+var originalProcessEmit = hasProcess ? process.emit : () => {}
 var processEmit = function processEmit(ev, arg) {
   if (ev === 'exit' && processOk(global.process)) {
     /* istanbul ignore else */

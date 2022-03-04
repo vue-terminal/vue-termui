@@ -29,7 +29,7 @@ export type Signal =
 
 const signals: Signal[] = ['SIGABRT', 'SIGALRM', 'SIGHUP', 'SIGINT', 'SIGTERM']
 
-if (process.platform !== 'win32') {
+if (typeof process !== 'undefined' && process.platform !== 'win32') {
   signals.push(
     'SIGVTALRM',
     'SIGXCPU',
@@ -45,7 +45,7 @@ if (process.platform !== 'win32') {
   )
 }
 
-if (process.platform === 'linux') {
+if (typeof process !== 'undefined' && process.platform === 'linux') {
   signals.push('SIGIO', 'SIGPOLL', 'SIGPWR', 'SIGSTKFLT', 'SIGUNUSED')
 }
 
