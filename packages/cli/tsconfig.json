@@ -4,10 +4,13 @@
     "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "baseUrl": "."
   },
   "include": [
     "bin",
+    "demo/**/*.vue",
+    "demo/*.vue",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.vue",

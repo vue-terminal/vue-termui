@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node dist/index.mjs",
-    "build": "vue-tsc --noEmit && vite build"
+    "build": "tsup-node --format esm --target esnext bin/index.ts"
   },
   "dependencies": {
     "vue-termui": "workspace:*",

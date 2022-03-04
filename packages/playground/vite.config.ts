@@ -7,7 +7,7 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: {
-      'vue-termui': '../termui/src/index.ts',
+      // 'vue-termui': '../termui/src/index.ts',
     },
   },
   build: {

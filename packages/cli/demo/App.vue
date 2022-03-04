@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Boxes } from 'cli-boxes'
-import { ForegroundColor } from 'chalk'
+import type { Boxes } from 'cli-boxes'
+import type { ForegroundColor } from 'chalk'
 import { TuiBox as Box, ref, onMounted } from 'vue-termui'
 
 const styles: Array<keyof Boxes> = [
