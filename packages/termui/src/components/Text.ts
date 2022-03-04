@@ -1,5 +1,11 @@
 import chalk, { ForegroundColor } from 'chalk'
-import { PropType, h, inject } from '@vue/runtime-core'
+import {
+  PropType,
+  h,
+  inject,
+  defineComponent,
+  onUpdated,
+} from '@vue/runtime-core'
 import { Styles } from '../styles'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import { colorize } from '../textColor'

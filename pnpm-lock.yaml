@@ -25,7 +25,10 @@ importers:
       vue-tsc: 0.31.4_typescript@4.6.2
 
   packages/playground:
-    specifiers: {}
+    specifiers:
+      vue-termui: workspace:*
+    dependencies:
+      vue-termui: link:../termui
 
   packages/termui:
     specifiers:

@@ -1,4 +1,12 @@
-import { h, provide } from '@vue/runtime-core'
+import {
+  h,
+  provide,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  onErrorCaptured,
+} from '@vue/runtime-core'
 import ansiEscapes from 'ansi-escapes'
 import { renderRoot } from '../render'
 import {

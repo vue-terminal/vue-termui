@@ -10,7 +10,7 @@ import {
   DOMElementName,
 } from './dom'
 import { logSymbol, rootNodeSymbol, stdoutSymbol } from './injectionSymbols'
-import { TuiText, TuiNewline, TuiApp as RootApp } from './components'
+import { TuiText, TuiNewline, TuiApp as RootApp, TuiBox } from './components'
 import { applyStyles } from './styles'
 
 function removeNode(node: DOMNode) {
@@ -170,10 +170,19 @@ function createApp(
 
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
-  newApp.component('Span', TuiText)
   newApp.component('TuiText', TuiText)
-  newApp.component('Br', TuiNewline)
+  newApp.component('Span', TuiText)
+  // newApp.component('span', TuiText)
+
   newApp.component('TuiNewline', TuiNewline)
+  newApp.component('Newline', TuiNewline)
+  newApp.component('Br', TuiNewline)
+  // newApp.component('br', TuiNewline)
+
+  newApp.component('TuiBox', TuiBox)
+  newApp.component('Box', TuiBox)
+  newApp.component('Div', TuiBox)
+  // newApp.component('div', TuiBox)
 
   const onResize = () => {
     // log('Resize')

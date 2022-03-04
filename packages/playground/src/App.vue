@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Boxes } from 'cli-boxes'
-import { TuiBox as Box } from 'vue-termui'
+import { ForegroundColor } from 'chalk'
+import { TuiBox as Box, ref, onMounted } from 'vue-termui'
 
-const n = ref(0)
 const styles: Array<keyof Boxes> = [
   'arrow',
   'bold',
@@ -13,6 +13,29 @@ const styles: Array<keyof Boxes> = [
   'single',
   'singleDouble',
 ]
+
+const colors: Array<ForegroundColor> = [
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'white',
+  'gray',
+  'grey',
+  'blackBright',
+  'redBright',
+  'greenBright',
+  'yellowBright',
+  'blueBright',
+  'magentaBright',
+  'cyanBright',
+  'whiteBright',
+]
+
+const n = ref(0)
 onMounted(() => {
   setInterval(() => {
     n.value++
@@ -23,24 +46,25 @@ onMounted(() => {
 <template>
   <Box
     :borderStyle="styles[n % styles.length]"
+    :borderColor="colors[n % colors.length]"
     :marginX="0"
     :paddingX="1"
     width="100%"
     :maxWidth="80"
     color="red"
   >
-    <span
+    <Span
       >Counter: <span bold>{{ n }}</span
       >.
-      <br />
+      <Br />
       <span color="blue"
         >is it Odd?
         <span :inverse="n % 2 == 0">
           {{ n % 2 == 0 ? 'No' : 'Yes' }}
         </span>
       </span>
-      <br />
+      <Br />
       <Span color="yellow">Current style: {{ styles[n % styles.length] }}</Span>
-    </span>
+    </Span>
   </Box>
 </template>
