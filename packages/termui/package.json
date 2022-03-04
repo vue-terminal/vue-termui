@@ -1,0 +1,33 @@
+{
+  "name": "vue-termui",
+  "private": false,
+  "version": "0.0.0",
+  "files": [
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "start": "node dist/index.mjs",
+    "build": "echo TODO:"
+  },
+  "dependencies": {
+    "@vue/runtime-core": "^3.2.31",
+    "ansi-escapes": "^5.0.0",
+    "chalk": "^5.0.0",
+    "cli-boxes": "^3.0.0",
+    "cli-cursor": "^4.0.0",
+    "cli-truncate": "^3.1.0",
+    "indent-string": "^5.0.0",
+    "slice-ansi": "^5.0.0",
+    "string-width": "^5.1.0",
+    "type-fest": "^2.12.0",
+    "widest-line": "^4.0.1",
+    "wrap-ansi": "^8.0.1",
+    "ws": "^8.5.0",
+    "yoga-layout-prebuilt": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/slice-ansi": "^5.0.0",
+    "@types/wrap-ansi": "^8.0.1"
+  }
+}

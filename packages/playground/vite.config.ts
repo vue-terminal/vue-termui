@@ -82,7 +82,7 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: {
-      'vue-termui': './src/tui/renderer/index.ts',
+      'vue-termui': '../termui/src/index.ts',
     },
   },
   build: {
@@ -90,7 +90,7 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     rollupOptions: {
-      input: ['src/tui/index.ts'],
+      input: ['src/main.ts'],
       external: [
         'events',
         'assert',
@@ -122,7 +122,7 @@ export default defineConfig({
       },
     },
     watch: {
-      include: ['src/tui/index.ts'],
+      include: ['src/main.ts'],
     },
   },
   plugins: [

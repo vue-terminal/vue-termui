@@ -1,0 +1,12 @@
+{
+  "name": "@vue-termui/playground",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite build --watch",
+    "start": "node dist/index.mjs",
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

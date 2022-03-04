@@ -1,5 +1,5 @@
 import { createRenderer, App, Component } from '@vue/runtime-core'
-import { onExit, Signal } from '../deps/signal-exit'
+import { onExit, Signal } from './deps/signal-exit'
 import cliCursor from 'cli-cursor'
 import { createLog } from './LogUpdate'
 import {
