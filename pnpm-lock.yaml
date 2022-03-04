@@ -23,6 +23,7 @@ specifiers:
   widest-line: ^4.0.1
   wrap-ansi: ^8.0.1
   ws: ^8.5.0
+  xterm: ^4.18.0
   yoga-layout-prebuilt: ^1.10.0
 
 dependencies:
@@ -51,6 +52,7 @@ devDependencies:
   vite: 2.8.4
   vue: 3.2.31
   vue-tsc: 0.31.4_typescript@4.5.5
+  xterm: 4.18.0
 
 packages:
 
@@ -1231,6 +1233,10 @@ packages:
       utf-8-validate:
         optional: true
     dev: false
+
+  /xterm/4.18.0:
+    resolution: {integrity: sha512-JQoc1S0dti6SQfI0bK1AZvGnAxH4MVw45ZPFSO6FHTInAiau3Ix77fSxNx3mX4eh9OL4AYa8+4C8f5UvnSfppQ==}
+    dev: true
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}

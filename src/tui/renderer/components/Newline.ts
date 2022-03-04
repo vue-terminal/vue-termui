@@ -1,11 +1,6 @@
-import { h } from '@vue/runtime-core'
+import { h, FunctionalComponent } from '@vue/runtime-core'
 
-export const TuiNewline = defineComponent({
-  name: 'TuiNewline',
-  props: {
-    n: Number,
-  },
-  setup(props) {
-    return () => h('tui-text', '\n'.repeat(props.n || 1))
-  },
-})
+export const TuiNewline: FunctionalComponent<{ n?: number }> = (props) =>
+  h('tui-text', '\n'.repeat(props.n ?? 1))
+
+TuiNewline.displayName = 'TuiNewline'
