@@ -6,10 +6,12 @@ import {
   onUnmounted,
   onUpdated,
   onErrorCaptured,
+  inject,
 } from '@vue/runtime-core'
 import ansiEscapes from 'ansi-escapes'
 import { renderRoot } from '../render'
 import {
+  renderOnceSymbol,
   scheduleUpdateSymbol,
   useLog,
   useRootNode,
@@ -64,14 +66,16 @@ export const TuiApp = defineComponent({
 
     let interval: NodeJS.Timer
     let needsUpdate = false
-
+    const renderOnce = inject(renderOnceSymbol, false)
     onMounted(() => {
-      interval = setInterval(() => {
-        if (needsUpdate) {
-          renderTuiApp()
-          needsUpdate = false
-        }
-      }, 32)
+      if (!renderOnce) {
+        interval = setInterval(() => {
+          if (needsUpdate) {
+            renderTuiApp()
+            needsUpdate = false
+          }
+        }, 32)
+      }
       renderTuiApp()
     })
 

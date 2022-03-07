@@ -153,10 +153,6 @@ async function run() {
   }
 
   await loadApp()
-
-  // server.watcher.on('all', (event, path, stats) => {
-  //   console.error({ event, path, stats })
-  // })
 }
 
 run()

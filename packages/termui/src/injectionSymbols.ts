@@ -26,3 +26,7 @@ export function useStdout() {
 export const scheduleUpdateSymbol = Symbol(
   'vue-termui:scheduleUpdate'
 ) as InjectionKey<() => void>
+
+export const renderOnceSymbol = Symbol(
+  'vue-termui:render-once'
+) as InjectionKey<boolean>

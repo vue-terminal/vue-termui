@@ -9,7 +9,12 @@ import {
   TextNode,
   DOMElementName,
 } from './dom'
-import { logSymbol, rootNodeSymbol, stdoutSymbol } from './injectionSymbols'
+import {
+  logSymbol,
+  rootNodeSymbol,
+  stdoutSymbol,
+  renderOnceSymbol,
+} from './injectionSymbols'
 import { TuiText, TuiNewline, TuiApp as RootApp, TuiBox } from './components'
 import { applyStyles } from './styles'
 
@@ -121,8 +126,15 @@ const { render, createApp: baseCreateApp } = createRenderer<
 
 type TODO = any
 
+export interface TuiAppMountOptions {
+  /**
+   * Render the application once and exit.
+   */
+  renderOnce: boolean
+}
+
 export interface TuiApp extends Omit<App<TODO>, 'mount'> {
-  mount(): TuiApp
+  mount(options?: Partial<TuiAppMountOptions>): TuiApp
 
   waitUntilExit(): Promise<void>
 }
@@ -145,8 +157,6 @@ export interface TuiAppOptions {
    * @default process.stderr
    */
   stderr?: NodeJS.WriteStream
-
-  waitUntilExit?: boolean
 }
 
 export type RootProps = Record<string, unknown>
@@ -156,10 +166,10 @@ const noop = () => {}
 function createApp(
   rootComponent: Component,
   {
+    // TODO: move this options to mount
     stdout = process.stdout,
     stdin = process.stdin,
     stderr = process.stderr,
-    waitUntilExit = true,
     ...rootProps
   }: RootProps & TuiAppOptions = {}
 ) {
@@ -195,7 +205,7 @@ function createApp(
   const onResize = () => {
     // log('Resize')
   }
-  newApp.mount = () => {
+  newApp.mount = ({ renderOnce = false } = {}) => {
     cliCursor.hide(stdout)
     log.clear()
 
@@ -204,6 +214,7 @@ function createApp(
     rootEl.toString = () => `<Root>`
 
     newApp.provide(rootNodeSymbol, rootEl)
+    newApp.provide(renderOnceSymbol, renderOnce)
 
     mount(rootEl)
     return newApp
@@ -231,15 +242,9 @@ function createApp(
     return exitPromise
   }
 
-  let interval: NodeJS.Timeout | undefined
-  if (waitUntilExit) {
-    interval = setInterval(noop, 999999)
-  }
-
   const removeOnExitListener = onExit((code, signal) => {
     console.log({ code, signal })
-    if (code !== 0 && interval) {
-      clearInterval(interval)
+    if (code !== 0) {
       // TODO: depending on the signal or code
       if (signal === 'SIGINT') {
         resolveExitPromise()

@@ -3,7 +3,10 @@
     "target": "ESNext",
     "composite": true,
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "vue-termui": ["../termui/src/index.ts"]
+    }
   },
   "include": ["vite.config.ts", "src", "bin", "demo"]
 }
