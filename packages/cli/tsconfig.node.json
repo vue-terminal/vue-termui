@@ -8,5 +8,5 @@
       "vue-termui": ["../termui/src/index.ts"]
     }
   },
-  "include": ["vite.config.ts", "src", "bin", "demo"]
+  "include": ["vite.config.ts", "src", "bin", "demo/*.vue"]
 }

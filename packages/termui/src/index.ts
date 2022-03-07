@@ -17,6 +17,7 @@ import {
 } from './injectionSymbols'
 import { TuiText, TuiNewline, TuiApp as RootApp, TuiBox } from './components'
 import { applyStyles } from './styles'
+import { OutputTransformer } from './Output'
 
 function removeNode(node: DOMNode) {
   // recurse for children
@@ -48,15 +49,27 @@ const { render, createApp: baseCreateApp } = createRenderer<
   DOMNode,
   DOMElement
 >({
-  patchProp(el, key: keyof DOMElement, prevValue, nextValue) {
+  patchProp(
+    el,
+    key: keyof DOMElement,
+    prevValue: Record<any, any> | null | undefined,
+    nextValue: Record<any, any> | null | undefined
+  ) {
     // console.log('TODO: patchProp', { el, key, nextValue })
     if (key === 'style') {
+      nextValue = nextValue || {}
+      // ensure any previously existing value is erased with undefined
+      for (const styleProperty in prevValue) {
+        if (!(styleProperty in nextValue)) {
+          nextValue[styleProperty] = undefined
+        }
+      }
       el.style = nextValue
       if (el.yogaNode) {
         applyStyles(el.yogaNode, nextValue)
       }
     } else if (key === 'internal_transform') {
-      el.internal_transform = nextValue
+      el.internal_transform = nextValue as OutputTransformer
     }
   },
   insert(el, parent, anchor) {

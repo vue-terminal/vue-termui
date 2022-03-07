@@ -19,6 +19,26 @@ export interface Styles {
   readonly position?: 'absolute' | 'relative'
 
   /**
+   * Top position.
+   */
+  readonly top?: number | string
+
+  /**
+   * Right position.
+   */
+  readonly right?: number | string
+
+  /**
+   * Bottom position.
+   */
+  readonly bottom?: number | string
+
+  /**
+   * Left position.
+   */
+  readonly left?: number | string
+
+  /**
    * Top margin.
    */
   readonly marginTop?: number
@@ -155,6 +175,9 @@ export interface Styles {
   readonly borderColor?: LiteralUnion<ForegroundColor, string>
 }
 
+// Passing NaN reset values that cannot be set to "auto"
+const RESET_VALUE = NaN
+
 const applyPositionStyles = (node: Yoga.YogaNode, style: Styles): void => {
   if ('position' in style) {
     node.setPositionType(
@@ -162,6 +185,41 @@ const applyPositionStyles = (node: Yoga.YogaNode, style: Styles): void => {
         ? Yoga.POSITION_TYPE_ABSOLUTE
         : Yoga.POSITION_TYPE_RELATIVE
     )
+  }
+
+  if ('top' in style) {
+    if (typeof style.top === 'string' && style.top.endsWith('%')) {
+      node.setPositionPercent(Yoga.EDGE_TOP, Number.parseInt(style.top, 10))
+    } else {
+      node.setPosition(Yoga.EDGE_TOP, style.top ?? RESET_VALUE)
+    }
+  }
+
+  if ('right' in style) {
+    if (typeof style.right === 'string' && style.right.endsWith('%')) {
+      node.setPositionPercent(Yoga.EDGE_RIGHT, Number.parseInt(style.right, 10))
+    } else {
+      node.setPosition(Yoga.EDGE_RIGHT, style.right ?? RESET_VALUE)
+    }
+  }
+
+  if ('bottom' in style) {
+    if (typeof style.bottom === 'string' && style.bottom.endsWith('%')) {
+      node.setPositionPercent(
+        Yoga.EDGE_BOTTOM,
+        Number.parseInt(style.bottom, 10)
+      )
+    } else {
+      node.setPosition(Yoga.EDGE_BOTTOM, style.bottom ?? RESET_VALUE)
+    }
+  }
+
+  if ('left' in style) {
+    if (typeof style.left === 'string' && style.left.endsWith('%')) {
+      node.setPositionPercent(Yoga.EDGE_LEFT, Number.parseInt(style.left, 10))
+    } else {
+      node.setPosition(Yoga.EDGE_LEFT, style.left ?? RESET_VALUE)
+    }
   }
 }
 
@@ -237,7 +295,7 @@ const applyFlexStyles = (node: YogaNode, style: Styles): void => {
       node.setFlexBasisPercent(Number.parseInt(style.flexBasis, 10))
     } else {
       // This should be replaced with node.setFlexBasisAuto() when new Yoga release is out
-      node.setFlexBasis(NaN)
+      node.setFlexBasis(RESET_VALUE)
     }
   }
 
@@ -326,7 +384,7 @@ const applyDimensionStyles = (node: YogaNode, style: Styles): void => {
     if (typeof style.minWidth === 'string') {
       node.setMinWidthPercent(Number.parseInt(style.minWidth, 10))
     } else {
-      node.setMinWidth(style.minWidth ?? 0)
+      node.setMinWidth(style.minWidth ?? RESET_VALUE)
     }
   }
 
@@ -334,16 +392,24 @@ const applyDimensionStyles = (node: YogaNode, style: Styles): void => {
     if (typeof style.minHeight === 'string') {
       node.setMinHeightPercent(Number.parseInt(style.minHeight, 10))
     } else {
-      node.setMinHeight(style.minHeight ?? 0)
+      node.setMinHeight(style.minHeight ?? RESET_VALUE)
     }
   }
 
   if ('maxWidth' in style) {
     const { maxWidth } = style
     if (typeof maxWidth === 'string' && maxWidth.endsWith('%')) {
-      node.setMaxHeightPercent(Number.parseInt(maxWidth, 10))
+      node.setMaxWidthPercent(Number.parseInt(maxWidth, 10))
     } else {
-      node.setMaxWidth(maxWidth ?? 0)
+      node.setMaxWidth(maxWidth ?? RESET_VALUE)
+    }
+  }
+  if ('maxHeight' in style) {
+    const { maxHeight } = style
+    if (typeof maxHeight === 'string' && maxHeight.endsWith('%')) {
+      node.setMaxHeightPercent(Number.parseInt(maxHeight, 10))
+    } else {
+      node.setMaxHeight(maxHeight ?? RESET_VALUE)
     }
   }
 }
@@ -358,7 +424,7 @@ const applyDisplayStyles = (node: YogaNode, style: Styles): void => {
 
 const applyBorderStyles = (node: YogaNode, style: Styles): void => {
   if ('borderStyle' in style) {
-    const borderWidth = typeof style.borderStyle === 'string' ? 1 : 0
+    const borderWidth = style.borderStyle ? 1 : 0
 
     node.setBorder(Yoga.EDGE_TOP, borderWidth)
     node.setBorder(Yoga.EDGE_BOTTOM, borderWidth)

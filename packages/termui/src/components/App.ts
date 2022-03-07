@@ -93,6 +93,8 @@ export const TuiApp = defineComponent({
     })
 
     onErrorCaptured((error, target) => {
+      debugger
+      console.error('Captured Error')
       console.error(error)
       console.log(target)
     })

@@ -9,7 +9,7 @@ export function renderBorders(
   node: DOMNode,
   output: Output
 ) {
-  if (typeof node.style.borderStyle === 'string') {
+  if (typeof node.style.borderStyle === 'string' && node.style.borderStyle) {
     const width = node.yogaNode!.getComputedWidth()
     const height = node.yogaNode!.getComputedHeight()
     const color = node.style.borderColor

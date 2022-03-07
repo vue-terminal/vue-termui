@@ -46,27 +46,63 @@ onMounted(() => {
 
 <template>
   <Box
-    :borderStyle="styles[n % styles.length]"
-    :borderColor="colors[n % colors.length]"
-    :marginX="0"
-    :paddingX="1"
     width="100%"
-    :maxWidth="80"
-    color="red"
+    justifyContent="flex-end"
+    :height="20"
+    alignItems="flex-end"
+    borderStyle="round"
   >
-    <Span>
-      <template v-if="n % 2">
-        <Counter />.
-        <Br />
-      </template>
-      <span color="blue"
-        >is it Odd?
-        <span :inverse="n % 2 == 0">
-          {{ n % 2 == 0 ? 'No' : 'Yes' }}
+    <Box
+      :borderStyle="styles[n % styles.length]"
+      :borderColor="colors[n % colors.length]"
+      :marginX="2"
+      :paddingX="1"
+      width="100%"
+      :minHeight="5"
+      :maxHeight="8"
+      :maxWidth="75"
+      justifyContent="flex-start"
+      position="relative"
+    >
+      <Span dimmed>
+        <template v-if="n % 2">
+          <Counter />.
+          <Br />
+        </template>
+        <span color="blue"
+          >is it Odd?
+          <span :inverse="n % 3 == 0">
+            {{ n % 2 == 0 ? 'No' : 'Yes' }}
+          </span>
         </span>
-      </span>
-      <Br />
-      <Span color="yellow">Current style: {{ styles[n % styles.length] }}</Span>
-    </Span>
+        <Br :n="2" />
+        <Span :dimmed="false"
+          >Current style: {{ styles[n % styles.length] }}</Span
+        >
+      </Span>
+    </Box>
+    <Box
+      borderStyle="bold"
+      alignSelf="auto"
+      :minWidth="34"
+      width="50%"
+      :maxWidth="50"
+      :paddingX="2"
+    >
+      <Span>
+        <template v-if="n % 2">
+          <Counter />.
+          <Br />
+        </template>
+        <span color="blue"
+          >is it Odd?
+          <span :inverse="n % 3 == 0">
+            {{ n % 2 == 0 ? 'No' : 'Yes' }}
+          </span>
+        </span>
+        <Br :n="2" />
+        <Span>Current style: {{ styles[n % styles.length] }}</Span>
+      </Span>
+    </Box>
   </Box>
 </template>
