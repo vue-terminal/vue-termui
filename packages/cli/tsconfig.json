@@ -7,6 +7,7 @@
     "lib": ["esnext"]
   },
   "include": [
+    "vite.config.ts",
     "bin/**/*.ts",
     "bin/*.ts",
     "demo/**/*.vue",
@@ -17,6 +18,5 @@
     "src/**/*.d.ts",
     "src/**/*.vue",
     "./auto-imports.d.ts"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  ]
 }

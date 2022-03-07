@@ -104,7 +104,7 @@ async function run() {
         pruneMap.set(ownerPath, cb)
       },
 
-      invalidate(...args) {
+      invalidate(...args: any[]) {
         // TODO: is this called?
         console.error('invalidate', ...args)
       },
