@@ -70,7 +70,7 @@ export function squashTextNodes(node: DOMElement): string {
     for (const childNode of node.childNodes) {
       let nodeText = ''
 
-      if (childNode.nodeName === '#text' || childNode.nodeName === '#comment') {
+      if (childNode.nodeName === '#text') {
         nodeText = childNode.nodeValue
       } else {
         if (

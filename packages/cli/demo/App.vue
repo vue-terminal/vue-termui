@@ -2,6 +2,7 @@
 import type { Boxes } from 'cli-boxes'
 import type { ForegroundColor } from 'chalk'
 import { TuiBox as Box, ref, onMounted } from 'vue-termui'
+import Counter from './Counter.vue'
 
 const styles: Array<keyof Boxes> = [
   'arrow',
@@ -53,10 +54,11 @@ onMounted(() => {
     :maxWidth="80"
     color="red"
   >
-    <Span
-      >Counter: <span bold>{{ n }}</span
-      >.
-      <Br />
+    <Span>
+      <template v-if="n % 2">
+        <Counter />.
+        <Br />
+      </template>
       <span color="blue"
         >is it Odd?
         <span :inverse="n % 2 == 0">

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "esno bin/index.ts",
     "start": "node dist/index.mjs",
     "build": "tsup-node --format esm --target esnext bin/index.ts"
   },
