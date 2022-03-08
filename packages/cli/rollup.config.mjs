@@ -18,13 +18,13 @@ const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')))
 // import pkg from './package.json'
 
 const entries = [
-  // vite plugin
-  // 'src/index.ts',
+  // commands because why not
+  'src/index.ts',
   // cli app
   'src/cli.ts',
 ]
 
-const dtsEntries = []
+const dtsEntries = ['src/index.ts']
 
 const external = [
   ...Object.keys(pkg.dependencies),

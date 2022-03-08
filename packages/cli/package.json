@@ -27,7 +27,7 @@
   "files": [
     "dist/**/*.js",
     "dist/**/*.d.ts",
-    "*.mjs"
+    "vtui.mjs"
   ],
   "dependencies": {
     "picocolors": "^1.0.0",

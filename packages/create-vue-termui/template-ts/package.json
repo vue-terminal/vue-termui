@@ -10,6 +10,7 @@
     "vue-termui": "*"
   },
   "devDependencies": {
+    "@types/node": "^17.0.21",
     "@vue-termui/cli": "*",
     "vite-plugin-vue-termui": "*",
     "typescript": "^4.5.4"
