@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import VueTermui from './src'
+import VueTermui from 'vite-plugin-vue-termui'
 import { resolve } from 'path'
 
 export default defineConfig({

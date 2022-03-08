@@ -13,7 +13,8 @@
     "esModuleInterop": true,
     "lib": ["esnext"],
     "paths": {
-      "vue-termui": ["packages/termui/src/index.ts"]
+      "vue-termui": ["packages/termui/src/index.ts"],
+      "vite-plugin-vue-termui": ["packages/vite-plugin-vue-termui/src/index.ts"]
     }
   },
   "include": [

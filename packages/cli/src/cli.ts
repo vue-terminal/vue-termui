@@ -1,7 +1,7 @@
 import cac from 'cac'
-import chalk from 'chalk'
-import { version } from '../package.json'
+import c from 'picocolors'
 import { runDevServer } from './commands/dev'
+import { version } from '../package.json'
 
 const cli = cac('vtui')
 
@@ -31,7 +31,7 @@ cli
 cli.on('command:*', () => {
   console.log()
   console.error(
-    chalk.red.inverse(' ERROR ') + chalk.whiteBright(' Unknown command: %s'),
+    c.inverse(c.red(' ERROR ')) + c.white(' Unknown command: %s'),
     cli.args.join(' ')
   )
   console.log()
