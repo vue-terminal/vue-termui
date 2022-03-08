@@ -1,6 +1,7 @@
 {
   "name": "vite-plugin-vue-termui",
   "private": false,
+  "type": "module",
   "version": "0.0.0",
   "scripts": {
     "dev": "esmo src/cli.ts",
