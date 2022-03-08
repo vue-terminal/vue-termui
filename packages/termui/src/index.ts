@@ -201,6 +201,7 @@ function createApp(
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
   newApp.component('TuiText', TuiText)
+  newApp.component('Text', TuiText)
   newApp.component('Span', TuiText)
   // newApp.component('span', TuiText)
 
