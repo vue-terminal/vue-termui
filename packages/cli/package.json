@@ -1,17 +1,54 @@
 {
   "name": "@vue-termui/cli",
-  "private": true,
+  "private": false,
+  "type": "module",
   "version": "0.0.0",
   "scripts": {
-    "dev": "esno bin/index.ts",
+    "dev": "esmo src/cli.ts",
     "start": "node dist/index.mjs",
-    "build": "tsup-node --format esm --target esnext bin/index.ts"
+    "build": "rimraf dist && rollup -c"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./*"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "vtui": "./vtui.mjs"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "*.d.ts",
+    "*.mjs"
+  ],
   "dependencies": {
-    "vite-node": "^0.5.9",
-    "vue-termui": "workspace:*"
+    "vite": "^2.8.6",
+    "vite-node": "^0.5.9"
+  },
+  "peerDependencies": {
+    "vue-termui": "latest"
   },
   "devDependencies": {
-    "esno": "^0.14.1"
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "cac": "^6.7.12",
+    "esbuild": "^0.14.25",
+    "esno": "^0.14.1",
+    "fast-glob": "^3.2.11",
+    "pathe": "^0.2.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.70.0",
+    "rollup-plugin-dts": "^4.2.0",
+    "rollup-plugin-esbuild": "^4.8.2",
+    "rollup-plugin-license": "^2.6.1",
+    "vue-termui": "workspace:*"
   }
 }
