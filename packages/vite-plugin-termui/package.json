@@ -1,0 +1,30 @@
+{
+  "name": "vite-plugin-vue-termui",
+  "private": false,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "esmo src/cli.ts",
+    "start": "node dist/index.mjs",
+    "build": "tsup"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*.mjs",
+    "dist/*.d.ts"
+  ],
+  "peerDependencies": {
+    "@vitejs/plugin-vue": "^2.2.0",
+    "vue-termui": "latest"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.2.0",
+    "vue-termui": "workspace:*"
+  }
+}
