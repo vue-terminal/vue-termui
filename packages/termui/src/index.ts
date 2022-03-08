@@ -129,8 +129,7 @@ const { render, createApp: baseCreateApp } = createRenderer<
     }
   },
   cloneNode(node) {
-    console.error('TODO: clone')
-    return node
+    return node.clone()
   },
   // setScopeId(el, id) {
   //   console.log('setScopeId', el, id)

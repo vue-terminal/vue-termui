@@ -13,6 +13,11 @@ export class TuiNode {
   constructor(parentNode: DOMElement | null) {
     this.parentNode = parentNode
   }
+
+  clone(): DOMNode {
+    // this must be implemented by each extend
+    throw new Error('clone method not implemented')
+  }
 }
 
 export type DOMElementName =
@@ -36,6 +41,20 @@ export class DOMElement extends TuiNode {
     if (nodeName !== 'tui-text' && nodeName !== 'tui-virtual-text') {
       this.ensureYogaNode()
     }
+  }
+
+  clone(): DOMElement {
+    const copy = new DOMElement(this.nodeName, this.parentNode)
+    copy.internal_static = this.internal_static
+    copy.childNodes = this.childNodes.map((node) => node.clone())
+    if (this.yogaNode && copy.yogaNode) {
+      this.yogaNode.copyStyle(copy.yogaNode)
+    }
+    // copy.staticNode // TODO:
+    // cannot be copied because it contain references to props
+    // copy.internal_transform = this.internal_transform
+
+    return copy
   }
 
   insertNode(el: DOMNode, anchor?: DOMNode | null) {
@@ -85,6 +104,10 @@ export class TextNode extends TuiNode {
     super(parentNode)
     this.nodeValue = nodeValue
   }
+
+  clone(): TextNode {
+    return new TextNode(this.nodeValue, this.parentNode)
+  }
 }
 
 export class CommentNode extends TuiNode {
@@ -94,6 +117,10 @@ export class CommentNode extends TuiNode {
   constructor(nodeValue: string, parentNode: DOMElement | null = null) {
     super(parentNode)
     this.nodeValue = nodeValue
+  }
+
+  clone(): CommentNode {
+    return new CommentNode(this.nodeValue, this.parentNode)
   }
 }
 
