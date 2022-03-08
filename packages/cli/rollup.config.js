@@ -155,7 +155,7 @@ function licensePlugin() {
                 .trim()
                 .replace(/(\r\n|\r)/gm, '\n')
                 .split('\n')
-                .map((line) => `> ${line}`)
+                .map((line) => `> ${line}`.trimEnd())
                 .join('\n')}\n`
             }
             licenses.add(license)
