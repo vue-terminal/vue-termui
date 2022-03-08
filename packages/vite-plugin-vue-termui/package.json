@@ -22,7 +22,7 @@
   ],
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "vue-termui": "latest"
+    "vue-termui": "^0.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
