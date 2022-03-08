@@ -16,9 +16,10 @@ setInterval(() => {
     :maxWidth="50"
     justifyContent="center"
     alignItems="center"
+    borderColor="yellowBright"
     borderStyle="round"
   >
-    <Text bold color="brightMagenta">Hello World </Text>
+    <Text color="cyanBright">Hello World </Text>
     <Text>{{ n % 2 ? '👋 ' : ' ✋' }}</Text>
   </Box>
 </template>
