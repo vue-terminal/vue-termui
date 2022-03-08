@@ -18,6 +18,7 @@ setInterval(() => {
     alignItems="center"
     borderStyle="round"
   >
-    <Text bold color="green">Hello World {{ n % 2 ? ' 👋' : '👋 ' }}</Text>
+    <Text bold color="brightMagenta">Hello World </Text>
+    <Text>{{ n % 2 ? '👋 ' : ' ✋' }}</Text>
   </Box>
 </template>
