@@ -1,3 +1,4 @@
+// @ts-check
 import fs from 'fs'
 import path from 'pathe'
 import esbuild from 'rollup-plugin-esbuild'
@@ -9,8 +10,12 @@ import alias from '@rollup/plugin-alias'
 import license from 'rollup-plugin-license'
 import chalk from 'chalk'
 import fg from 'fast-glob'
+import { fileURLToPath } from 'url'
 
-import pkg from './package.json'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')))
+
+// import pkg from './package.json'
 
 const entries = [
   // vite plugin
@@ -19,11 +24,15 @@ const entries = [
   'src/cli.ts',
 ]
 
-const dtsEntries = ['src/index.ts']
+const dtsEntries = []
 
 const external = [
   ...Object.keys(pkg.dependencies),
   ...Object.keys(pkg.peerDependencies),
+  'vite-node/server',
+  'vite-node/client',
+  'vite-node/utils',
+  'path', // huh?
 ]
 
 const plugins = [
@@ -139,9 +148,7 @@ function licensePlugin() {
             if (!licenseText) {
               try {
                 const pkgDir = path.dirname(
-                  resolve(path.join(name, 'package.json'), {
-                    preserveSymlinks: false,
-                  })
+                  path.resolve(path.join(name, 'package.json'))
                 )
                 const licenseFile = fg.sync(`${pkgDir}/LICENSE*`, {
                   caseSensitiveMatch: false,
