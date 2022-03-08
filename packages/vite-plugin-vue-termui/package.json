@@ -17,12 +17,14 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
+    "dist/*.js",
+    "dist/*.cjs",
     "dist/*.mjs",
     "dist/*.d.ts"
   ],
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "vue-termui": "^0.0.0"
+    "vue-termui": "^0.0.0-0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
