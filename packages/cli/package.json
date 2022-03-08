@@ -1,6 +1,9 @@
 {
   "name": "@vue-termui/cli",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "version": "0.0.0",
   "scripts": {
@@ -22,9 +25,8 @@
     "vtui": "./vtui.mjs"
   },
   "files": [
-    "dist",
-    "bin",
-    "*.d.ts",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "*.mjs"
   ],
   "dependencies": {
