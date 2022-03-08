@@ -4,7 +4,7 @@ import { normalizeId } from 'vite-node/utils'
 import { createServer, HmrContext } from 'vite'
 import { resolve } from 'path'
 
-export async function runDevServer() {
+export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
     logLevel: 'error',
     clearScreen: false,
@@ -111,7 +111,7 @@ export async function runDevServer() {
     }
   }
 
-  const entryPointId = '/index.ts'
+  const entryPointId = `/${entryFile}`
   const entryPoint = resolve('.' + entryPointId)
 
   server.watcher.on('change', async (fullPath) => {

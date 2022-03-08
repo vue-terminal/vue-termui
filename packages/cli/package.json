@@ -7,7 +7,7 @@
   "type": "module",
   "version": "0.0.3",
   "scripts": {
-    "dev": "esmo src/cli.ts",
+    "dev": "esmo src/cli.ts dev demo/main.ts",
     "start": "node dist/index.mjs",
     "build": "rimraf dist && rollup -c"
   },
