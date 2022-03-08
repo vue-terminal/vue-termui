@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-vue-termui",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "dev": "tsup -w",
     "build": "tsup"
@@ -22,9 +22,11 @@
     "dist/*.mjs",
     "dist/*.d.ts"
   ],
+  "dependencies": {
+    "@vitejs/plugin-vue": "^2.2.0"
+  },
   "peerDependencies": {
-    "@vitejs/plugin-vue": "^2.2.0",
-    "vue-termui": "^0.0.1"
+    "vue-termui": ">=0.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
