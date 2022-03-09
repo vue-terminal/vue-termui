@@ -6,7 +6,7 @@ const n = ref(0)
 onMounted(() => {
   setInterval(() => {
     n.value++
-  }, 1)
+  }, 100)
 })
 </script>
 

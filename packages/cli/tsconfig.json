@@ -4,6 +4,7 @@
     "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
+    "types": ["vite/client"],
     "lib": ["esnext"]
   },
   "include": [
@@ -11,7 +12,7 @@
     "bin/**/*.ts",
     "bin/*.ts",
     "demo/**/*.vue",
-    "index.ts",
+    "demo/**/*.ts",
     "demo/*.vue",
     "demo/*.d.ts",
     "src/**/*.ts",

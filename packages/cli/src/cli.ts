@@ -1,6 +1,7 @@
 import cac from 'cac'
 import c from 'picocolors'
 import { runDevServer } from './commands/dev'
+import { buildCommand } from './commands/build'
 import { version } from '../package.json'
 
 const cli = cac('vtui')
@@ -9,8 +10,6 @@ cli
   .version(version)
   .option('-c, --config <path>', 'path to vite config file')
   .help()
-
-const TODO = () => {}
 
 cli
   .command(
@@ -26,7 +25,7 @@ cli
     'Build the application for production. "entryFile" defaults to src/main.ts.'
   )
   .usage('build [src/main.ts]')
-  .action(TODO)
+  .action(buildCommand)
 
 cli.on('command:*', () => {
   console.log()
@@ -39,4 +38,5 @@ cli.on('command:*', () => {
   process.exit(1)
 })
 
+// TODO: maybe https://github.com/cacjs/cac#error-handling
 cli.parse()

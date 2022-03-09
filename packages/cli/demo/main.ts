@@ -1,3 +1,5 @@
+// import devtools from '@vue/devtools'
+// import devtools from '@vue/devtools/node'
 import { createApp } from 'vue-termui'
 import App from './CenteredDemo.vue'
 // import App from './demo/App.vue'
