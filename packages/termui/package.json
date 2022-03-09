@@ -20,7 +20,8 @@
   ],
   "scripts": {
     "types": "tsc --emitDeclarationOnly",
-    "build": "vite build"
+    "build": "vite build",
+    "prepublishOnly": "npm run build && npm run types"
   },
   "dependencies": {
     "@vue/runtime-core": "^3.2.31",
