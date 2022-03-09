@@ -9,9 +9,10 @@ export default function VueTermui(): Plugin[] {
       config() {
         return {
           build: {
+            target: 'node14',
             rollupOptions: {
-              input: './index.ts',
               external: [
+                'vue-termui',
                 'events',
                 'assert',
                 'node:events',
