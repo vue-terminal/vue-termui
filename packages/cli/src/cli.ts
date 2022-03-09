@@ -11,13 +11,7 @@ cli
   .option('-c, --config <path>', 'path to vite config file')
   .help()
 
-cli
-  .command(
-    'dev [entryFile]',
-    'Runs a development server with HMR. "entryFile" defaults to src/main.ts.'
-  )
-  .usage('dev [src/main.ts]')
-  .action(runDevServer)
+cli.command('[entryFile]', 'Same as build command').action(buildCommand)
 
 cli
   .command(
@@ -26,6 +20,14 @@ cli
   )
   .usage('build [src/main.ts]')
   .action(buildCommand)
+
+cli
+  .command(
+    'dev [entryFile]',
+    'Runs a development server with HMR. "entryFile" defaults to src/main.ts.'
+  )
+  .usage('dev [src/main.ts]')
+  .action(runDevServer)
 
 cli.on('command:*', () => {
   console.log()

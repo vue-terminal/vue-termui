@@ -6,11 +6,12 @@ export default function VueTermui(): Plugin[] {
     {
       name: 'vue-termui',
 
-      config() {
+      config(config) {
         return {
           build: {
             target: 'node14',
             rollupOptions: {
+              // allows working directly with vite
               input: config.build?.rollupOptions?.input || 'src/main.ts',
               external: [
                 'vue-termui',
