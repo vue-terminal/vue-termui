@@ -11,6 +11,7 @@ export default function VueTermui(): Plugin[] {
           build: {
             target: 'node14',
             rollupOptions: {
+              input: config.build?.rollupOptions?.input || 'src/main.ts',
               external: [
                 'vue-termui',
                 'events',
