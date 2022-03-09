@@ -32,10 +32,10 @@
   ],
   "dependencies": {
     "picocolors": "^1.0.0",
-    "vite": "^2.8.6",
     "vite-node": "^0.5.9"
   },
   "peerDependencies": {
+    "vite": "^2.8.6",
     "vite-plugin-vue-termui": ">=0.0.1",
     "vue-termui": ">=0.0.1"
   },

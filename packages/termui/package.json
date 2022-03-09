@@ -24,7 +24,6 @@
     "prepublishOnly": "npm run build && npm run types"
   },
   "dependencies": {
-    "@vue/runtime-core": "^3.2.31",
     "ansi-escapes": "^5.0.0",
     "chalk": "^5.0.0",
     "cli-boxes": "^3.0.0",
@@ -36,12 +35,15 @@
     "type-fest": "^2.12.0",
     "widest-line": "^4.0.1",
     "wrap-ansi": "^8.0.1",
-    "ws": "^8.5.0",
     "yoga-layout-prebuilt": "^1.10.0"
+  },
+  "peerDependencies": {
+    "@vue/runtime-core": "^3.2.31"
   },
   "devDependencies": {
     "@types/slice-ansi": "^5.0.0",
-    "@types/wrap-ansi": "^8.0.1"
+    "@types/wrap-ansi": "^8.0.1",
+    "@vue/runtime-core": "^3.2.31"
   },
   "engines": {
     "node": ">=14.0.0"

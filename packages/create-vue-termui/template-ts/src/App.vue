@@ -5,7 +5,7 @@ const n = ref(0)
 
 setInterval(() => {
   n.value++
-}, 1000)
+}, 600)
 </script>
 
 <template>

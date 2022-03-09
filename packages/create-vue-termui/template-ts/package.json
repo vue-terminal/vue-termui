@@ -2,20 +2,25 @@
   "name": "vue-termui-ts-starter",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "vtui-app": "./dist/main.mjs"
+  },
   "scripts": {
     "dev": "vtui dev",
     "build": "vtui build"
   },
   "dependencies": {
+    "@vue/runtime-core": "^3.2.25",
     "vue-termui": "*"
   },
   "devDependencies": {
-    "@types/node": "^17.0.21",
+    "@types/node": "^16.0.0",
     "@vue-termui/cli": "*",
-    "vite-plugin-vue-termui": "*",
     "@vitejs/plugin-vue": "^2.2.4",
+    "typescript": "^4.5.4",
     "vite": "^2.5.10",
-    "vue": "^3.2.25",
-    "typescript": "^4.5.4"
+    "vite-plugin-vue-termui": "*",
+    "vue": "^3.2.25"
   }
 }
