@@ -18,6 +18,8 @@ import {
 import { TuiText, TuiNewline, TuiApp as RootApp, TuiBox } from './components'
 import { applyStyles } from './styles'
 import { OutputTransformer } from './Output'
+import { attachKeyboardHandler } from './composables/keyboard'
+export { onKeypress } from './composables/keyboard'
 
 function removeNode(node: DOMNode) {
   // recurse for children
@@ -228,6 +230,7 @@ function createApp(
 
     newApp.provide(rootNodeSymbol, rootEl)
     newApp.provide(renderOnceSymbol, renderOnce)
+    attachKeyboardHandler(app, stdin)
 
     mount(rootEl)
     return newApp
