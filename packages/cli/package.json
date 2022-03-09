@@ -5,7 +5,7 @@
     "access": "public"
   },
   "type": "module",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "scripts": {
     "dev": "esmo src/cli.ts dev demo/main.ts",
     "start": "node dist/index.mjs",
