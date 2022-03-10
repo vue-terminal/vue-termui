@@ -3,6 +3,7 @@ import { ViteNodeRunner } from 'vite-node/client'
 import { normalizeId } from 'vite-node/utils'
 import { createServer, HmrContext } from 'vite'
 import { resolve } from 'path'
+import { ViteControls } from 'vue-termui'
 
 export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
@@ -153,6 +154,17 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   }
 
   await loadApp()
+
+  const { onExit } = (await runner.executeId(
+    '/demo/vue-termui-controls.ts'
+  )) as ViteControls
+
+  // TODO: implement correctly, right now the current app is not set because files run in different processes
+  // onExit(() => {
+  //   server.close()
+  //   console.log('CLOSED')
+  // })
+  console.error('DONE CLI')
 }
 
 class InvalidateSignal extends Error {

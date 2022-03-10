@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { TuiBox as Box, TuiText as Text, ref, onMounted, onKeypress } from 'vue-termui'
+import {
+  TuiBox as Box,
+  TuiText as Text,
+  ref,
+  onMounted,
+  onKeypress,
+} from 'vue-termui'
 
 const n = ref(0)
 
 onKeypress('ArrowUp', () => {
   n.value++
 })
-
 </script>
 
 <template>

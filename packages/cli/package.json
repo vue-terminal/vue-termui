@@ -8,6 +8,7 @@
   "version": "0.0.11",
   "scripts": {
     "dev": "esmo src/cli.ts dev demo/main.ts",
+    "demo:build": "esmo src/cli.ts build demo/main.ts",
     "start": "node dist/index.mjs",
     "build": "rimraf dist && rollup -c",
     "prepublishOnly": "npm run build"
