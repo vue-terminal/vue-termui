@@ -7,7 +7,7 @@ import {
 } from '@vue/runtime-core'
 
 export interface KeyboardHandlerOptions {
-  setRawMode?: () => void
+  setRawMode: (enabled: boolean) => void
 }
 
 type TODO = any
@@ -52,7 +52,7 @@ export const EventMapSymbol = Symbol() as InjectionKey<
 export function attachKeyboardHandler(
   app: App,
   stdin: NodeJS.ReadStream,
-  { setRawMode = () => {} }: KeyboardHandlerOptions = {}
+  { setRawMode }: KeyboardHandlerOptions
 ) {
   const eventMap = new Map<string, Set<KeyboardHandlerFn>>()
 
@@ -71,7 +71,6 @@ export function attachKeyboardHandler(
     }
   }
 
-
   // TODO: take again from here: this must be done only once and we must manually listen to ctrl+c
   stdin.setEncoding('utf8')
 
@@ -79,12 +78,17 @@ export function attachKeyboardHandler(
   stdin.resume()
   stdin.setRawMode(true)
 
+  setRawMode(true)
+
   return () => {
+    setRawMode(false)
     stdin.off('data', handleOnData)
   }
 }
 
 // map to same event.key as in browser: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+
+// TODO: does it work with a Map?
 
 const DataToKey: Record<string, string> = {
   '\u001B[A': 'ArrowUp',
@@ -100,4 +104,8 @@ const DataToKey: Record<string, string> = {
   // backspace: '\u0008',
   // delete: '\u007F',
   // delete: '\u001B[3~',
+}
+
+export function isRawModeSupported(stdin: NodeJS.ReadStream) {
+  return stdin.isTTY
 }
