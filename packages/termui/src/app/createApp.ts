@@ -16,7 +16,7 @@ import {
 } from '../injectionSymbols'
 import { createLog } from '../LogUpdate'
 import { baseCreateApp } from '../renderer'
-import { registerMainApp } from '../hmr/viteControls'
+import { setupHMRSocket } from '../hmr/client'
 
 type TODO = any
 
@@ -91,12 +91,8 @@ export function createApp(
 
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
-  // TODO: should we do import.meta instead?
-  // Make sure this is removed in production
-  if (process.env.NODE_ENV === 'development') {
-    registerMainApp(newApp)
-  }
 
+  // TODO: use auto import to enable treeshaking
   newApp.component('TuiText', TuiText)
   newApp.component('Text', TuiText)
   newApp.component('Span', TuiText)
@@ -218,7 +214,6 @@ export function createApp(
   }
 
   function exitApp(error?: TuiError) {
-    console.error('OOOOUT')
     if (error) {
       rejectExitPromise(error)
     } else {
@@ -235,6 +230,12 @@ export function createApp(
       exitApp(signal !== 'SIGINT' ? undefined : new TuiError(code, signal))
     }
   })
+
+  // the variable is injected via the vite plugin so this part of the code is always skipped
+  // TODO: check if it works when no ws is installed, if not maybe move to dynamic import
+  if (process.env.NODE_ENV !== 'production') {
+    setupHMRSocket(newApp, exitApp)
+  }
 
   return newApp
 }

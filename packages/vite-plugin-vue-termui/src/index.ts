@@ -6,8 +6,11 @@ export default function VueTermui(): Plugin[] {
     {
       name: 'vue-termui',
 
-      config(config) {
+      config(config, env) {
         return {
+          define: {
+            'process.env.NODE_ENV': JSON.stringify(env.mode),
+          },
           build: {
             target: 'node14',
             rollupOptions: {

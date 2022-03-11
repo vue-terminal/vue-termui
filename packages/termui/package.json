@@ -43,6 +43,7 @@
   "devDependencies": {
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1",
+    "@types/ws": "^8.5.2",
     "@vue/runtime-core": "^3.2.31",
     "ws": "^8.5.0"
   },

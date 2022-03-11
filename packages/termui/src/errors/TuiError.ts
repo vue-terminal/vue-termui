@@ -1,4 +1,4 @@
-import { Signal } from "../deps/signal-exit"
+import { Signal } from '../deps/signal-exit'
 
 export class TuiError extends Error {
   code: number | null
@@ -8,5 +8,9 @@ export class TuiError extends Error {
     super(`Program Interrupted with "${signal}" ${code ? `(${code})` : ''}`)
     this.code = code
     this.signal = signal
+  }
+
+  static fromError(error: Error) {
+    return new TuiError(null, `(${error.name}): ${error.message}`)
   }
 }

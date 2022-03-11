@@ -15,5 +15,11 @@
     "skipLibCheck": true,
     "lib": ["esnext"]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.vue",
+    "vite.config.ts",
+    "../vite-plugin-vue-termui/src/exports.ts"
+  ]
 }
