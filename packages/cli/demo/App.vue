@@ -47,8 +47,8 @@ onMounted(() => {
 <template>
   <Box
     width="100%"
-    justifyContent="flex-end"
     :height="20"
+    justifyContent="flex-end"
     alignItems="flex-end"
     borderStyle="round"
   >
