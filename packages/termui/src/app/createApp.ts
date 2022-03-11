@@ -2,10 +2,7 @@ import { Component } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
 import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
-import {
-  attachKeyboardHandler,
-  isRawModeSupported,
-} from '../composables/keyboard'
+import { attachKeyboardHandler } from '../composables/keyboard'
 import { onExit } from '../deps/signal-exit'
 import { DOMElement } from '../dom'
 import {
@@ -18,6 +15,7 @@ import { createLog } from '../LogUpdate'
 import { baseCreateApp } from '../renderer'
 import { setupHMRSocket } from '../hmr'
 import { RootProps, TuiApp, TuiAppOptions } from './types'
+import { isRawModeSupported } from '../input/inputSequences'
 
 const noop = () => {}
 
