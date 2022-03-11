@@ -9,7 +9,7 @@ import {
 
 const n = ref(0)
 
-onKeypress('A', (event) => {
+onKeypress(['A', 'a'], (event) => {
   n.value++
 })
 onKeypress('+', (event) => {
@@ -54,6 +54,7 @@ onKeypress((data) => {
     justifyContent="center"
     alignItems="center"
     borderStyle="round"
+    @keypress.h="n++"
   >
     <Text>
       <Text color="cyanBright" bold>Hello World {{ n }}</Text>
