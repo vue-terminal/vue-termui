@@ -5,7 +5,7 @@ export { TuiBox, TuiText, TuiNewline } from './components'
 
 export { render } from './renderer'
 export { createApp } from './app/createApp'
-export type { TuiApp } from './app/createApp'
+export type { TuiApp } from './app/types'
 
 export {
   useLog,
