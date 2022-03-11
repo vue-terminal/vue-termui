@@ -1,4 +1,4 @@
-import { App, Component } from '@vue/runtime-core'
+import { Component } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
 import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
@@ -177,6 +177,7 @@ export function createApp(
     cliCursor.show(stdout)
     newApp.unmount()
   }
+  _currentExitApp = exitApp
 
   const removeOnExitListener = onExit((code, signal) => {
     console.log({ code, signal })
@@ -193,4 +194,10 @@ export function createApp(
   }
 
   return newApp
+}
+
+let _currentExitApp: (() => void) | undefined
+
+export function exitApp() {
+  _currentExitApp?.()
 }
