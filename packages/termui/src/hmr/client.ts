@@ -1,9 +1,9 @@
 // this should be used by the app
-import { TuiApp } from '../app/createApp'
+import { TuiApp } from '../app/types'
 import { WebSocket } from 'ws'
 import { TuiError } from '../errors/TuiError'
-
-const WSS_PORT = Number(process.env.WSS_PORT) || 3000
+import { defineMessage, parseServerMessage } from './messages'
+import { WSS_PORT } from './common'
 
 export function setupHMRSocket(
   app: TuiApp,
@@ -11,31 +11,13 @@ export function setupHMRSocket(
 ) {
   const ws = new WebSocket(`ws://localhost:${WSS_PORT}`)
 
-  ws.on('open', () => {
-    ws.send('client connected bitch')
-  })
-
   ws.on('message', (buf) => {
-    let data: TODO | null | undefined
-    try {
-      data = JSON.parse(buf.toString())
-    } catch (error) {
-      console.error('Malformed message from server:', buf.toString())
-      return
-    }
-
-    if (!data?.type || !data?.payload) {
-      console.error('Ignoring message from server:', data)
-      return
-    }
+    const data = parseServerMessage(buf)
+    if (!data) return
 
     const { type, payload } = data
 
     switch (type) {
-      case 'stop':
-        exitApp()
-        break
-
       default:
         console.error('Unknown message from server', type, payload)
     }
@@ -43,12 +25,17 @@ export function setupHMRSocket(
 
   app
     .waitUntilExit()
-    .catch((error) => {
-      ws.send({ type: 'crash', payload: error })
+    .catch((error: Error) => {
+      ws.send(defineMessage({ type: 'crash', payload: error }))
     })
     .then(() => {
       ws.close()
     })
+
+  ws.on('close', () => {
+    // the server closed the connection to likely restart the app
+    exitApp()
+  })
 
   // TODO: is this necessary?
   ws.on('error', (error) => {
@@ -56,5 +43,3 @@ export function setupHMRSocket(
     exitApp(TuiError.fromError(error))
   })
 }
-
-type TODO = any

@@ -23,5 +23,16 @@ export * from '@vue/runtime-core'
 
 export { onKeypress } from './composables/keyboard'
 
-export { onExit, getCurrentApp } from './hmr/viteControls'
-export type { ViteControls } from './hmr/viteControls'
+export {
+  defineMessage,
+  parseClientMessage,
+  parseServerMessage,
+  WSS_PORT,
+} from './hmr'
+export type {
+  TuiWSMessageClient,
+  TuiWSMessageServer,
+  TuiWSMessage,
+  TuiWsMessage_Crash,
+  TuiWsMessage_Restart,
+} from './hmr'
