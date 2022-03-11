@@ -9,8 +9,15 @@ import {
 
 const n = ref(0)
 
-onKeypress('ArrowDown', () => {
+onKeypress('A', (event) => {
   n.value++
+})
+onKeypress('+', (event) => {
+  n.value++
+})
+
+onKeypress((event) => {
+  event.key === 'ArrowDown'
 })
 
 const lastPress = ref('')
@@ -35,7 +42,7 @@ function displayableChar(c: string) {
 const pressData = ref()
 onKeypress((data) => {
   const escapedSeq = data.input.split('').map(displayableChar).join('')
-  lastPress.value = escapedSeq
+  lastPress.value = data.key!
   pressData.value = { ...data, input: escapedSeq }
 })
 </script>

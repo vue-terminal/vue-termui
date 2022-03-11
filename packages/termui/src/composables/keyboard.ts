@@ -5,6 +5,7 @@ import {
   onMounted,
   onUnmounted,
 } from '@vue/runtime-core'
+import { LiteralUnion } from '../utils'
 
 export interface KeyboardHandlerOptions {
   setRawMode: (enabled: boolean) => void
@@ -24,12 +25,15 @@ interface _KeypressEventModifiers {
   metaKey: boolean
 }
 export interface KeypressEvent extends _KeypressEventModifiers {
-  key: KeyboardEventKeyCode
+  /**
+   * The pressed key.
+   */
+  key: LiteralUnion<KeyboardEventKeyCode, string>
 }
 
 export interface KeypressEventRaw extends _KeypressEventModifiers {
   input: string
-  key: KeyboardEventKeyCode | undefined
+  key: LiteralUnion<KeyboardEventKeyCode, string> | undefined
 }
 
 export interface KeyboardEventHandlerFn {
@@ -53,13 +57,15 @@ export function onKeypress(
   options?: TODO
 ): RemoveListener
 export function onKeypress(
-  key: KeyboardEventKeyCode,
+  key: LiteralUnion<KeyboardEventKeyCode, string>,
   handler: KeyboardEventHandlerFn,
   // maybe for modifiers like ctrl, etc
   options?: TODO
 ): RemoveListener
 export function onKeypress(
-  keyOrHandler: KeyboardEventKeyCode | KeyboardEventHandler,
+  keyOrHandler:
+    | LiteralUnion<KeyboardEventKeyCode, string>
+    | KeyboardEventHandler,
   handlerOrOptions?: KeyboardEventHandler | TODO,
   // maybe for modifiers like ctrl, etc
   options?: TODO
@@ -351,9 +357,19 @@ export function parseInputSequence(input: string): KeypressEvent | undefined {
     })
   } else if (input.length === 1) {
     const charCode = input.charCodeAt(0)
-    return defineKeypressEvent(input as KeyboardEventKeyCode, {
-      shiftKey: charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE,
-    })
+    // ctrl + A to Z
+    if (charCode > 0 && charCode <= 0x1a) {
+      return defineKeypressEvent(
+        String.fromCharCode(A_CHAR_CODE + charCode - 1) as KeyboardEventKeyCode,
+        {
+          ctrlKey: true,
+        }
+      )
+    } else {
+      return defineKeypressEvent(input as KeyboardEventKeyCode, {
+        shiftKey: charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE,
+      })
+    }
   }
 
   return
