@@ -188,6 +188,18 @@ export type KeyboardEventKeyCode =
   | 'PageUp'
   | 'PageDown'
   | 'Clear' // num clear
+  // TODO: make sure these are the correct key values with
+  // https://w3c.github.io/uievents/tools/key-event-viewer.html
+  | 'Numpad0'
+  | 'Numpad1'
+  | 'Numpad2'
+  | 'Numpad3'
+  | 'Numpad4'
+  | 'Numpad5'
+  | 'Numpad6'
+  | 'Numpad7'
+  | 'Numpad8'
+  | 'Numpad9'
 
   // Function buttons
   | 'F0'
@@ -263,6 +275,14 @@ const INPUT_SEQ_START_CHAR = '\x1b' // <esc> <char>, e.g. F4
 const INPUT_SEQ_START = '\x1b[' // complex sequences
 const INPUT_SEQ_START_2 = '\x1b\x1b[' // also complex sequences
 
+const enum InputSequenceParserState {
+  xterm,
+  vt_keycode,
+  vt_keycode_drop,
+  vt_modifier,
+  vt_modifier_end_letter,
+}
+
 /**
  * Parses the input data based on vt and xterm escape sequences.
  * https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_input_sequences. This assumes the input sequence is not in
@@ -280,22 +300,21 @@ export function parseInputSequence(input: string): KeypressEvent | undefined {
     let keycode: string = ''
     let modifier: number = 1 // default modifier
     //
-    let state = ''
-    // input.endsWith('~') ? 'vt_keycode' : /[A-Z]$/.test(input) ? 'vt_? 'vt_keycode_or_modifier' : 'read'
+    let state: InputSequenceParserState = InputSequenceParserState.xterm
 
     if (input.endsWith('~')) {
-      // the first nrumber must be present and is a keycode number
-      state = 'vt_keycode'
+      // the first number must be present and is a keycode number
+      state = InputSequenceParserState.vt_keycode
     } else if (/[A-Z]$/.test(input)) {
       // the letter is the keycode value and the optional number is the modifier value
       // they keycode is dropped, usually equals 1
-      state = 'vt_keycode_drop'
+      state = InputSequenceParserState.vt_keycode_drop
     }
 
     while (pos < input.length) {
       const readChar = input.charAt(pos)
 
-      if (state === 'vt_keycode') {
+      if (state === InputSequenceParserState.vt_keycode) {
         if (readChar === '~') {
           // end of sequence
           keycode = buffer
@@ -304,27 +323,27 @@ export function parseInputSequence(input: string): KeypressEvent | undefined {
           // we read a keycode, onto the modifier
           keycode = buffer
           buffer = ''
-          state = 'vt_modifier'
+          state = InputSequenceParserState.vt_modifier
         } else {
           buffer += readChar
         }
-      } else if (state === 'vt_modifier') {
+      } else if (state === InputSequenceParserState.vt_modifier) {
         if (readChar === '~') {
           // end of sequence
           break
         } else {
           buffer += readChar
         }
-      } else if (state === 'vt_keycode_drop') {
+      } else if (state === InputSequenceParserState.vt_keycode_drop) {
         if (readChar === ';') {
           // drop the buffer and move into getting the modifier and keycode
           buffer = ''
-          state = 'vt_modifier_end_letter'
+          state = InputSequenceParserState.vt_modifier_end_letter
         } else {
           // since the ; is optional we might never find it
           buffer += readChar
         }
-      } else if (state === 'vt_modifier_end_letter') {
+      } else if (state === InputSequenceParserState.vt_modifier_end_letter) {
         const charCode = readChar.charCodeAt(0)
         if (charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE) {
           // end sequence
@@ -422,8 +441,9 @@ const VT_SEQ_TABLE = new Map<string, KeyboardEventKeyCode>([
   ['D', 'ArrowLeft'],
 
   ['F', 'End'],
-  // TODO: I can't test this one
-  // ['G', 'Keypad5'],
+  // TODO: I can't test this one, what is the actual key named?
+  // https://w3c.github.io/uievents/tools/key-event-viewer.html
+  ['G', 'Numpad5'],
   ['H', 'Home'],
   ['P', 'F1'],
   ['Q', 'F2'],
