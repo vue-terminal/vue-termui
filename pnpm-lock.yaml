@@ -43,14 +43,14 @@ importers:
       rollup-plugin-dts: ^4.2.0
       rollup-plugin-esbuild: ^4.8.2
       rollup-plugin-license: ^2.6.1
-      vite: ^2.8.6
       vite-node: ^0.5.9
       vite-plugin-vue-termui: workspace:*
       vue-termui: workspace:*
+      ws: ^8.5.0
     dependencies:
       picocolors: 1.0.0
-      vite: 2.8.6
       vite-node: 0.5.9
+      ws: 8.5.0
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.70.0
       '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.0
@@ -102,7 +102,6 @@ importers:
       ws: ^8.5.0
       yoga-layout-prebuilt: ^1.10.0
     dependencies:
-      '@vue/runtime-core': 3.2.31
       ansi-escapes: 5.0.0
       chalk: 5.0.0
       cli-boxes: 3.0.0
@@ -114,11 +113,12 @@ importers:
       type-fest: 2.12.0
       widest-line: 4.0.1
       wrap-ansi: 8.0.1
-      ws: 8.5.0
       yoga-layout-prebuilt: 1.10.0
     devDependencies:
       '@types/slice-ansi': 5.0.0
       '@types/wrap-ansi': 8.0.1
+      '@vue/runtime-core': 3.2.31
+      ws: 8.5.0
 
   packages/vite-plugin-vue-termui:
     specifiers:
@@ -465,12 +465,14 @@ packages:
     resolution: {integrity: sha512-HVr0l211gbhpEKYr2hYe7hRsV91uIVGFYNHj73njbARVGHQvIojkImKMaZNDdoDZOIkMsBc9a1sMqR+WZwfSCw==}
     dependencies:
       '@vue/shared': 3.2.31
+    dev: true
 
   /@vue/runtime-core/3.2.31:
     resolution: {integrity: sha512-Kcog5XmSY7VHFEMuk4+Gap8gUssYMZ2+w+cmGI6OpZWYOEIcbE0TPzzPHi+8XTzAgx1w/ZxDFcXhZeXN5eKWsA==}
     dependencies:
       '@vue/reactivity': 3.2.31
       '@vue/shared': 3.2.31
+    dev: true
 
   /@vue/runtime-dom/3.2.31:
     resolution: {integrity: sha512-N+o0sICVLScUjfLG7u9u5XCjvmsexAiPt17GNnaWHJUfsKed5e85/A3SWgKxzlxx2SW/Hw7RQxzxbXez9PtY3g==}
@@ -492,6 +494,7 @@ packages:
 
   /@vue/shared/3.2.31:
     resolution: {integrity: sha512-ymN2pj6zEjiKJZbrf98UM2pfDd6F2H7ksKw7NDt/ZZ1fh5Ei39X5tABugtT03ZRlWd9imccoK0hE8hpjpU7irQ==}
+    dev: true
 
   /acorn/7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
@@ -2546,7 +2549,6 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
-    dev: false
 
   /xterm/4.18.0:
     resolution: {integrity: sha512-JQoc1S0dti6SQfI0bK1AZvGnAxH4MVw45ZPFSO6FHTInAiau3Ix77fSxNx3mX4eh9OL4AYa8+4C8f5UvnSfppQ==}

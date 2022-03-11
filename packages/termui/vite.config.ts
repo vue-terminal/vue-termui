@@ -30,6 +30,7 @@ export default defineConfig({
         'wrap-ansi',
         'yoga-layout',
         'yoga-layout-prebuilt',
+        'ws',
       ],
     },
   },
