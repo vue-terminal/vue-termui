@@ -1,9 +1,8 @@
 import { ViteNodeServer } from 'vite-node/server'
 import { ViteNodeRunner } from 'vite-node/client'
 import { normalizeId } from 'vite-node/utils'
-import { createServer, HmrContext } from 'vite'
+import { createServer } from 'vite'
 import { resolve } from 'path'
-import { ViteControls } from 'vue-termui'
 import { WebSocketServer } from 'ws'
 
 const WSS_PORT = Number(process.env.WSS_PORT) || 3000
@@ -186,10 +185,6 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   }
 
   await loadApp()
-
-  const { onExit } = (await runner.executeId(
-    '/demo/vue-termui-controls.ts'
-  )) as ViteControls
 }
 
 class InvalidateSignal extends Error {
