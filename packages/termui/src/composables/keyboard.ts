@@ -12,11 +12,22 @@ export interface KeyboardHandlerOptions {
 
 type TODO = any
 
-export interface KeypressEvent {
+interface _KeypressEventModifiers {
+  ctrlKey: boolean
+  altKey: boolean
+  shiftKey: boolean
+
+  /**
+   * You cannot use the meta key on a terminal, so this will often be false. But you can sometimes emulate it. For
+   * example, doing ctrl + alt + Home will simulate a meta key being pressed instead of the alt key.
+   */
+  metaKey: boolean
+}
+export interface KeypressEvent extends _KeypressEventModifiers {
   key: KeyboardEventKeyCode
 }
 
-export interface KeypressEventRaw {
+export interface KeypressEventRaw extends _KeypressEventModifiers {
   input: string
   key: KeyboardEventKeyCode | undefined
 }
@@ -42,13 +53,13 @@ export function onKeypress(
   options?: TODO
 ): RemoveListener
 export function onKeypress(
-  key: string,
+  key: KeyboardEventKeyCode,
   handler: KeyboardEventHandlerFn,
   // maybe for modifiers like ctrl, etc
   options?: TODO
 ): RemoveListener
 export function onKeypress(
-  keyOrHandler: string | KeyboardEventHandler,
+  keyOrHandler: KeyboardEventKeyCode | KeyboardEventHandler,
   handlerOrOptions?: KeyboardEventHandler | TODO,
   // maybe for modifiers like ctrl, etc
   options?: TODO
@@ -105,21 +116,29 @@ export function attachKeyboardHandler(
 
   function handleOnData(data: Buffer) {
     const input = String(data)
-    console.error(input)
 
-    const key = DataToKey.get(input)
+    let eventKeypress = DataToKey.get(input) || parseInputSequence(input)
 
-    // if (!key) {
-    //   console.error(`⚠️  You need to handle key "${input}"`)
-    // }
+    if (!eventKeypress) {
+      const escapedSeq = input.split('').map(displayableChar).join('')
+      console.error(`⚠️  You need to handle key "${escapedSeq}"`)
+    }
 
-    if (key && eventMap.has(key)) {
-      eventMap.get(key)!.forEach((handler) => {
-        ;(handler as KeyboardEventHandlerFn)({ key })
+    if (eventKeypress && eventMap.has(eventKeypress.key)) {
+      eventMap.get(eventKeypress.key)!.forEach((handler) => {
+        ;(handler as KeyboardEventHandlerFn)(eventKeypress!)
       })
     }
     eventMap.get('@any')!.forEach((handler) => {
-      ;(handler as KeyboardEventRawHandlerFn)({ input, key })
+      ;(handler as KeyboardEventRawHandlerFn)({
+        key: undefined,
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: false,
+        input,
+        ...eventKeypress,
+      })
     })
   }
 
@@ -151,32 +170,275 @@ export type KeyboardEventKeyCode =
   | 'PageDown'
   | 'Enter'
   | 'Escape'
+  | 'EscapeDouble'
   | 'Tab'
-  | 'Tab'
+
+  // close to numeric pad
   | 'Backspace'
   | 'Delete'
-  | 'Delete'
+  | 'Home'
+  | 'Insert'
+  | 'End'
+  | 'PageUp'
+  | 'PageDown'
+  | 'Clear' // num clear
 
-const DataToKey = new Map<string, KeyboardEventKeyCode>([
-  ['\u001B[A', 'ArrowUp'],
-  ['\u001B[B', 'ArrowDown'],
-  ['\u001B[C', 'ArrowRight'],
-  ['\u001B[D', 'ArrowLeft'],
+  // Function buttons
+  | 'F0'
+  | 'F1'
+  | 'F2'
+  | 'F3'
+  | 'F4'
+  | 'F5'
+  | 'F6'
+  | 'F7'
+  | 'F8'
+  | 'F9'
+  | 'F10'
+  | 'F11'
+  | 'F12'
+  | 'F13'
+  | 'F14'
+  | 'F15'
+  | 'F16'
+  | 'F17'
+  | 'F18'
+  | 'F19'
+  | 'F20'
 
-  ['\u001B[5~', 'PageUp'],
-  ['\u001B[6~', 'PageDown'],
+function defineKeypressEvent(
+  key: KeyboardEventKeyCode,
+  modifiers?: Partial<_KeypressEventModifiers>
+): KeypressEvent {
+  return {
+    key,
+    altKey: false,
+    shiftKey: false,
+    ctrlKey: false,
+    metaKey: false,
+    ...modifiers,
+  }
+}
 
-  ['\r', 'Enter'],
-  ['\u001B', 'Escape'],
+/**
+ * Special lookup of keys that do not exactly follow the VT or xterm semantics.
+ */
+const DataToKey = new Map<string, KeypressEvent>([
+  // I have no idea why this is like this
+  // specific to iTerm
+  ['\x1b\x1b[A', defineKeypressEvent('ArrowUp', { altKey: true })],
+  ['\x1b\x1b[B', defineKeypressEvent('ArrowDown', { altKey: true })],
+  ['\x1b\x1b[C', defineKeypressEvent('ArrowRight', { altKey: true })],
+  ['\x1b\x1b[D', defineKeypressEvent('ArrowLeft', { altKey: true })],
 
-  ['\t', 'Tab'],
-  ['\u001B[Z', 'Tab'],
+  // This one can also be triggered with shift, so it doesn't make sense to be included
+  // ['\x1B\x1B[5~', defineKeypressEvent('PageUp', {altKey: true})],
+  // ['\x1B[6~', 'PageDown'],
 
-  ['\u0008', 'Backspace'],
-  ['\u007F', 'Delete'],
-  ['\u001B[3~', 'Delete'],
+  ['\r', defineKeypressEvent('Enter')],
+  ['\x1b', defineKeypressEvent('Escape')],
+  // can be doubled and seems to be specific to terminal
+  ['\x1b\x1b', defineKeypressEvent('EscapeDouble')],
+
+  ['\t', defineKeypressEvent('Tab')],
+  ['\x1b[Z', defineKeypressEvent('Tab', { shiftKey: true })],
+
+  // ['\x08', 'Backspace'],
+  ['\x7f', defineKeypressEvent('Backspace')],
+  ['\x1b[3~', defineKeypressEvent('Delete')],
+  //   ['\x01', 'Delete'],
 ])
 
 export function isRawModeSupported(stdin: NodeJS.ReadStream) {
   return stdin.isTTY
+}
+
+const INPUT_SEQ_START_CHAR = '\x1b' // <esc> <char>, e.g. F4
+const INPUT_SEQ_START = '\x1b[' // complex sequences
+const INPUT_SEQ_START_2 = '\x1b\x1b[' // also complex sequences
+
+/**
+ * Parses the input data based on vt and xterm escape sequences.
+ * https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_input_sequences. This assumes the input sequence is not in
+ * the special table above.
+ *
+ * @param input data coming from stdin
+ */
+export function parseInputSequence(input: string): KeypressEvent | undefined {
+  if (
+    (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
+    (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
+  ) {
+    let buffer = ''
+    let pos = input.indexOf('[') + 1 // start after the [
+    let keycode: string = ''
+    let modifier: number = 1 // default modifier
+    //
+    let state = ''
+    // input.endsWith('~') ? 'vt_keycode' : /[A-Z]$/.test(input) ? 'vt_? 'vt_keycode_or_modifier' : 'read'
+
+    if (input.endsWith('~')) {
+      // the first nrumber must be present and is a keycode number
+      state = 'vt_keycode'
+    } else if (/[A-Z]$/.test(input)) {
+      // the letter is the keycode value and the optional number is the modifier value
+      // they keycode is dropped, usually equals 1
+      state = 'vt_keycode_drop'
+    }
+
+    while (pos < input.length) {
+      const readChar = input.charAt(pos)
+
+      if (state === 'vt_keycode') {
+        if (readChar === '~') {
+          // end of sequence
+          keycode = buffer
+          break
+        } else if (readChar === ';') {
+          // we read a keycode, onto the modifier
+          keycode = buffer
+          buffer = ''
+          state = 'vt_modifier'
+        } else {
+          buffer += readChar
+        }
+      } else if (state === 'vt_modifier') {
+        if (readChar === '~') {
+          // end of sequence
+          break
+        } else {
+          buffer += readChar
+        }
+      } else if (state === 'vt_keycode_drop') {
+        if (readChar === ';') {
+          // drop the buffer and move into getting the modifier and keycode
+          buffer = ''
+          state = 'vt_modifier_end_letter'
+        } else {
+          // since the ; is optional we might never find it
+          buffer += readChar
+        }
+      } else if (state === 'vt_modifier_end_letter') {
+        const charCode = readChar.charCodeAt(0)
+        if (charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE) {
+          // end sequence
+          keycode = readChar
+          modifier = Number(buffer) || 1
+          break
+        } else {
+          buffer += readChar
+        }
+      }
+
+      pos++
+    }
+
+    // we always remove one
+    modifier--
+    const key = VT_SEQ_TABLE.get(keycode || buffer)
+    // TODO: non existent keys
+    if (!key) {
+      console.error({ modifier, keycode, input: debugSequence(input), state })
+      throw new Error(`Report bug for ${keycode}`)
+    }
+
+    return defineKeypressEvent(key, {
+      shiftKey: !!(modifier & 1),
+      altKey: !!(modifier & 2),
+      ctrlKey: !!(modifier & 4),
+      // specified by spec but doesn't work
+      metaKey: !!(modifier & 8),
+    })
+  } else if (input.length === 1) {
+    const charCode = input.charCodeAt(0)
+    return defineKeypressEvent(input as KeyboardEventKeyCode, {
+      shiftKey: charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE,
+    })
+  }
+
+  return
+}
+
+const A_CHAR_CODE = 0x41
+const Z_CHAR_CODE = 0x5a
+
+const VT_SEQ_TABLE = new Map<string, KeyboardEventKeyCode>([
+  // vt sequences
+  ['1', 'Home'],
+  ['2', 'Insert'],
+  ['3', 'Delete'],
+  ['4', 'End'],
+  ['5', 'PageUp'],
+  ['6', 'PageDown'],
+  ['7', 'Home'],
+  ['8', 'End'],
+
+  ['10', 'F0'],
+  ['11', 'F1'],
+  ['12', 'F2'],
+  ['13', 'F3'],
+  ['14', 'F4'],
+  ['15', 'F5'],
+  // and we skip one because why not!
+  ['17', 'F6'],
+  ['18', 'F7'],
+  ['19', 'F8'],
+  ['20', 'F9'],
+  ['21', 'F10'],
+  // another one!
+  ['23', 'F11'],
+  ['24', 'F12'],
+  ['25', 'F13'],
+  ['26', 'F14'],
+  // such logic!
+  ['28', 'F15'],
+  ['29', 'F16'],
+  // 🤯
+  ['31', 'F17'],
+  ['32', 'F18'],
+  ['33', 'F19'],
+  ['34', 'F20'],
+
+  // xterm sequences
+  ['A', 'ArrowUp'],
+  ['B', 'ArrowDown'],
+  ['C', 'ArrowRight'],
+  ['D', 'ArrowLeft'],
+
+  ['F', 'End'],
+  // TODO: I can't test this one
+  // ['G', 'Keypad5'],
+  ['H', 'Home'],
+  ['P', 'F1'],
+  ['Q', 'F2'],
+  ['R', 'F3'],
+  ['S', 'F4'],
+])
+
+/**
+ * Debugs an escape code
+ * @param c - char
+ * @returns a display friendly ansi string
+ */
+function displayableChar(c: string) {
+  const i = c.charCodeAt(0)
+  if (
+    // Ansi readable characters
+    i >= 0x20 &&
+    i <= 0x84 &&
+    i !== 0x7f &&
+    i !== 0x83
+  ) {
+    return c
+  }
+
+  if (i <= 0xff) {
+    return `\\x${i.toString(16).padStart(2, '0')}`
+  } else {
+    return `\\u${i.toString(16).padStart(4, '0')}`
+  }
+}
+
+function debugSequence(input: string) {
+  return input.split('').map(displayableChar).join('')
 }
