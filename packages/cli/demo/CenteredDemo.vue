@@ -2,6 +2,7 @@
 import {
   TuiBox as Box,
   TuiText as Text,
+  TuiLink as Link,
   ref,
   onMounted,
   onKeypress,

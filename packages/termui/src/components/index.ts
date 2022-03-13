@@ -1,4 +1,6 @@
 export { TuiText } from './Text'
+export { TuiTextTransform } from './TextTransform'
+export { TuiLink } from './Link'
 export { TuiNewline } from './Newline'
 export { TuiApp } from './App'
 export { TuiBox } from './Box'

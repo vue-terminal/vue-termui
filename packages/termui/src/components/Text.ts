@@ -10,9 +10,9 @@ import { Styles } from '../styles'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import { colorize } from '../textColor'
 
-const defaultStyle: Styles = {
+export const defaultStyle: Styles = {
   flexGrow: 0,
-  flexShrink: 0,
+  flexShrink: 1,
   flexDirection: 'row',
 }
 

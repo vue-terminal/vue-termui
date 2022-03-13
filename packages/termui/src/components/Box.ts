@@ -72,7 +72,7 @@ export const TuiBox: FunctionalComponent<TuiBoxProps> = (
           props.paddingBottom ?? props.paddingY ?? props.padding ?? 0,
       },
     },
-    slots.default?.()
+    { default: slots.default }
   )
 }
 
