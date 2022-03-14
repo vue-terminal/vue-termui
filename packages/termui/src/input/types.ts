@@ -34,8 +34,10 @@ export interface KeypressEvent extends _InputEventModifiers {
   key: LiteralUnion<KeyboardEventKeyCode, string>
 }
 
-export function isKeypressEvent(event: any): event is KeypressEvent {
-  return 'key' in event
+export function isKeypressEvent(
+  event: object | undefined
+): event is KeypressEvent | KeypressEventRaw {
+  return typeof event === 'object' && 'key' in event
 }
 
 export interface KeypressEventRaw extends _InputEventModifiers {
@@ -137,10 +139,13 @@ export const enum MouseEventButton {
   // release = 3 // not really a button
 }
 
-export const enum MouseEventType {
+export enum MouseEventType {
+  // must be 0, 1, 2 to align with browser
   down,
   move,
   up,
+  // specials
+  any = -1,
   unknown = 99,
 }
 
@@ -151,6 +156,10 @@ export interface MouseEvent extends _InputEventModifiers {
   clientY: number
 }
 
-export function isMouseEvent(event: any): event is MouseEvent {
-  return 'button' in event
+export interface MouseEventHandler {
+  (event: MouseEvent): void
+}
+
+export function isMouseEvent(event: object | undefined): event is MouseEvent {
+  return typeof event === 'object' && 'button' in event
 }

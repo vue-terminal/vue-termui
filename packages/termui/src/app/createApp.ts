@@ -2,7 +2,7 @@ import { Component } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
 import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
-import { attachKeyboardHandler } from '../composables/keyboard'
+import { attachInputHandler } from '../composables/keyboard'
 import { onExit } from '../deps/signal-exit'
 import { DOMElement } from '../dom'
 import {
@@ -66,10 +66,6 @@ export function createApp(
   }
 
   // P s = 9 → Send Mouse X & Y on button press. See the section Mouse Tracking.
-  // P s = 1 0 0 0 → Send Mouse X & Y on button press and release. See the section Mouse Tracking.
-  // P s = 1 0 0 1 → Use Hilite Mouse Tracking.
-  // P s = 1 0 0 2 → Use Cell Motion Mouse Tracking.
-  // P s = 1 0 0 3 → Use All Motion Mouse Tracking.
   // const MOUSE_MODE = '1002'
   // const ACTIVATE_MOUSE = '\x1b[?9h'
   // const DEACTIVATE_MOUSE = '\x1b[?9l'
@@ -82,8 +78,8 @@ export function createApp(
   // 1015 RXVT mouse mode: Allows mouse coordinates of >223
   // 1006 SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode -> ESC[<button;x;y;M
   // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Extended-coordinates
-  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1005h`
-  const DEACTIVATE_MOUSE = `\x1b?1005l\x1b[?1002l\x1b[?1000l`
+  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1006h`
+  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1002l\x1b[?1000l`
   // const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
   // const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
   let detachKeyboardHandler: undefined | (() => void)
@@ -159,7 +155,7 @@ export function createApp(
       //   }
       // }
     }
-    detachKeyboardHandler = attachKeyboardHandler(app, stdin, { setRawMode })
+    detachKeyboardHandler = attachInputHandler(app, stdin, { setRawMode })
 
     mount(rootEl)
     return newApp

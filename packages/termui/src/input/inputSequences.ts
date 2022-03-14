@@ -12,7 +12,7 @@ import {
 /**
  * Special lookup of keys that do not exactly follow the VT or xterm semantics.
  */
-export const DataToKey = new Map<string, KeypressEvent>([
+export const SPECIAL_INPUT_KEY_TABLE = new Map<string, KeypressEvent>([
   // I have no idea why this is like this
   // specific to iTerm
   ['\x1b\x1b[A', defineKeypressEvent('ArrowUp', { altKey: true })],
@@ -124,112 +124,133 @@ function parseXtermKeycodeSeq(seq: XtermKeycodeSeq) {
  */
 export function parseInputSequence(
   input: string
-): MouseEvent | KeypressEvent | undefined {
-  if (input.startsWith(MOUSE_EXTENDED_SEQ_START)) {
-    const { args, remaining } = parseCSISequence(input, 3)
-    if (isMouseExtendedCSISeq(args)) {
-      const [modifier, x, y, endSeq] = args
-      const isDragging = modifier & 32
+): Array<MouseEvent | KeypressEvent | undefined> {
+  const inputSequences: Array<MouseEvent | KeypressEvent | undefined> = []
 
-      // TODO: wheel buttons / scroll when modifier & 64
-      // TODO: extra buttons when modifier & 128
-      const button: MouseEventButton = modifier & 0b11 // take the 2 lower bytes only, 0 - 3
-      let type: MouseEventType
-      if (endSeq === 'M' || endSeq === 'm') {
-        type =
-          endSeq === 'M'
-            ? isDragging
-              ? MouseEventType.move
-              : MouseEventType.down
-            : MouseEventType.up
-      } else {
-        // for debugging
-        type = MouseEventType.unknown
-      }
+  while (input) {
+    if (input.startsWith(MOUSE_EXTENDED_SEQ_START)) {
+      const { args, remaining } = parseCSISequence(input, 3)
+      input = remaining
 
-      return defineMouseEvent(button, x, y, type, {
-        shiftKey: !!(modifier & 4),
-        metaKey: !!(modifier & 8),
-        ctrlKey: !!(modifier & 16),
-        // apparently altKey cannot be added
-      })
-    }
+      if (isMouseExtendedCSISeq(args)) {
+        const [modifier, x, y, endSeq] = args
+        const isDragging = modifier & 32
 
-    if (remaining) {
-      // TODO: parse again and emit more!
-    }
-  } else if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
-    // Legacy mouse support, only handle basic operations and coordinates under 95
-    // TODO: refactor to be similar to the mouse extended block above and simplify or remove
-    const modifier = input.charCodeAt(3) - MOUSE_ENCODE_OFFSET
-    const x = input.charCodeAt(4) - MOUSE_ENCODE_OFFSET
-    const y = input.charCodeAt(5) - MOUSE_ENCODE_OFFSET
-    const mouseButton = modifier & 0b11 // 3
-    // TODO: handle mousemove and mouseup and correctly
-    const type = mouseButton === 3 ? MouseEventType.up : MouseEventType.down
-    // TODO: correctly handle release
-    const button =
-      mouseButton > 2
-        ? MouseEventButton.main
-        : (mouseButton as MouseEventButton)
-
-    return defineMouseEvent(button, x, y, type, {
-      shiftKey: !!(modifier & 4),
-      metaKey: !!(modifier & 8),
-      ctrlKey: !!(modifier & 16),
-      // alt does send other codes apparently and cannot be caught
-    })
-  } else if (
-    (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
-    // TODO: remove the double escape sequence and treat it as two events
-    (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
-  ) {
-    const { args, remaining } = parseCSISequence(input, input.indexOf('[') + 1)
-
-    const { key, modifier } = isVTKeycodeSeq(args)
-      ? // e.g. Home button \x1b[1~
-        // the first number must be present and is a keycode number
-        // the second is optional and is the modifier
-        parseVTKeycodeSeq(args)
-      : isXtermKeycodeSeq(args)
-      ? // e.g.shift Home \x1b[1;2H
-        parseXtermKeycodeSeq(args)
-      : { key: undefined, modifier: 0 }
-
-    // cannot handle non existent keys
-    if (!key) {
-      return
-    }
-
-    if (remaining) {
-      // TODO: parse again and emit more events!
-    }
-
-    return defineKeypressEvent(key, {
-      shiftKey: !!(modifier & 1),
-      altKey: !!(modifier & 2),
-      ctrlKey: !!(modifier & 4),
-      metaKey: !!(modifier & 8),
-    })
-  } else if (input.length === 1) {
-    const charCode = input.charCodeAt(0)
-    // ctrl + A to Z
-    if (charCode > 0 && charCode <= 0x1a) {
-      return defineKeypressEvent(
-        String.fromCharCode(CHAR_A_CODE + charCode - 1) as KeyboardEventKeyCode,
-        {
-          ctrlKey: true,
+        // TODO: wheel buttons / scroll when modifier & 64
+        // TODO: extra buttons when modifier & 128
+        const button: MouseEventButton = modifier & 0b11 // take the 2 lower bytes only, 0 - 3
+        let type: MouseEventType
+        if (endSeq === 'M' || endSeq === 'm') {
+          type =
+            endSeq === 'M'
+              ? isDragging
+                ? MouseEventType.move
+                : MouseEventType.down
+              : MouseEventType.up
+        } else {
+          // for debugging
+          type = MouseEventType.unknown
         }
+
+        inputSequences.push(
+          defineMouseEvent(button, x, y, type, {
+            shiftKey: !!(modifier & 4),
+            metaKey: !!(modifier & 8),
+            ctrlKey: !!(modifier & 16),
+            // apparently altKey cannot be added
+          })
+        )
+      } else {
+        // unrecognized
+        inputSequences.push(undefined)
+      }
+    } else if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
+      // Legacy mouse support, only handle basic operations and coordinates under 95
+      // TODO: refactor to be similar to the mouse extended block above and simplify or remove
+      const modifier = input.charCodeAt(3) - MOUSE_ENCODE_OFFSET
+      const x = input.charCodeAt(4) - MOUSE_ENCODE_OFFSET
+      const y = input.charCodeAt(5) - MOUSE_ENCODE_OFFSET
+      const mouseButton = modifier & 0b11 // 3
+      // TODO: handle mousemove and mouseup and correctly
+      const type = mouseButton === 3 ? MouseEventType.up : MouseEventType.down
+      // TODO: correctly handle release
+      const button =
+        mouseButton > 2
+          ? MouseEventButton.main
+          : (mouseButton as MouseEventButton)
+
+      inputSequences.push(
+        defineMouseEvent(button, x, y, type, {
+          shiftKey: !!(modifier & 4),
+          metaKey: !!(modifier & 8),
+          ctrlKey: !!(modifier & 16),
+          // alt does send other codes apparently and cannot be caught
+        })
       )
+      input = input.slice(6)
+    } else if (
+      (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
+      // TODO: remove the double escape sequence and treat it as two events
+      (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
+    ) {
+      const { args, remaining } = parseCSISequence(
+        input,
+        input.indexOf('[') + 1
+      )
+      input = remaining
+
+      const { key, modifier } = isVTKeycodeSeq(args)
+        ? // e.g. Home button \x1b[1~
+          // the first number must be present and is a keycode number
+          // the second is optional and is the modifier
+          parseVTKeycodeSeq(args)
+        : isXtermKeycodeSeq(args)
+        ? // e.g.shift Home \x1b[1;2H
+          parseXtermKeycodeSeq(args)
+        : { key: undefined, modifier: 0 }
+
+      // cannot handle non existent keys
+      if (!key) {
+        inputSequences.push(undefined)
+      } else {
+        inputSequences.push(
+          defineKeypressEvent(key, {
+            shiftKey: !!(modifier & 1),
+            altKey: !!(modifier & 2),
+            ctrlKey: !!(modifier & 4),
+            metaKey: !!(modifier & 8),
+          })
+        )
+      }
     } else {
-      // TODO: parse as multiples keypress / mouse events
-      return defineKeypressEvent(input as KeyboardEventKeyCode, {
-        shiftKey: charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE,
-      })
+      const charCode = input.charCodeAt(0)
+      const charString = input.charAt(0)
+      input = input.slice(1)
+      // ctrl + A to Z
+      if (charCode > 0 && charCode <= 0x1a) {
+        inputSequences.push(
+          defineKeypressEvent(
+            String.fromCharCode(
+              CHAR_A_CODE + charCode - 1
+            ) as KeyboardEventKeyCode,
+            {
+              ctrlKey: true,
+            }
+          )
+        )
+      } else {
+        // TODO: try consuming as much input as possible to output as a single chunk
+        // e.g. doing composition: 你好 -> should output the whole nihao sentence in one event
+        inputSequences.push(
+          defineKeypressEvent(charString as KeyboardEventKeyCode, {
+            shiftKey: charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE,
+          })
+        )
+      }
     }
   }
 
-  return
+  return inputSequences
 }
 
 const CHAR_0_CODE = 0x30
