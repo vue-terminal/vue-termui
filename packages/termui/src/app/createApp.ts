@@ -2,7 +2,7 @@ import { Component } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
 import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
-import { attachInputHandler } from '../composables/keyboard'
+import { attachInputHandler } from '../input/handling'
 import { onExit } from '../deps/signal-exit'
 import { DOMElement } from '../dom'
 import {

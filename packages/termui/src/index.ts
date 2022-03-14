@@ -21,7 +21,9 @@ export * from './components'
 // re-export Vue core APIs
 export * from '@vue/runtime-core'
 
-export { onKeypress, onMouseEvent, onInput } from './composables/keyboard'
+export { onKeypress } from './composables/keyboard'
+export { onMouseEvent } from './composables/mouse'
+export { onInput } from './composables/input'
 export { MouseEventType } from './input/types'
 
 export {
