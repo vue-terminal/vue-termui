@@ -129,10 +129,11 @@ importers:
   packages/vite-plugin-vue-termui:
     specifiers:
       '@vitejs/plugin-vue': ^2.2.0
+      unplugin-auto-import: ^0.6.1
       vue-termui: workspace:*
-    dependencies:
-      '@vitejs/plugin-vue': 2.2.4_vite@2.8.6+vue@3.2.31
     devDependencies:
+      '@vitejs/plugin-vue': 2.2.4_vite@2.8.6+vue@3.2.31
+      unplugin-auto-import: 0.6.1_vite@2.8.6
       vue-termui: link:../termui
 
   packages/xterm-playground:
@@ -362,6 +363,7 @@ packages:
     dependencies:
       vite: 2.8.6
       vue: 3.2.31
+    dev: true
 
   /@volar/code-gen/0.31.4:
     resolution: {integrity: sha512-ngivMEbBNd19v+EHdLyCJoIGRaoD9J4P20ZgdCEGf2voztja59u3Tilpf9r9ENy/731nG7XncToYm4+c1t/LhA==}

@@ -26,11 +26,13 @@
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
     "@vue/compiler-sfc": "^3.2.25",
+    "unplugin-auto-import": "^0.6.1",
     "vue": "^3.2.25",
     "vue-termui": ">=0.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
+    "unplugin-auto-import": "^0.6.1",
     "vue-termui": "workspace:*"
   }
 }
