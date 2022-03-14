@@ -1,7 +1,13 @@
 export { TuiError } from './errors/TuiError'
 
 // all but TuiApp
-export { TuiBox, TuiText, TuiNewline } from './components'
+export {
+  TuiBox,
+  TuiText,
+  TuiNewline,
+  TuiLink,
+  TuiTextTransform,
+} from './components'
 
 export { render } from './renderer'
 export { createApp, exitApp } from './app/createApp'

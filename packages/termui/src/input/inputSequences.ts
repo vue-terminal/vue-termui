@@ -34,17 +34,21 @@ export const SPECIAL_INPUT_KEY_TABLE = new Map<string, KeypressEvent>([
 
   // ['\x08', 'Backspace'],
   ['\x7f', defineKeypressEvent('Backspace')],
-  ['\x1b[3~', defineKeypressEvent('Delete')],
+  // ['\x1b[3~', defineKeypressEvent('Delete')],
   //   ['\x01', 'Delete'],
+
+  // Special handling of Function keys
+  ['\x1bOP', defineKeypressEvent('F1')],
+  ['\x1bOQ', defineKeypressEvent('F2')],
+  ['\x1bOR', defineKeypressEvent('F3')],
+  ['\x1bOS', defineKeypressEvent('F4')],
 ])
 
 export function isRawModeSupported(stdin: NodeJS.ReadStream) {
   return stdin.isTTY
 }
 
-const INPUT_SEQ_START_CHAR = '\x1b' // <esc> <char>, e.g. F4
 const INPUT_SEQ_START = '\x1b[' // complex sequences
-const INPUT_SEQ_START_2 = '\x1b\x1b[' // also complex sequences
 const MOUSE_SEQ_START = '\x1b[M' // Mouse click
 // https://www.systutorials.com/docs/linux/man/4-console_codes/
 const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
@@ -188,11 +192,7 @@ export function parseInputSequence(
         })
       )
       input = input.slice(6)
-    } else if (
-      (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
-      // TODO: remove the double escape sequence and treat it as two events
-      (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
-    ) {
+    } else if (input.startsWith(INPUT_SEQ_START) && input.length > 2) {
       const { args, remaining } = parseCSISequence(
         input,
         input.indexOf('[') + 1
