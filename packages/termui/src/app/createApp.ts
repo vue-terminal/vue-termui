@@ -71,18 +71,27 @@ export function createApp(
   // P s = 1 0 0 1 → Use Hilite Mouse Tracking.
   // P s = 1 0 0 2 → Use Cell Motion Mouse Tracking.
   // P s = 1 0 0 3 → Use All Motion Mouse Tracking.
-  const MOUSE_MODE = '1002'
+  // const MOUSE_MODE = '1002'
   // const ACTIVATE_MOUSE = '\x1b[?9h'
   // const DEACTIVATE_MOUSE = '\x1b[?9l'
   // const ACTIVATE_MOUSE = `\x1b[?${MOUSE_MODE}h`
   // const DEACTIVATE_MOUSE = `\x1b[?${MOUSE_MODE}l`
-  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
-  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
+  // 1000 Normal mouse tracking, sends X and Y on butt press and release
+  // 1002 Reports mouse move
+  // 1003 Reports all events: useful if needed to track mouse at all times
+  // 1005 Enables utf-8 support for encoding Cx and Cy >223
+  // 1015 RXVT mouse mode: Allows mouse coordinates of >223
+  // 1006 SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode -> ESC[<button;x;y;M
+  // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Extended-coordinates
+  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1006h`
+  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1002l\x1b[?1000l`
+  // const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
+  // const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
   let detachKeyboardHandler: undefined | (() => void)
   newApp.mount = ({ renderOnce = false, exitOnCtrlC = true } = {}) => {
     cliCursor.hide(stdout)
     log.clear()
-    console.log(ACTIVATE_MOUSE)
+    stdout.write(ACTIVATE_MOUSE)
 
     stdout.on('resize', onResize)
     const rootEl = new DOMElement('tui-root')
@@ -107,10 +116,7 @@ export function createApp(
         }
       }
 
-      // stdin.setEncoding('binary')
       stdin.setEncoding('utf8')
-      // with utf-8 the mouse reporting doesn't seem to work properly: it stops at x: 95 (\x7f, the end of ASCII), then
-      // it prints a constant \ufffd which makes it useless
 
       if (isEnabled) {
         if (++rawModeEnableCount === 1) {
@@ -190,7 +196,7 @@ export function createApp(
       resolveExitPromise()
     }
     cliCursor.show(stdout)
-    console.log(DEACTIVATE_MOUSE)
+    stdout.write(DEACTIVATE_MOUSE)
     newApp.unmount()
   }
   _currentExitApp = exitApp

@@ -48,12 +48,26 @@ const INPUT_SEQ_START_2 = '\x1b\x1b[' // also complex sequences
 const MOUSE_SEQ_START = '\x1b[M' // Mouse click
 // https://www.systutorials.com/docs/linux/man/4-console_codes/
 const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
+const MOUSE_EXTENDED_SEQ_START = '\x1b[<' // Ends with M/m
 
 const enum InputSequenceParserState {
   xterm,
   vt_keycode_and_modifier,
   vt_keycode_drop,
   vt_modifier_end_letter,
+}
+
+type MouseExtendedCSISeq = [number, number, number, string]
+function isMouseExtendedCSISeq(
+  seq: Array<string | number>
+): seq is MouseExtendedCSISeq {
+  return (
+    seq.length === 4 &&
+    typeof seq[0] === 'number' &&
+    typeof seq[1] === 'number' &&
+    typeof seq[2] === 'number' &&
+    typeof seq[3] === 'string'
+  )
 }
 
 /**
@@ -66,15 +80,47 @@ const enum InputSequenceParserState {
 export function parseInputSequence(
   input: string
 ): MouseEvent | KeypressEvent | undefined {
-  if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
+  if (input.startsWith(MOUSE_EXTENDED_SEQ_START)) {
+    const { args, remaining } = parseCSISequence(input, 3)
+    if (args.length === 4) {
+      const [modifier, x, y, endSeq] = args as MouseExtendedCSISeq
+      const isDragging = modifier & 32
+
+      // TODO: wheel buttons / scroll when modifier & 64
+      // TODO: extra buttons when modifier & 128
+      const button: MouseEventButton = modifier & 0b11 // take the 2 lower bytes only, 0 - 3
+      let type: MouseEventType
+      if (endSeq === 'M' || endSeq === 'm') {
+        type =
+          endSeq === 'M'
+            ? isDragging
+              ? MouseEventType.move
+              : MouseEventType.down
+            : MouseEventType.up
+      } else {
+        // for debugging
+        type = MouseEventType.unknown
+      }
+
+      return defineMouseEvent(button, x, y, type, {
+        shiftKey: !!(modifier & 4),
+        metaKey: !!(modifier & 8),
+        ctrlKey: !!(modifier & 16),
+        // altKey: ??
+      })
+    }
+
+    if (remaining) {
+      // TODO: parse again and emit more!
+    }
+  } else if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
     const modifier = input.charCodeAt(3) - MOUSE_ENCODE_OFFSET
     const x = input.charCodeAt(4) - MOUSE_ENCODE_OFFSET
     const y = input.charCodeAt(5) - MOUSE_ENCODE_OFFSET
-    debugger
     const mouseButton = modifier & 0b11 // 3
     // TODO: handle mousemove and mouseup and correctly
     const type = mouseButton === 3 ? MouseEventType.up : MouseEventType.down
-    // TODO: correctly handle realease
+    // TODO: correctly handle release
     const button =
       mouseButton > 2
         ? MouseEventButton.main
@@ -88,6 +134,7 @@ export function parseInputSequence(
     })
   } else if (
     (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
+    // TODO: remove the double escape sequence and treat it as two events
     (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
   ) {
     let buffer = ''
@@ -132,7 +179,7 @@ export function parseInputSequence(
         }
       } else if (state === InputSequenceParserState.vt_modifier_end_letter) {
         const charCode = readChar.charCodeAt(0)
-        if (charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE) {
+        if (charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE) {
           // end sequence
           keycode = readChar
           modifier = Number(buffer) || 1
@@ -168,14 +215,15 @@ export function parseInputSequence(
     // ctrl + A to Z
     if (charCode > 0 && charCode <= 0x1a) {
       return defineKeypressEvent(
-        String.fromCharCode(A_CHAR_CODE + charCode - 1) as KeyboardEventKeyCode,
+        String.fromCharCode(CHAR_A_CODE + charCode - 1) as KeyboardEventKeyCode,
         {
           ctrlKey: true,
         }
       )
     } else {
+      // TODO: parse as multiples keypress / mouse events
       return defineKeypressEvent(input as KeyboardEventKeyCode, {
-        shiftKey: charCode >= A_CHAR_CODE && charCode <= Z_CHAR_CODE,
+        shiftKey: charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE,
       })
     }
   }
@@ -183,8 +231,91 @@ export function parseInputSequence(
   return
 }
 
-const A_CHAR_CODE = 0x41
-const Z_CHAR_CODE = 0x5a
+const CHAR_0_CODE = 0x30
+const CHAR_9_CODE = 0x39
+const CHAR_A_CODE = 0x41
+const CHAR_Z_CODE = 0x5a
+const CHAR_SPACE_CODE = 0x20 // start of valid values
+const CHAR_TILDE_CODE = 0x7e // end of valid values
+
+/**
+ * Parses a CSI sequence into arguments. `startPos` must be after any special character after the `\x1b[`. e.g. if there
+ * is an `<`, it should start after that.
+ *
+ * @param input - input to read from
+ * @param startPos position where we should start reading
+ */
+function parseCSISequence(input: string, startPos: number) {
+  let stringBuffer = ''
+  // null means we are not reading a number. Anything else, we are reading a number
+  let numericBuffer: null | number = null
+  let pos = startPos
+
+  // note an input could contain multiple events
+  // \x1b\x1b -> Esc + Esc
+  // \x1b$ -> Esc + $
+  // \x1b[M !!\x1b[M$!! -> Mouse press + release
+  // "\x1b[<1;67;27M\x1b[<1;67;27M" -> double middle click press?? in extended mouse capture
+
+  // values read between, differentiates numerical and string
+  // e.g. \x1b[A -> ['A'] (arrow up)
+  // e.g. \x1b[1;2A -> [1, 2, 'A'] -> shift up
+  // e.g. \x1b[1~ -> [1, '~'] -> Home
+  // e.g. \x1b[1;2H -> [1, 2, 'H'] -> shift Home
+  let readValues: Array<string | number> = []
+
+  while (pos < input.length) {
+    const readChar = input.charAt(pos)
+    const readCharCode = input.charCodeAt(pos)
+
+    if (readChar === ';') {
+      // we finished reading one argument
+      readValues.push(numericBuffer ?? stringBuffer)
+      stringBuffer = ''
+      numericBuffer = null
+    } else if (readCharCode >= CHAR_0_CODE && readCharCode <= CHAR_9_CODE) {
+      if (numericBuffer == null) {
+        // first time we parse a number, we shouldn't have a value in stringBuffer
+        numericBuffer = 0
+      } else {
+        // we are adding a number, so we must shift to the left in base 10
+        numericBuffer *= 10
+      }
+      numericBuffer += readCharCode - CHAR_0_CODE // add the current number
+      // an unfinished string buffer was started, consume it
+      if (stringBuffer) {
+        readValues.push(stringBuffer)
+        stringBuffer = ''
+      }
+    } else if (
+      readCharCode >= CHAR_SPACE_CODE &&
+      readCharCode <= CHAR_TILDE_CODE
+    ) {
+      if (numericBuffer != null) {
+        // we were parsing a number before, consume that and start parsing the string
+        // this is usually at the end 1;2H or 1;46;52M
+        readValues.push(numericBuffer)
+        numericBuffer = null // reset the numeric buffer state
+      }
+      stringBuffer += readChar
+    } else {
+      // special character, terminate parsing and return the remaining
+      pos--
+      break
+    }
+    pos++
+  }
+
+  // we had some unfinished consuming
+  if (pos >= input.length) {
+    readValues.push(numericBuffer ?? stringBuffer)
+  }
+
+  return {
+    args: readValues,
+    remaining: input.slice(pos),
+  }
+}
 
 const VT_SEQ_TABLE = new Map<string, KeyboardEventKeyCode>([
   // vt sequences

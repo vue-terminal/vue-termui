@@ -141,6 +141,7 @@ export const enum MouseEventType {
   down,
   move,
   up,
+  unknown = 99,
 }
 
 export interface MouseEvent extends _InputEventModifiers {
