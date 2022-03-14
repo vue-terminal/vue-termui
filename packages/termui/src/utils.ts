@@ -37,10 +37,19 @@ export type LiteralUnion<LiteralType, BaseType extends Primitive> =
   | LiteralType
   | (BaseType & Record<never, never>)
 
+/**
+ * Warns if the current function is called wrong. To be used with functions that require using inject. Returns `true` if
+ * the check is successful, `false` otherwise.
+ *
+ * @param fnName - name of the function being called
+ */
 export function checkCurrentInstance(fnName: string) {
   const instance = getCurrentInstance()
 
   if (!instance) {
-    console.warn(`[Vue TermUI]: "${fnName}" must be called inside "setup()".`)
+    console.warn(`[Vue TermUI]: "${fnName}()" must be called inside "setup()".`)
   }
+  return !!instance
 }
+
+export const noop = () => {}

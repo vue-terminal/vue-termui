@@ -1,5 +1,5 @@
 import { inject, onMounted, onUnmounted } from '@vue/runtime-core'
-import { exitApp } from '../app/createApp'
+import { checkCurrentInstance, noop } from '../utils'
 import { MouseEventMapSymbol, KeyEventMapSymbol } from '../input/handling'
 import { MouseEvent, KeypressEvent, MouseEventType } from '../input/types'
 import { RemoveListener } from './keyboard'
@@ -9,13 +9,10 @@ export interface InputHandler {
 }
 
 export function onInput(handler: InputHandler): RemoveListener {
-  const mouseEventMap = inject(MouseEventMapSymbol)
+  if (!checkCurrentInstance('onInput')) return noop
+
+  const mouseEventMap = inject(MouseEventMapSymbol)!
   const keyEventMap = inject(KeyEventMapSymbol)!
-  if (!mouseEventMap) {
-    // TODO: warning with getCurrentInstance()
-    exitApp()
-    throw new Error('onMouseEvent must be called inside setup')
-  }
 
   const mouseListeners = mouseEventMap.get(MouseEventType.any)!
   const keyListeners = keyEventMap.get('@any')!

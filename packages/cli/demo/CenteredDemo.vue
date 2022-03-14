@@ -5,7 +5,10 @@ import {
   TuiLink as Link,
   ref,
   onMounted,
+  onMouseEvent,
+  onInput,
   onKeypress,
+  reactive,
 } from 'vue-termui'
 
 const n = ref(0)
@@ -19,6 +22,10 @@ onKeypress('+', (event) => {
 
 onKeypress((event) => {
   event.key === 'ArrowDown'
+})
+
+onMouseEvent(0, (event) => {
+  // pressData.value = `MB${event.button}: ${event.clientX}x${event.clientY}`
 })
 
 const lastPress = ref('')
@@ -41,11 +48,22 @@ function displayableChar(c: string) {
   }
 }
 
-const pressData = ref()
-onKeypress((data) => {
+const mousetype = {
+  0: 'mousedown',
+  1: 'mousemove',
+  2: 'mouseup',
+}
+
+const pressData = ref({})
+const position = reactive({ x: 1, y: 1 })
+onInput((data) => {
   const escapedSeq = data.input.split('').map(displayableChar).join('')
   lastPress.value = data.key!
   pressData.value = { ...data, input: escapedSeq }
+  if ('clientX' in data) {
+    position.x = data.clientX - 1
+    position.y = data.clientY - 1
+  }
 })
 </script>
 
@@ -54,18 +72,30 @@ onKeypress((data) => {
     width="100%"
     :height="20"
     justifyContent="center"
+    flexDirection="column"
     alignItems="center"
     borderStyle="round"
     @keypress.h="n++"
   >
-    <Text>
-      <Text color="cyanBright" bold>Hello World {{ n }}</Text>
-      <Br />
-      <Text>Full HMR support!</Text>
-      <br />
-      <Text>Last Keypress "{{ lastPress }}"</Text>
-      <br />
-      <Text bold>{{ pressData }}</Text>
-    </Text>
+    <Box>
+      <Text>
+        <br />
+        <Text>Last Keypress "{{ lastPress }}"</Text>
+        <br />
+      </Text>
+    </Box>
+    <Box
+      :width="40"
+      :height="10"
+      position="absolute"
+      :top="position.y"
+      :left="position.x"
+    >
+      <Text bold
+        >Mouse button: {{ pressData.button }} ({{
+          mousetype[pressData._type]
+        }}): {{ position.x }}x{{ position.y }}</Text
+      >
+    </Box>
   </Box>
 </template>

@@ -1,13 +1,12 @@
 import { inject, onMounted, onUnmounted } from '@vue/runtime-core'
 import { KeyEventMapSymbol } from '../input/handling'
-import { exitApp } from '../app/createApp'
 import {
   KeyboardEventHandler,
   KeyboardEventHandlerFn,
   KeyboardEventKeyCode,
   KeyboardEventRawHandlerFn,
 } from '../input/types'
-import { LiteralUnion } from '../utils'
+import { checkCurrentInstance, LiteralUnion, noop } from '../utils'
 
 export type RemoveListener = () => void
 
@@ -22,12 +21,9 @@ export function onKeypress(
   keyOrHandler: KeyboardEventKey | KeyboardEventKey[] | KeyboardEventHandler,
   handler?: KeyboardEventHandler
 ): RemoveListener {
-  const keyEventMap = inject(KeyEventMapSymbol)
-  if (!keyEventMap) {
-    // TODO: warning with getCurrentInstance()
-    exitApp()
-    throw new Error('onKeypress must be called inside setup')
-  }
+  if (!checkCurrentInstance('onInput')) return noop
+
+  const keyEventMap = inject(KeyEventMapSymbol)!
 
   let keys: string[]
 
