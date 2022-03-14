@@ -1,6 +1,6 @@
 import Yoga from 'yoga-layout-prebuilt'
 import type { OutputTransformer } from './Output'
-import { Styles } from './styles'
+import type { Styles } from './styles'
 import { measureTextNode } from './text'
 
 export class TuiNode {

@@ -4,14 +4,14 @@ import { TuiError } from '../errors/TuiError'
 import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
 import { attachInputHandler } from '../input/handling'
 import { onExit } from '../deps/signal-exit'
-import { DOMElement } from '../dom'
+import { DOMElement } from '../renderer/dom'
 import {
   logSymbol,
   stdoutSymbol,
   rootNodeSymbol,
   renderOnceSymbol,
 } from '../injectionSymbols'
-import { createLog } from '../LogUpdate'
+import { createLog } from '../renderer/LogUpdate'
 import { baseCreateApp } from '../renderer'
 import { RootProps, TuiApp, TuiAppOptions } from './types'
 import { isRawModeSupported } from '../input/inputSequences'

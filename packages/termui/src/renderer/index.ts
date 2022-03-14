@@ -5,9 +5,9 @@ import {
   DOMNode,
   TextNode,
   DOMElementName,
-} from '../dom'
-import { applyStyles } from '../styles'
-import { OutputTransformer } from '../Output'
+} from './dom'
+import { applyStyles } from './styles'
+import { OutputTransformer } from './Output'
 
 function removeNode(node: DOMNode) {
   // recurse for children

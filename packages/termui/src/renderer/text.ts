@@ -2,7 +2,7 @@ import widestLine from 'widest-line'
 import { DOMElement, DOMNode } from './dom'
 import wrapAnsi from 'wrap-ansi'
 import cliTruncate from 'cli-truncate'
-import { Styles } from './styles'
+import type { Styles } from './styles'
 
 export function measureTextNode(
   node: DOMNode,

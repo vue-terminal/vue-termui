@@ -1,6 +1,6 @@
 import { InjectionKey, inject } from '@vue/runtime-core'
-import { DOMElement } from './dom'
-import { LogUpdate } from './LogUpdate'
+import { DOMElement } from './renderer/dom'
+import { LogUpdate } from './renderer/LogUpdate'
 
 export const logSymbol = Symbol('vue-termui:log') as InjectionKey<LogUpdate>
 

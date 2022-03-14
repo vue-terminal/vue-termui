@@ -6,9 +6,9 @@ import {
   defineComponent,
   onUpdated,
 } from '@vue/runtime-core'
-import { Styles } from '../styles'
+import type { Styles } from '../renderer/styles'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
-import { colorize } from '../textColor'
+import { colorize } from '../renderer/textColor'
 
 export const defaultStyle: Styles = {
   flexGrow: 0,

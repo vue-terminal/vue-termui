@@ -1,5 +1,5 @@
 import { getCurrentInstance, Ref, VNode } from '@vue/runtime-core'
-import { DOMElement, DOMNode } from '../dom'
+import { DOMElement, DOMNode } from '../renderer/dom'
 
 interface UseFocusOptions {
   disabled: Ref<boolean>

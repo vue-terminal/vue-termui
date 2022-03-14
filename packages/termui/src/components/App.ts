@@ -9,7 +9,7 @@ import {
   inject,
 } from '@vue/runtime-core'
 import ansiEscapes from 'ansi-escapes'
-import { renderRoot } from '../render'
+import { renderRoot } from '../renderer/render'
 import {
   renderOnceSymbol,
   scheduleUpdateSymbol,

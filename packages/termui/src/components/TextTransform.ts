@@ -8,7 +8,7 @@ import {
   FunctionalComponent,
 } from '@vue/runtime-core'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
-import { OutputTransformer } from '../Output'
+import type { OutputTransformer } from '../renderer/Output'
 import { defaultStyle } from './Text'
 
 /**

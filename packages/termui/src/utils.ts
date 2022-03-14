@@ -1,3 +1,5 @@
+import { getCurrentInstance } from '@vue/runtime-core'
+
 const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null)
   return ((str: string) => {
@@ -34,3 +36,11 @@ export type Primitive =
 export type LiteralUnion<LiteralType, BaseType extends Primitive> =
   | LiteralType
   | (BaseType & Record<never, never>)
+
+export function checkCurrentInstance(fnName: string) {
+  const instance = getCurrentInstance()
+
+  if (!instance) {
+    console.warn(`[Vue TermUI]: "${fnName}" must be called inside "setup()".`)
+  }
+}
