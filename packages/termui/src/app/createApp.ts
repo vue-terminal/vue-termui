@@ -63,12 +63,26 @@ export function createApp(
 
   const onResize = () => {
     // log('Resize')
+    // schedule rerender
   }
 
+  // P s = 9 → Send Mouse X & Y on button press. See the section Mouse Tracking.
+  // P s = 1 0 0 0 → Send Mouse X & Y on button press and release. See the section Mouse Tracking.
+  // P s = 1 0 0 1 → Use Hilite Mouse Tracking.
+  // P s = 1 0 0 2 → Use Cell Motion Mouse Tracking.
+  // P s = 1 0 0 3 → Use All Motion Mouse Tracking.
+  const MOUSE_MODE = '1002'
+  // const ACTIVATE_MOUSE = '\x1b[?9h'
+  // const DEACTIVATE_MOUSE = '\x1b[?9l'
+  // const ACTIVATE_MOUSE = `\x1b[?${MOUSE_MODE}h`
+  // const DEACTIVATE_MOUSE = `\x1b[?${MOUSE_MODE}l`
+  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
+  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
   let detachKeyboardHandler: undefined | (() => void)
   newApp.mount = ({ renderOnce = false, exitOnCtrlC = true } = {}) => {
     cliCursor.hide(stdout)
     log.clear()
+    console.log(ACTIVATE_MOUSE)
 
     stdout.on('resize', onResize)
     const rootEl = new DOMElement('tui-root')
@@ -93,7 +107,10 @@ export function createApp(
         }
       }
 
+      // stdin.setEncoding('binary')
       stdin.setEncoding('utf8')
+      // with utf-8 the mouse reporting doesn't seem to work properly: it stops at x: 95 (\x7f, the end of ASCII), then
+      // it prints a constant \ufffd which makes it useless
 
       if (isEnabled) {
         if (++rawModeEnableCount === 1) {
@@ -109,8 +126,8 @@ export function createApp(
     }
     // TODO: move these and appOnData somewhere else
     const TAB = '\t'
-    const SHIFT_TAB = '\u001B[Z'
-    const ESC = '\u001B'
+    const SHIFT_TAB = '\x1b[Z'
+    const ESC = '\x1b'
     const CTRL_C = '\x03'
     function appOnData(input: string) {
       // Exit on Ctrl+C
@@ -173,6 +190,7 @@ export function createApp(
       resolveExitPromise()
     }
     cliCursor.show(stdout)
+    console.log(DEACTIVATE_MOUSE)
     newApp.unmount()
   }
   _currentExitApp = exitApp

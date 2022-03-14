@@ -40,6 +40,7 @@ function displayableChar(c: string) {
     return `\\u${i.toString(16).padStart(4, '0')}`
   }
 }
+
 const pressData = ref()
 onKeypress((data) => {
   const escapedSeq = data.input.split('').map(displayableChar).join('')

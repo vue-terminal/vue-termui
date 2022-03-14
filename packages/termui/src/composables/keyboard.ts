@@ -5,6 +5,7 @@ import {
   onMounted,
   onUnmounted,
 } from '@vue/runtime-core'
+import { exitApp } from '../app/createApp'
 import { DataToKey, parseInputSequence } from '../input/inputSequences'
 import type {
   KeyboardEventHandler,
@@ -30,6 +31,7 @@ export function onKeypress(
   const eventMap = inject(EventMapSymbol)
   if (!eventMap) {
     // TODO: warning with getCurrentInstance()
+    exitApp()
     throw new Error('onKeypress must be called inside setup')
   }
 
@@ -102,13 +104,7 @@ export function attachKeyboardHandler(
     })
   }
 
-  // TODO: take again from here: this must be done only once and we must manually listen to ctrl+c
-  stdin.setEncoding('utf8')
-
   stdin.addListener('data', handleOnData)
-  stdin.resume()
-  stdin.setRawMode(true)
-
   setRawMode(true)
 
   return () => {

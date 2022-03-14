@@ -1,6 +1,13 @@
 import { debugSequence } from './debug'
-import { defineKeypressEvent } from './keyEvents'
-import type { KeyboardEventKeyCode, KeypressEvent } from './types'
+import { defineKeypressEvent, defineMouseEvent } from './keyEvents'
+import {
+  KeyboardEventKeyCode,
+  KeypressEvent,
+  MouseEvent,
+  MouseEventButton,
+  MouseEventType,
+  _InputEventModifiers,
+} from './types'
 
 /**
  * Special lookup of keys that do not exactly follow the VT or xterm semantics.
@@ -38,6 +45,9 @@ export function isRawModeSupported(stdin: NodeJS.ReadStream) {
 const INPUT_SEQ_START_CHAR = '\x1b' // <esc> <char>, e.g. F4
 const INPUT_SEQ_START = '\x1b[' // complex sequences
 const INPUT_SEQ_START_2 = '\x1b\x1b[' // also complex sequences
+const MOUSE_SEQ_START = '\x1b[M' // Mouse click
+// https://www.systutorials.com/docs/linux/man/4-console_codes/
+const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
 
 const enum InputSequenceParserState {
   xterm,
@@ -53,8 +63,30 @@ const enum InputSequenceParserState {
  *
  * @param input data coming from stdin
  */
-export function parseInputSequence(input: string): KeypressEvent | undefined {
-  if (
+export function parseInputSequence(
+  input: string
+): MouseEvent | KeypressEvent | undefined {
+  if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
+    const modifier = input.charCodeAt(3) - MOUSE_ENCODE_OFFSET
+    const x = input.charCodeAt(4) - MOUSE_ENCODE_OFFSET
+    const y = input.charCodeAt(5) - MOUSE_ENCODE_OFFSET
+    debugger
+    const mouseButton = modifier & 0b11 // 3
+    // TODO: handle mousemove and mouseup and correctly
+    const type = mouseButton === 3 ? MouseEventType.up : MouseEventType.down
+    // TODO: correctly handle realease
+    const button =
+      mouseButton > 2
+        ? MouseEventButton.main
+        : (mouseButton as MouseEventButton)
+
+    return defineMouseEvent(button, x, y, type, {
+      shiftKey: !!(modifier & 4),
+      metaKey: !!(modifier & 8),
+      ctrlKey: !!(modifier & 16),
+      // alt does send other codes apparently and cannot be caught
+    })
+  } else if (
     (input.startsWith(INPUT_SEQ_START) && input.length > 2) ||
     (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
   ) {

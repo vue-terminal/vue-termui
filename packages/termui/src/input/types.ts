@@ -4,7 +4,7 @@ import { LiteralUnion } from '../utils'
  * Base for real keypress events.
  * @internal
  */
-export interface _KeypressEventModifiers {
+export interface _InputEventModifiers {
   /**
    * Is the Ctrl key pressed.
    */
@@ -26,7 +26,7 @@ export interface _KeypressEventModifiers {
    */
   metaKey: boolean
 }
-export interface KeypressEvent extends _KeypressEventModifiers {
+export interface KeypressEvent extends _InputEventModifiers {
   /**
    * The pressed key in text. Special keys have their own representation while regular key letters like A, B, are just
    * that, A, B, etc.
@@ -34,7 +34,11 @@ export interface KeypressEvent extends _KeypressEventModifiers {
   key: LiteralUnion<KeyboardEventKeyCode, string>
 }
 
-export interface KeypressEventRaw extends _KeypressEventModifiers {
+export function isKeypressEvent(event: any): event is KeypressEvent {
+  return 'key' in event
+}
+
+export interface KeypressEventRaw extends _InputEventModifiers {
   input: string
   key: LiteralUnion<KeyboardEventKeyCode, string> | undefined
 }
@@ -114,7 +118,7 @@ export type KeyboardEventKeyCode =
 
 function defineKeypressEvent(
   key: KeyboardEventKeyCode,
-  modifiers?: Partial<_KeypressEventModifiers>
+  modifiers?: Partial<_InputEventModifiers>
 ): KeypressEvent {
   return {
     key,
@@ -124,4 +128,28 @@ function defineKeypressEvent(
     metaKey: false,
     ...modifiers,
   }
+}
+
+export const enum MouseEventButton {
+  main = 0, // usually left
+  aux = 1, // usually wheel button
+  secondary = 2, // usually the right button
+  // release = 3 // not really a button
+}
+
+export const enum MouseEventType {
+  down,
+  move,
+  up,
+}
+
+export interface MouseEvent extends _InputEventModifiers {
+  button: MouseEventButton
+  _type: MouseEventType
+  clientX: number
+  clientY: number
+}
+
+export function isMouseEvent(event: any): event is MouseEvent {
+  return 'button' in event
 }
