@@ -13,7 +13,6 @@ import {
 } from '../injectionSymbols'
 import { createLog } from '../LogUpdate'
 import { baseCreateApp } from '../renderer'
-import { setupHMRSocket } from '../hmr'
 import { RootProps, TuiApp, TuiAppOptions } from './types'
 import { isRawModeSupported } from '../input/inputSequences'
 
@@ -83,15 +82,14 @@ export function createApp(
   // 1015 RXVT mouse mode: Allows mouse coordinates of >223
   // 1006 SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode -> ESC[<button;x;y;M
   // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Extended-coordinates
-  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1006h`
-  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1002l\x1b[?1000l`
+  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1005h`
+  const DEACTIVATE_MOUSE = `\x1b?1005l\x1b[?1002l\x1b[?1000l`
   // const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
   // const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
   let detachKeyboardHandler: undefined | (() => void)
   newApp.mount = ({ renderOnce = false, exitOnCtrlC = true } = {}) => {
     cliCursor.hide(stdout)
     log.clear()
-    stdout.write(ACTIVATE_MOUSE)
 
     stdout.on('resize', onResize)
     const rootEl = new DOMElement('tui-root')
@@ -123,8 +121,10 @@ export function createApp(
           stdin.addListener('data', appOnData)
           stdin.resume()
           stdin.setRawMode(true)
+          stdout.write(ACTIVATE_MOUSE)
         }
       } else if (--rawModeEnableCount === 0) {
+        stdout.write(DEACTIVATE_MOUSE)
         stdin.setRawMode(false)
         stdin.removeListener('data', appOnData)
         stdin.pause()
@@ -196,7 +196,6 @@ export function createApp(
       resolveExitPromise()
     }
     cliCursor.show(stdout)
-    stdout.write(DEACTIVATE_MOUSE)
     newApp.unmount()
   }
   _currentExitApp = exitApp
@@ -212,7 +211,9 @@ export function createApp(
   // the variable is injected via the vite plugin so this part of the code is always skipped
   // TODO: check if it works when no ws is installed, if not maybe move to dynamic import
   if (process.env.NODE_ENV !== 'production') {
-    setupHMRSocket(newApp, exitApp)
+    import('../hmr').then(({ setupHMRSocket }) => {
+      setupHMRSocket(newApp, exitApp)
+    })
   }
 
   return newApp

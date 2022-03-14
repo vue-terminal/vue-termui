@@ -49,6 +49,7 @@ const MOUSE_SEQ_START = '\x1b[M' // Mouse click
 // https://www.systutorials.com/docs/linux/man/4-console_codes/
 const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
 const MOUSE_EXTENDED_SEQ_START = '\x1b[<' // Ends with M/m
+const CSI_SEQ_START = '\x1b['
 
 const enum InputSequenceParserState {
   xterm,
@@ -57,10 +58,10 @@ const enum InputSequenceParserState {
   vt_modifier_end_letter,
 }
 
+type CSISeqParsed = Array<string | number>
+
 type MouseExtendedCSISeq = [number, number, number, string]
-function isMouseExtendedCSISeq(
-  seq: Array<string | number>
-): seq is MouseExtendedCSISeq {
+function isMouseExtendedCSISeq(seq: CSISeqParsed): seq is MouseExtendedCSISeq {
   return (
     seq.length === 4 &&
     typeof seq[0] === 'number' &&
@@ -68,6 +69,50 @@ function isMouseExtendedCSISeq(
     typeof seq[2] === 'number' &&
     typeof seq[3] === 'string'
   )
+}
+
+// [keycode, ~] | [keycode, modifier, ~]
+type VTKeycodeSeq = [number, '~'] | [number, number, '~']
+
+function isVTKeycodeSeq(seq: CSISeqParsed): seq is VTKeycodeSeq {
+  return (
+    (seq.length === 2 && typeof seq[0] === 'number' && seq[1] === '~') ||
+    (seq.length === 3 &&
+      typeof seq[1] === 'number' &&
+      typeof seq[2] === 'number' &&
+      seq[3] === '~')
+  )
+}
+
+function parseVTKeycodeSeq(seq: VTKeycodeSeq) {
+  return {
+    key: VT_KEYCODE_TABLE.get(seq[0]),
+    // removes 1 by default because they all have 1 added
+    modifier: seq.length === 2 ? 0 : seq[1] - 1,
+  }
+}
+
+// [string keycode] | [modifier, string keycode] | [1, modifier, string keycode]
+type XtermKeycodeSeq = [string] | [number, string] | [1, number, string]
+
+function isXtermKeycodeSeq(seq: CSISeqParsed): seq is XtermKeycodeSeq {
+  return (
+    (seq.length === 1 && typeof seq[0] === 'string') ||
+    (seq.length === 2 &&
+      typeof seq[0] === 'number' &&
+      typeof seq[1] === 'string') ||
+    (seq.length === 3 &&
+      typeof seq[1] === 'number' &&
+      typeof seq[2] === 'string')
+  )
+}
+
+function parseXtermKeycodeSeq(seq: XtermKeycodeSeq) {
+  return {
+    key: XTERM_KEYCODE_TABLE.get(seq[seq.length - 1] as string), // the last is always a string
+    // removes 1 by default because they all have 1 added
+    modifier: seq.length > 1 ? (seq[seq.length - 2] as number) - 1 : 0,
+  }
 }
 
 /**
@@ -82,8 +127,8 @@ export function parseInputSequence(
 ): MouseEvent | KeypressEvent | undefined {
   if (input.startsWith(MOUSE_EXTENDED_SEQ_START)) {
     const { args, remaining } = parseCSISequence(input, 3)
-    if (args.length === 4) {
-      const [modifier, x, y, endSeq] = args as MouseExtendedCSISeq
+    if (isMouseExtendedCSISeq(args)) {
+      const [modifier, x, y, endSeq] = args
       const isDragging = modifier & 32
 
       // TODO: wheel buttons / scroll when modifier & 64
@@ -106,7 +151,7 @@ export function parseInputSequence(
         shiftKey: !!(modifier & 4),
         metaKey: !!(modifier & 8),
         ctrlKey: !!(modifier & 16),
-        // altKey: ??
+        // apparently altKey cannot be added
       })
     }
 
@@ -114,6 +159,8 @@ export function parseInputSequence(
       // TODO: parse again and emit more!
     }
   } else if (input.startsWith(MOUSE_SEQ_START) && input.length > 3) {
+    // Legacy mouse support, only handle basic operations and coordinates under 95
+    // TODO: refactor to be similar to the mouse extended block above and simplify or remove
     const modifier = input.charCodeAt(3) - MOUSE_ENCODE_OFFSET
     const x = input.charCodeAt(4) - MOUSE_ENCODE_OFFSET
     const y = input.charCodeAt(5) - MOUSE_ENCODE_OFFSET
@@ -137,77 +184,31 @@ export function parseInputSequence(
     // TODO: remove the double escape sequence and treat it as two events
     (input.startsWith(INPUT_SEQ_START_2) && input.length > 3)
   ) {
-    let buffer = ''
-    let pos = input.indexOf('[') + 1 // start after the [
-    let keycode: string | undefined
-    let modifier: number = 1 // default modifier
-    let state: InputSequenceParserState = InputSequenceParserState.xterm
+    const { args, remaining } = parseCSISequence(input, input.indexOf('[') + 1)
 
-    if (input.endsWith('~')) {
-      // the first number must be present and is a keycode number
-      state = InputSequenceParserState.vt_keycode_and_modifier
-    } else if (/[A-Z]$/.test(input)) {
-      // the letter is the keycode value and the optional number is the modifier value
-      // they keycode is dropped, usually equals 1
-      state = InputSequenceParserState.vt_keycode_drop
-    }
+    const { key, modifier } = isVTKeycodeSeq(args)
+      ? // e.g. Home button \x1b[1~
+        // the first number must be present and is a keycode number
+        // the second is optional and is the modifier
+        parseVTKeycodeSeq(args)
+      : isXtermKeycodeSeq(args)
+      ? // e.g.shift Home \x1b[1;2H
+        parseXtermKeycodeSeq(args)
+      : { key: undefined, modifier: 0 }
 
-    while (pos < input.length) {
-      const readChar = input.charAt(pos)
-
-      if (state === InputSequenceParserState.vt_keycode_and_modifier) {
-        if (readChar === '~') {
-          // end of sequence
-          // keycode = buffer
-          break
-        } else if (readChar === ';') {
-          // we read a keycode, onto the modifier
-          keycode = buffer
-          buffer = ''
-        } else {
-          buffer += readChar
-        }
-      } else if (state === InputSequenceParserState.vt_keycode_drop) {
-        if (readChar === ';') {
-          // drop the buffer and move into getting the modifier and keycode
-          buffer = ''
-          state = InputSequenceParserState.vt_modifier_end_letter
-        } else {
-          // since the ; is optional we might never find it, so we still need to keep the buffer as it could become the
-          // keycode
-          buffer += readChar
-        }
-      } else if (state === InputSequenceParserState.vt_modifier_end_letter) {
-        const charCode = readChar.charCodeAt(0)
-        if (charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE) {
-          // end sequence
-          keycode = readChar
-          modifier = Number(buffer) || 1
-          break
-        } else {
-          buffer += readChar
-        }
-      }
-
-      pos++
-    }
-
-    // we always remove one
-    modifier--
-    // consume the buffer if it wasn't consumed
-    keycode = keycode || buffer
-    const key = VT_SEQ_TABLE.get(keycode)
-    // TODO: non existent keys
+    // cannot handle non existent keys
     if (!key) {
-      console.error({ modifier, keycode, input: debugSequence(input), state })
-      throw new Error(`Report bug for ${keycode} and say what did you press`)
+      return
+    }
+
+    if (remaining) {
+      // TODO: parse again and emit more events!
     }
 
     return defineKeypressEvent(key, {
       shiftKey: !!(modifier & 1),
       altKey: !!(modifier & 2),
       ctrlKey: !!(modifier & 4),
-      // specified by spec but doesn't work
       metaKey: !!(modifier & 8),
     })
   } else if (input.length === 1) {
@@ -316,6 +317,62 @@ function parseCSISequence(input: string, startPos: number) {
     remaining: input.slice(pos),
   }
 }
+
+const VT_KEYCODE_TABLE = new Map<number, KeyboardEventKeyCode>([
+  // vt sequences
+  [1, 'Home'],
+  [2, 'Insert'],
+  [3, 'Delete'],
+  [4, 'End'],
+  [5, 'PageUp'],
+  [6, 'PageDown'],
+  [7, 'Home'],
+  [8, 'End'],
+
+  [10, 'F0'],
+  [11, 'F1'],
+  [12, 'F2'],
+  [13, 'F3'],
+  [14, 'F4'],
+  [15, 'F5'],
+  // and we skip one because why not!
+  [17, 'F6'],
+  [18, 'F7'],
+  [19, 'F8'],
+  [20, 'F9'],
+  [21, 'F10'],
+  // another one!
+  [23, 'F11'],
+  [24, 'F12'],
+  [25, 'F13'],
+  [26, 'F14'],
+  // such logic!
+  [28, 'F15'],
+  [29, 'F16'],
+  // 🤯
+  [31, 'F17'],
+  [32, 'F18'],
+  [33, 'F19'],
+  [34, 'F20'],
+])
+
+const XTERM_KEYCODE_TABLE = new Map<string, KeyboardEventKeyCode>([
+  // xterm sequences
+  ['A', 'ArrowUp'],
+  ['B', 'ArrowDown'],
+  ['C', 'ArrowRight'],
+  ['D', 'ArrowLeft'],
+
+  ['F', 'End'],
+  // TODO: I can't test this one, what is the actual key named?
+  // https://w3c.github.io/uievents/tools/key-event-viewer.html
+  ['G', 'Numpad5'],
+  ['H', 'Home'],
+  ['P', 'F1'],
+  ['Q', 'F2'],
+  ['R', 'F3'],
+  ['S', 'F4'],
+])
 
 const VT_SEQ_TABLE = new Map<string, KeyboardEventKeyCode>([
   // vt sequences
