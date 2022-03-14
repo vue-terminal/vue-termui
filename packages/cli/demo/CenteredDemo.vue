@@ -1,15 +1,5 @@
 <script setup lang="ts">
-import {
-  TuiBox as Box,
-  TuiText as Text,
-  TuiLink as Link,
-  ref,
-  onMounted,
-  onMouseEvent,
-  onInput,
-  onKeypress,
-  reactive,
-} from 'vue-termui'
+import { ref, onMouseEvent, onInput, onKeypress, reactive } from 'vue-termui'
 
 const n = ref(0)
 
@@ -68,7 +58,7 @@ onInput((data) => {
 </script>
 
 <template>
-  <Box
+  <Div
     width="100%"
     :height="20"
     justifyContent="center"
@@ -77,25 +67,25 @@ onInput((data) => {
     borderStyle="round"
     @keypress.h="n++"
   >
-    <Box>
-      <Text>
+    <div>
+      <span>
+        <Text color="red" bold dimmed>Last Keypress "{{ lastPress }}"</Text>
         <br />
-        <Text>Last Keypress "{{ lastPress }}"</Text>
-        <br />
-      </Text>
-    </Box>
-    <Box
+        <Link href="https://esm.dev">Site</Link>
+      </span>
+    </div>
+    <div
       :width="40"
       :height="10"
       position="absolute"
       :top="position.y"
       :left="position.x"
     >
-      <Text bold
+      <span bold
         >Mouse button: {{ pressData.button }} ({{
           mousetype[pressData._type]
-        }}): {{ position.x }}x{{ position.y }}</Text
+        }}): {{ position.x }}x{{ position.y }}</span
       >
-    </Box>
-  </Box>
+    </div>
+  </Div>
 </template>

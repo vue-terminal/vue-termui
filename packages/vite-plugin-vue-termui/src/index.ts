@@ -1,10 +1,43 @@
 import type { Plugin } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
 import type { ImportsMap } from 'unplugin-auto-import/types'
 
 export default function VueTermui(): Plugin[] {
   return [
+    AutoImport({
+      dts: true,
+      include: [/\.[tj]sx$/, /\.vue$/, /\.vue\?vue/],
+      imports: [
+        {
+          'vue-termui': VueTuiExports,
+        },
+      ],
+    }),
+
+    Components({
+      dts: true,
+      resolvers: [
+        {
+          type: 'component',
+          resolve: (name) => {
+            name = name.toLowerCase()
+            const importName = VueTuiComponents.get(name)
+            if (importName) {
+              return {
+                importName,
+                // always first uppercase letter
+                // TODO: use camelize / capitalize functions from utils folder in vue-termui
+                name: name[0].toUpperCase() + name.slice(1),
+                path: 'vue-termui',
+              }
+            }
+          },
+        },
+      ],
+    }),
+
     {
       name: 'vue-termui',
 
@@ -69,14 +102,26 @@ export default function VueTermui(): Plugin[] {
         },
       },
     }),
-    AutoImport({
-      dts: true,
-      imports: {
-        'vue-termui': VueTuiExports,
-      },
-    }),
   ]
 }
+
+export const VueTuiComponents = new Map<string, string>([
+  ['br', 'TuiNewline'],
+  ['newline', 'TuiNewline'],
+
+  ['span', 'TuiText'],
+  ['text', 'TuiText'],
+
+  // FIXME: this one doesn't currently work because it has one letter
+  ['a', 'TuiLink'],
+  ['link', 'TuiLink'],
+
+  ['div', 'TuiBox'],
+  ['box', 'TuiBox'],
+
+  ['transform', 'TuiTextTransform'],
+  ['text-transform', 'TuiTextTransform'],
+])
 
 // Having this on a different file fails...
 export const VueTuiExports: ImportsMap[string] = [
@@ -149,22 +194,24 @@ export const VueTuiExports: ImportsMap[string] = [
   'onInput',
 
   // components
-  'TuiText',
-  ['TuiText', 'Text'],
-  ['TuiText', 'Span'],
+  // 'TuiText',
+  // ['TuiText', 'Text'],
+  // ['TuiText', 'Span'],
 
-  'TuiNewline',
-  ['TuiNewline', 'Newline'],
-  ['TuiNewline', 'Br'],
+  // 'TuiNewline',
+  // ['TuiNewline', 'Newline'],
+  // ['TuiNewline', 'Br'],
 
-  'TuiBox',
-  ['TuiBox', 'Div'],
-  ['TuiBox', 'Box'],
+  // 'TuiBox',
+  // ['TuiBox', 'Div'],
+  // ['TuiBox', 'Box'],
 
-  'TuiLink',
-  ['TuiLink', 'Link'],
-  ['TuiLink', 'A'],
+  // 'TuiLink',
+  // ['TuiLink', 'Link'],
+  // // One character doesn't seem to work
+  // // https://sfc.vuejs.org/#eyJBcHAudnVlIjoiPHNjcmlwdCBzZXR1cD5cbmltcG9ydCB7IHJlZiB9IGZyb20gJ3Z1ZSdcblxuY29uc3QgbXNnID0gcmVmKCdIZWxsbyBXb3JsZCEnKVxuXG5jb25zdCBUb3RvID0gKCkgPT4gJ0kgYW0gVG90bydcbmNvbnN0IFMgPSAoKSA9PiAnaGVoZSdcbmNvbnN0IFNhID0gKCkgPT4gJ2hhaGEnXG48L3NjcmlwdD5cblxuPHRlbXBsYXRlPlxuICA8aDE+e3sgbXNnIH19PC9oMT5cbiAgPGlucHV0IHYtbW9kZWw9XCJtc2dcIj5cbiAgPFMvPlxuICA8cy8+XG4gIDxzYS8+XG48L3RlbXBsYXRlPiIsImltcG9ydC1tYXAuanNvbiI6IntcbiAgXCJpbXBvcnRzXCI6IHtcbiAgICBcInZ1ZVwiOiBcImh0dHBzOi8vc2ZjLnZ1ZWpzLm9yZy92dWUucnVudGltZS5lc20tYnJvd3Nlci5qc1wiXG4gIH1cbn0ifQ==
+  // ['TuiLink', 'A'],
 
-  'TuiTextTransform',
-  ['TuiTextTransform', 'TextTransform'],
+  // 'TuiTextTransform',
+  // ['TuiTextTransform', 'TextTransform'],
 ]

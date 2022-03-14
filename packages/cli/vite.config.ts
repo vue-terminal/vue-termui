@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import VueTermui from 'vite-plugin-vue-termui'
+import Inspect from 'vite-plugin-inspect'
 import { resolve } from 'path'
 
 export default defineConfig({
@@ -8,5 +9,5 @@ export default defineConfig({
       'vue-termui': resolve('../termui/src/index.ts'),
     },
   },
-  plugins: [VueTermui()],
+  plugins: [VueTermui(), Inspect()],
 })

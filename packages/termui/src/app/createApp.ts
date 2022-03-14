@@ -45,20 +45,18 @@ export function createApp(
   const newApp = app as unknown as TuiApp
 
   // TODO: use auto import to enable treeshaking
-  newApp.component('TuiText', TuiText)
-  newApp.component('Text', TuiText)
-  newApp.component('Span', TuiText)
-  // newApp.component('span', TuiText)
+  // for some reason it currently fails..
+  // newApp.component('TuiText', TuiText)
+  // newApp.component('Text', TuiText)
+  // newApp.component('Span', TuiText)
 
-  newApp.component('TuiNewline', TuiNewline)
-  newApp.component('Newline', TuiNewline)
-  newApp.component('Br', TuiNewline)
-  // newApp.component('br', TuiNewline)
+  // newApp.component('TuiNewline', TuiNewline)
+  // newApp.component('Newline', TuiNewline)
+  // newApp.component('Br', TuiNewline)
 
-  newApp.component('TuiBox', TuiBox)
-  newApp.component('Box', TuiBox)
-  newApp.component('Div', TuiBox)
-  // newApp.component('div', TuiBox)
+  // newApp.component('TuiBox', TuiBox)
+  // newApp.component('Box', TuiBox)
+  // newApp.component('Div', TuiBox)
 
   const onResize = () => {
     // log('Resize')
