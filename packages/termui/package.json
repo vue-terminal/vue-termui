@@ -3,6 +3,7 @@
   "version": "0.0.8",
   "private": false,
   "type": "module",
+  "types": "./dist/src",
   "exports": {
     ".": {
       "import": "./dist/vue-termui.mjs",
