@@ -9,4 +9,12 @@ export default defineConfig({
   dts: true,
   // entry: [resolve(__dirname, 'src/index.ts')],
   entry: ['src/index.ts'],
+  external: [
+    'vite',
+    '@vitejs/plugin-vue',
+    'unplugin-auto-import',
+    'unplugin-auto-import/vite',
+    'unplugin-vue-components',
+    'unplugin-vue-components/vite',
+  ],
 })
