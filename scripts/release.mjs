@@ -258,7 +258,10 @@ async function updateVersions(packageList) {
       updateDeps(pkg, 'peerDependencies', packageList)
       const content = JSON.stringify(pkg, null, 2) + '\n'
       return isDryRun
-        ? dryRun('write', [name], content)
+        ? dryRun('write', [name], {
+            dependencies: pkg.dependencies,
+            peerDependencies: pkg.peerDependencies,
+          })
         : fs.writeFile(join(path, 'package.json'), content)
     })
   )
