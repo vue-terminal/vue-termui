@@ -1,4 +1,3 @@
-import { resolve } from 'path'
 import { defineConfig } from 'tsup'
 import { peerDependencies } from './package.json'
 
