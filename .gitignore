@@ -21,3 +21,4 @@ dist-ssr
 *.sln
 *.sw?
 tsconfig.tsbuildinfo
+@vite:client.ts
