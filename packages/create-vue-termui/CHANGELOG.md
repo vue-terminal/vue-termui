@@ -1,3 +1,13 @@
+## [0.0.8](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.7...create-vue-termui@0.0.8) (2022-03-15)
+
+### Bug Fixes
+
+- add initial d.ts ([f9f91a9](https://github.com/posva/vue-termui/commit/f9f91a9115041ce3da708986287bb9892e9b75cd))
+
+### Features
+
+- more complex hello world ([2fc38da](https://github.com/posva/vue-termui/commit/2fc38dadc2c31c40eaf4704879eb3ce3c9b7a338))
+
 ## [0.0.7](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.6...create-vue-termui@0.0.7) (2022-03-15)
 
 ### Bug Fixes

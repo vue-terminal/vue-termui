@@ -1,3 +1,9 @@
+## [0.0.9](https://github.com/posva/vue-termui/compare/vue-termui@0.0.8...vue-termui@0.0.9) (2022-03-15)
+
+### Bug Fixes
+
+- types in package.json ([c78adf6](https://github.com/posva/vue-termui/commit/c78adf611c2a920823af6e2648ac6ddf34d169c0))
+
 ## [0.0.8](https://github.com/posva/vue-termui/compare/vue-termui@0.0.7...vue-termui@0.0.8) (2022-03-15)
 
 ### Bug Fixes
