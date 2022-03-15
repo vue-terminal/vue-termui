@@ -34,7 +34,7 @@ setInterval(() => {
       <Text color="cyanBright">Hello World </Text>
       <Text>{{ n % 2 ? '👋 ' : ' ✋' }}</Text>
     </Box>
-    <Text>
+    <Box>
       <Text
         >Counter:
         <Text :color="counter < 0 ? 'red' : 'green'" bold>{{ counter }}</Text>
@@ -43,7 +43,6 @@ setInterval(() => {
           change it)</Text
         >
       </Text>
-      <Newline />
-    </Text>
+    </Box>
   </Box>
 </template>
