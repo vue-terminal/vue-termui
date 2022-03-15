@@ -329,6 +329,7 @@ async function getChangedPackages() {
     lastTag = stdout
   } catch (error) {
     // maybe there are no tags
+    console.error(`Couldn't get the last tag, using first commit...`)
     const { stdout } = await run(
       'git',
       ['rev-list', '--max-parents=0', 'HEAD'],
@@ -354,6 +355,7 @@ async function getChangedPackages() {
             '--',
             // apparently {src,package.json} doesn't work
             join(folder, 'src'),
+            join(folder, 'template-ts'),
             join(folder, 'package.json'),
           ],
           { stdio: 'pipe' }
