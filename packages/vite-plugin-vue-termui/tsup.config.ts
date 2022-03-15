@@ -1,5 +1,6 @@
 import { resolve } from 'path'
 import { defineConfig } from 'tsup'
+import { peerDependencies } from './package.json'
 
 export default defineConfig({
   clean: true,
@@ -10,11 +11,8 @@ export default defineConfig({
   // entry: [resolve(__dirname, 'src/index.ts')],
   entry: ['src/index.ts'],
   external: [
-    'vite',
-    '@vitejs/plugin-vue',
-    'unplugin-auto-import',
+    ...Object.keys(peerDependencies),
     'unplugin-auto-import/vite',
-    'unplugin-vue-components',
     'unplugin-vue-components/vite',
   ],
 })
