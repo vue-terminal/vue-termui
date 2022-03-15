@@ -35,67 +35,72 @@ const external = [
   'path', // huh?
 ]
 
-const plugins = [
-  alias({
-    entries: [{ find: /^node:(.+)$/, replacement: '$1' }],
-  }),
-  resolve({ preferBuiltins: true }),
-  json(),
-  commonjs(),
-  esbuild({ target: 'node14' }),
-]
+function configurePlugins(isProduction) {
+  return [
+    alias({
+      entries: [{ find: /^node:(.+)$/, replacement: '$1' }],
+    }),
+    resolve({ preferBuiltins: true }),
+    json(),
+    commonjs(),
+    esbuild({ target: 'node14', minify: isProduction }),
+  ]
+}
 
-export default ({ watch }) => [
-  {
-    input: entries,
-    output: {
-      dir: 'dist',
-      format: 'esm',
-      sourcemap: 'inline',
-      chunkFileNames: (chunkInfo) => {
-        const id =
-          chunkInfo.facadeModuleId ||
-          Object.keys(chunkInfo.modules).find(
-            (i) => !i.includes('node_modules') && i.includes('src/')
-          )
-        if (id) {
-          const parts = Array.from(
-            new Set(
-              path
-                .relative(process.cwd(), id)
-                .split(/\//g)
-                .map((i) => i.replace(/\..*$/, ''))
-                .filter(
-                  (i) =>
-                    !['src', 'index', 'dist', 'node_modules'].some((j) =>
-                      i.includes(j)
-                    ) && i.match(/^[\w_-]+$/)
-                )
+export default ({ watch }) => {
+  const isProduction = process.env.NODE_ENV === 'production'
+  return [
+    {
+      input: entries,
+      output: {
+        dir: 'dist',
+        format: 'esm',
+        sourcemap: isProduction ? false : 'inline',
+        chunkFileNames: (chunkInfo) => {
+          const id =
+            chunkInfo.facadeModuleId ||
+            Object.keys(chunkInfo.modules).find(
+              (i) => !i.includes('node_modules') && i.includes('src/')
             )
-          )
-          if (parts.length)
-            return `chunk-${parts.slice(-2).join('-')}.[hash].js`
-        }
-        return 'vendor-[name].[hash].js'
+          if (id) {
+            const parts = Array.from(
+              new Set(
+                path
+                  .relative(process.cwd(), id)
+                  .split(/\//g)
+                  .map((i) => i.replace(/\..*$/, ''))
+                  .filter(
+                    (i) =>
+                      !['src', 'index', 'dist', 'node_modules'].some((j) =>
+                        i.includes(j)
+                      ) && i.match(/^[\w_-]+$/)
+                  )
+              )
+            )
+            if (parts.length)
+              return `chunk-${parts.slice(-2).join('-')}.[hash].js`
+          }
+          return 'vendor-[name].[hash].js'
+        },
+      },
+      external,
+      plugins: [...configurePlugins(isProduction), !watch && licensePlugin()],
+      onwarn(message) {
+        if (/Circular dependencies/.test(message)) return
+        console.error(message)
       },
     },
-    external,
-    plugins: [...plugins, !watch && licensePlugin()],
-    onwarn(message) {
-      if (/Circular dependencies/.test(message)) return
-      console.error(message)
-    },
-  },
-  ...dtsEntries.map((input) => ({
-    input,
-    output: {
-      file: input.replace('src/', 'dist/').replace('.ts', '.d.ts'),
-      format: 'esm',
-    },
-    external,
-    plugins: [dts({ respectExternal: true })],
-  })),
-]
+    ...dtsEntries.map((input) => ({
+      input,
+      output: {
+        file: input.replace('src/', 'dist/').replace('.ts', '.d.ts'),
+        format: 'esm',
+      },
+      external,
+      plugins: [dts({ respectExternal: true })],
+    })),
+  ]
+}
 
 function licensePlugin() {
   return license({

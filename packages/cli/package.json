@@ -9,10 +9,9 @@
   "scripts": {
     "dev": "esmo src/cli.ts dev demo/main.ts",
     "demo:build": "esmo src/cli.ts build demo/main.ts",
-    "start": "node dist/index.mjs",
-    "build": "rimraf dist && rollup -c",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l @vue-termui/cli -r 1",
-    "prepublishOnly": "npm run build"
+    "build": "rimraf dist && rollup -c --environment NODE_ENV:production",
+    "build:dev": "rimraf dist && rollup -c -w",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l @vue-termui/cli -r 1"
   },
   "exports": {
     ".": {
@@ -47,6 +46,9 @@
     "type": "git",
     "url": "https://github.com/posva/vue-termui.git",
     "directory": "packages/cli"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "bugs": {
     "url": "https://github.com/posva/vue-termui/issues"
