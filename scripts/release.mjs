@@ -315,7 +315,7 @@ async function publishPackage(pkg) {
 }
 
 /**
- * Get the packages that have changed based on `lerna changed`.
+ * Get the packages that have changed. Based on `lerna changed` but without lerna.
  *
  * @returns {Promise<{ name: string; path: string; pkg: any; version: string }[]}
  */
