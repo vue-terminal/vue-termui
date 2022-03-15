@@ -76,10 +76,10 @@ export function createApp(
   // 1015 RXVT mouse mode: Allows mouse coordinates of >223
   // 1006 SGR mouse mode: Allows mouse coordinates of >223, preferred over RXVT mode -> ESC[<button;x;y;M
   // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Extended-coordinates
-  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1006h`
-  const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1002l\x1b[?1000l`
+  const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1005\x1b[?1006h`
+  const DEACTIVATE_MOUSE = `\x1b[?1006l\x1b[?1005\x1b[?1002l\x1b[?1000l`
   // const ACTIVATE_MOUSE = `\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h`
-  // const DEACTIVATE_MOUSE = `\x1b?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
+  // const DEACTIVATE_MOUSE = `\x1b[?1006l\x1b[?1015l\x1b[?1002l\x1b[?1000l`
   let detachKeyboardHandler: undefined | (() => void)
   newApp.mount = ({ renderOnce = false, exitOnCtrlC = true } = {}) => {
     cliCursor.hide(stdout)
@@ -115,10 +115,11 @@ export function createApp(
           stdin.addListener('data', appOnData)
           stdin.resume()
           stdin.setRawMode(true)
-          stdout.write(ACTIVATE_MOUSE)
+          stdin.write(ACTIVATE_MOUSE)
         }
       } else if (--rawModeEnableCount === 0) {
-        stdout.write(DEACTIVATE_MOUSE)
+        // TODO: should we write these codes to stdin or stdout?
+        stdin.write(DEACTIVATE_MOUSE)
         stdin.setRawMode(false)
         stdin.removeListener('data', appOnData)
         stdin.pause()
