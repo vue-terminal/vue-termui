@@ -1,10 +1,13 @@
 {
   "name": "vite-plugin-vue-termui",
+  "description": "Vite Plugin for Vue TermUI",
   "private": false,
   "version": "0.0.6",
+  "sideEffects": false,
   "scripts": {
     "dev": "tsup -w",
     "build": "tsup",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vite-plugin-vue-termui -r 1",
     "prepublishOnly": "npm run build"
   },
   "exports": {
@@ -23,6 +26,28 @@
     "dist/*.mjs",
     "dist/*.d.ts"
   ],
+  "keywords": [
+    "vite",
+    "plugin",
+    "vue",
+    "term",
+    "ui",
+    "terminal",
+    "termui",
+    "tui"
+  ],
+  "funding": "https://github.com/posva/vue-termui?sponsor=1",
+  "license": "MIT",
+  "author": "Eduardo San Martin Morote (https://esm.dev)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/posva/vue-termui.git",
+    "directory": "packages/vite-plugin-vue-termui"
+  },
+  "bugs": {
+    "url": "https://github.com/posva/vue-termui/issues"
+  },
+  "homepage": "https://github.com/posva/vue-termui#readme",
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
     "@vue/compiler-sfc": "^3.2.25",
