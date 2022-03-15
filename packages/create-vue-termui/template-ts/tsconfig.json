@@ -1,5 +1,5 @@
 {
-  "include": ["src", "src/**/*.d.ts", "src/**/*.vue"],
+  "include": ["src", "src/**/*.d.ts", "src/**/*.vue", "*.d.ts"],
   "compilerOptions": {
     "target": "esnext",
     "useDefineForClassFields": true,
