@@ -1,3 +1,9 @@
+## [0.0.7](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.6...create-vue-termui@0.0.7) (2022-03-15)
+
+### Bug Fixes
+
+- correct deps ([a2e5fa6](https://github.com/posva/vue-termui/commit/a2e5fa6be58b9e3a69906fea37f76464843f2a2d))
+
 ## 0.0.6 (2022-03-15)
 
 ### Bug Fixes
