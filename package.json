@@ -8,9 +8,8 @@
   },
   "scripts": {
     "release": "node scripts/release.mjs",
-    "build": "pnpm run -r build --filter ./packages",
-    "types": "pnpm run -r types --filter ./packages",
-    "watch": "pnpm run build && pnpm run -r watch --parallel --filter ./packages",
+    "build": "pnpm run -r build --filter ./packages/cli --filter ./packages/termui --filter ./packages/vite-plugin-vue-termui",
+    "types": "pnpm run -r types --filter ./packages/termui",
     "test": "pnpm run -r test --parallel --filter ./packages",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",

@@ -204,7 +204,7 @@ export function createApp(
 
   // the variable is injected via the vite plugin so this part of the code is always skipped
   // TODO: check if it works when no ws is installed, if not maybe move to dynamic import
-  if (process.env.NODE_ENV !== 'production') {
+  if (__DEV__) {
     import('../hmr').then(({ setupHMRSocket }) => {
       setupHMRSocket(newApp, exitApp)
     })

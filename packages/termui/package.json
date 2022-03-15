@@ -5,16 +5,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": "./dist/vue-termui.mjs",
       "types": "./dist/src"
-    },
-    "./vite": "./src/vite/index.ts"
+    }
   },
   "files": [
-    "dist/index.mjs",
-    "dist/src/**/*.d.ts",
-    "src/vite",
-    "LICENSE"
+    "dist/*.js",
+    "dist/vue-termui.mjs",
+    "dist/src/**/*.d.ts"
   ],
   "keywords": [
     "vue",
@@ -35,8 +33,7 @@
   "scripts": {
     "types": "tsc --emitDeclarationOnly",
     "build": "vite build",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vue-termui -r 1",
-    "prepublishOnly": "npm run build && npm run types"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vue-termui -r 1"
   },
   "dependencies": {
     "ansi-escapes": "^5.0.0",

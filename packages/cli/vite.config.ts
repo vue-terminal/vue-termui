@@ -4,6 +4,9 @@ import Inspect from 'vite-plugin-inspect'
 import { resolve } from 'path'
 
 export default defineConfig({
+  define: {
+    __DEV__: `process.env.NODE_ENV !== "production"`,
+  },
   resolve: {
     alias: {
       'vue-termui': resolve('../termui/src/index.ts'),
