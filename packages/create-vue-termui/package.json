@@ -1,8 +1,9 @@
 {
   "name": "create-vue-termui",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "license": "MIT",
-  "author": "Eduardo San Martin Morote",
+  "funding": "https://github.com/posva/vue-termui?sponsor=1",
+  "author": "Eduardo San Martin Morote (https://esm.dev)",
   "bin": {
     "create-vue-termui": "index.js"
   },
@@ -11,18 +12,26 @@
     "template-*"
   ],
   "main": "index.js",
-  "engines": {
-    "node": ">=14.0.0"
-  },
+  "keywords": [
+    "vue",
+    "term",
+    "ui",
+    "cli",
+    "vue-termui-cli",
+    "vue-termui"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/posva/vue-termui.git",
-    "directory": "packages/create-vuetermui"
+    "url": "https://github.com/posva/vue-termui.git",
+    "directory": "packages/create-vue-termui"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "bugs": {
     "url": "https://github.com/posva/vue-termui/issues"
   },
-  "homepage": "https://github.com/posva/vue-termui/tree/main/packages/create-vue-termui#readme",
+  "homepage": "https://github.com/posva/vue-termui#readme",
   "dependencies": {
     "kolorist": "^1.5.1",
     "prompts": "^2.4.2"
