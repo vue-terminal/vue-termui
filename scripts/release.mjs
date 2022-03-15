@@ -181,6 +181,7 @@ async function main() {
 
   step('\nGenerating changelogs...')
   for (const pkg of pkgWithVersions) {
+    step(` -> ${pkg.name} (${pkg.path})`)
     await runIfNotDry(`pnpm`, ['run', 'changelog'], { cwd: pkg.path })
     await runIfNotDry(`pnpm`, ['exec', 'prettier', '--write', 'CHANGELOG.md'], {
       cwd: pkg.path,
@@ -289,10 +290,6 @@ async function publishPackage(pkg) {
       'pnpm',
       [
         'publish',
-        '--new-version',
-        pkg.version,
-        '--no-commit-hooks',
-        '--no-git-tag-version',
         ...(optionTag ? ['--tag', optionTag] : []),
         '--access',
         'public',
