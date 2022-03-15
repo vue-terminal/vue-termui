@@ -181,8 +181,8 @@ async function main() {
 
   step('\nGenerating changelogs...')
   for (const pkg of pkgWithVersions) {
-    await runIfNotDry(`yarn`, ['changelog'], { cwd: pkg.path })
-    await runIfNotDry(`yarn`, ['prettier', '--write', 'CHANGELOG.md'], {
+    await runIfNotDry(`pnpm`, ['run', 'changelog'], { cwd: pkg.path })
+    await runIfNotDry(`pnpm`, ['exec', 'prettier', '--write', 'CHANGELOG.md'], {
       cwd: pkg.path,
     })
     await fs.copyFile(
@@ -203,8 +203,8 @@ async function main() {
 
   step('\nBuilding all packages...')
   if (!skipBuild && !isDryRun) {
-    await run('yarn', ['build'])
-    await run('yarn', ['build:dts'])
+    await run('pnpm', ['run', 'build'])
+    await run('pnpm', ['run', 'types'])
   } else {
     console.log(`(skipped)`)
   }
@@ -276,7 +276,7 @@ function updateDeps(pkg, depType, updatedPackages) {
           `${pkg.name} -> ${depType} -> ${dep}@~${updatedDep.version}`
         )
       )
-      deps[dep] = '~' + updatedDep.version
+      deps[dep] = '>=' + updatedDep.version
     }
   })
 }
@@ -286,7 +286,7 @@ async function publishPackage(pkg) {
 
   try {
     await runIfNotDry(
-      'yarn',
+      'pnpm',
       [
         'publish',
         '--new-version',
@@ -320,11 +320,22 @@ async function publishPackage(pkg) {
  * @returns {Promise<{ name: string; path: string; pkg: any; version: string }[]}
  */
 async function getChangedPackages() {
-  const { stdout: lastTag } = await run(
-    'git',
-    ['describe', '--tags', '--abbrev=0'],
-    { stdio: 'pipe' }
-  )
+  let lastTag
+
+  try {
+    const { stdout } = await run('git', ['describe', '--tags', '--abbrev=0'], {
+      stdio: 'pipe',
+    })
+    lastTag = stdout
+  } catch (error) {
+    // maybe there are no tags
+    const { stdout } = await run(
+      'git',
+      ['rev-list', '--max-parents=0', 'HEAD'],
+      { stdio: 'pipe' }
+    )
+    lastTag = stdout
+  }
   const folders = await globby(join(__dirname, '../packages/*'), {
     onlyFiles: false,
   })
