@@ -5,7 +5,7 @@ import { resolve } from 'path'
 
 export default defineConfig({
   define: {
-    __DEV__: `process.env.NODE_ENV !== "production"`,
+    __DEV__: `process.env.NODE_ENV === "development"`,
   },
   resolve: {
     alias: {
