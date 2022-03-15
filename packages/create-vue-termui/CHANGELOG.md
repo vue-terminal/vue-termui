@@ -1,3 +1,9 @@
+## [0.0.9](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.8...create-vue-termui@0.0.9) (2022-03-15)
+
+### Bug Fixes
+
+- layout in template ([762001b](https://github.com/posva/vue-termui/commit/762001b655d3c847bdab3d9177189f8149ebe749))
+
 ## [0.0.8](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.7...create-vue-termui@0.0.8) (2022-03-15)
 
 ### Bug Fixes
