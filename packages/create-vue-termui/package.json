@@ -7,6 +7,9 @@
   "bin": {
     "create-vue-termui": "index.js"
   },
+  "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l create-vue-termui -r 1"
+  },
   "files": [
     "index.js",
     "template-*"
