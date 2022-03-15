@@ -1,3 +1,9 @@
+## [0.0.13](https://github.com/posva/vue-termui/compare/@vue-termui/cli@0.0.12...@vue-termui/cli@0.0.13) (2022-03-15)
+
+### Bug Fixes
+
+- use production mode by default for better builds ([f37830b](https://github.com/posva/vue-termui/commit/f37830be17bdd87248203957d5204467c55a4478))
+
 ## 0.0.12 (2022-03-15)
 
 ### Bug Fixes

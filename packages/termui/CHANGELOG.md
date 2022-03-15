@@ -1,3 +1,10 @@
+## [0.0.8](https://github.com/posva/vue-termui/compare/vue-termui@0.0.7...vue-termui@0.0.8) (2022-03-15)
+
+### Bug Fixes
+
+- typo in cursor sequence ([2677417](https://github.com/posva/vue-termui/commit/2677417da969db6a4e7231f9ce98f0a4909bfd4c))
+- use production mode by default for better builds ([f37830b](https://github.com/posva/vue-termui/commit/f37830be17bdd87248203957d5204467c55a4478))
+
 ## 0.0.7 (2022-03-15)
 
 ### Bug Fixes

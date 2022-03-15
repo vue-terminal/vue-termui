@@ -5,7 +5,7 @@
     "access": "public"
   },
   "type": "module",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "dev": "esmo src/cli.ts dev demo/main.ts",
     "demo:build": "esmo src/cli.ts build demo/main.ts",
@@ -62,7 +62,7 @@
   "peerDependencies": {
     "vite": "^2.8.6",
     "vite-plugin-vue-termui": ">=0.0.7",
-    "vue-termui": ">=0.0.7"
+    "vue-termui": ">=0.0.8"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
