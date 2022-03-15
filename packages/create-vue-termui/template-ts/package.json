@@ -11,16 +11,19 @@
     "build": "vtui build"
   },
   "dependencies": {
-    "@vue/runtime-core": "^3.2.25",
+    "vue": "^3.2.31",
+    "@vue/runtime-core": "^3.2.31",
     "vue-termui": "*"
   },
   "devDependencies": {
     "@types/node": "^16.0.0",
+    "@vue/compiler-sfc": "^3.2.31",
     "@vue-termui/cli": "*",
     "@vitejs/plugin-vue": "^2.2.4",
     "typescript": "^4.5.4",
+    "unplugin-auto-import": "^0.6.1",
+    "unplugin-vue-components": "^0.18.0",
     "vite": "^2.5.10",
-    "vite-plugin-vue-termui": "*",
-    "vue": "^3.2.25"
+    "vite-plugin-vue-termui": "*"
   }
 }
