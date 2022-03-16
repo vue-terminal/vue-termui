@@ -1,0 +1,37 @@
+#VPContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#VPContent > .VPContentPage {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#VPContent > .VPContentPage > main {
+  flex-grow: 1;
+}
+
+#app {
+  --vt-c-brand: var(--vt-c-purple);
+  --vt-c-brand-light: var(--vt-c-purple-light);
+  --vt-c-brand-dark: var(--vt-c-purple-dark);
+  --vt-c-brand-highlight: var(--vt-c-brand-dark);
+
+  --vt-c-brand-secondary: var(--vt-c-green);
+  --vt-c-brand-secondary-light: var(--vt-c-green-light);
+  --vt-c-brand-secondary-dark: var(--vt-c-green-dark);
+}
+
+.vt-doc .custom-block.tip.tip {
+  border: 1px solid var(--vt-c-brand-dark);
+}
+.vt-doc .custom-block.tip.tip:before {
+  /* color: var(--vt-c-brand-secondary); */
+}
+
+.vt-doc .custom-block.tip.tip a {
+  /* color: var(--vt-c-brand-secondary); */
+}
