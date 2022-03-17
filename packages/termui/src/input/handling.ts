@@ -84,6 +84,9 @@ export function attachInputHandler(
           })
         })
       }
+      inputEventSet.forEach((handler) => {
+        handler(input)
+      })
     }
   }
 
