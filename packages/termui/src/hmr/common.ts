@@ -1,1 +1,1 @@
-export const WSS_PORT = Number(process.env.WSS_PORT) || 3000
+export const WSS_PORT = Number(process.env.PORT) || 3000

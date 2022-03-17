@@ -1,11 +1,10 @@
 import { ViteNodeServer } from 'vite-node/server'
 import { ViteNodeRunner } from 'vite-node/client'
-import { normalizeId } from 'vite-node/utils'
 import { createServer } from 'vite'
 import { resolve } from 'path'
-import { WebSocketServer } from 'ws'
+import { startHMRServer } from './websocket'
 
-const WSS_PORT = Number(process.env.WSS_PORT) || 3000
+const WSS_FALLBACK_PORT = Number(process.env.PORT) || 3000
 
 export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
@@ -114,34 +113,10 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
     }
   }
 
-  // create the socket server to communicate between the running process and the dev server
-  const wss = new WebSocketServer({
-    port: WSS_PORT,
-  })
-
-  wss.on('connection', (ws) => {
-    ws.on('message', (buf) => {
-      const data = buf.toString()
-      console.error('Received', data)
-    })
-
-    ws.on('error', (error) => {
-      console.error('they error', error)
-      // TODO: crash, restart, panel of options?
-    })
-
-    ws.on('close', (status, buf) => {
-      if (isConnectionClosedNormally(status)) {
-        wss.close()
-        server.close()
-      } else {
-        // TODO: restart or crash
-        console.error('Unexpectedly closed from client:')
-        console.error('status:', status)
-        console.error('data:', buf.toString())
-      }
-    })
-  })
+  const passedPort = Number(process.env.PORT)
+  const { port } = await startHMRServer(server, passedPort || null)
+  // Pass on the port that is being used to the main app
+  process.env.PORT = String(port)
 
   const entryPointId = `/${entryFile}`
   const entryPoint = resolve('.' + entryPointId)
@@ -191,27 +166,4 @@ class InvalidateSignal extends Error {
   constructor() {
     super()
   }
-}
-
-/**
- * WebSocket connection codes from https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
- */
-enum CloseEventCode {
-  normal = 1000,
-  goingAway = 1001,
-  protocolError = 1002,
-  unsupported = 1003,
-  // classic ctrl-c
-  noStatus = 1005,
-  abnormal = 1005,
-  tooLarge = 1009,
-  internal = 1011,
-  restart = 1012,
-
-  // 3000-3999 for libraries, frameworks, NOT applications
-  // 4000-4999 for applications
-}
-
-function isConnectionClosedNormally(status: number) {
-  return status === CloseEventCode.noStatus || status === CloseEventCode.normal
 }

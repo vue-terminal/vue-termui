@@ -32,12 +32,7 @@ export { onMouseEvent } from './composables/mouse'
 export { onInput } from './composables/input'
 export { MouseEventType } from './input/types'
 
-export {
-  defineMessage,
-  parseClientMessage,
-  parseServerMessage,
-  WSS_PORT,
-} from './hmr'
+export { defineMessage, parseClientMessage, parseServerMessage } from './hmr'
 export type {
   TuiWSMessageClient,
   TuiWSMessageServer,
