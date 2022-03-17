@@ -30,7 +30,25 @@ export * from '@vue/runtime-core'
 export { onKeypress } from './composables/keyboard'
 export { onMouseEvent } from './composables/mouse'
 export { onInput } from './composables/input'
-export { MouseEventType } from './input/types'
+export {
+  MouseEventType,
+  isInputEvent,
+  isKeypressEvent,
+  isMouseEvent,
+} from './input/types'
+export type {
+  InputEventHandler,
+  KeyboardEventHandler,
+  KeyboardEventKeyCode,
+  KeyboardEventRawHandlerFn,
+  KeyboardEventHandlerFn,
+  KeypressEvent,
+  KeypressEventRaw,
+  MouseEvent,
+  MouseEventHandler,
+  MouseEventButton,
+  _InputEventModifiers,
+} from './input/types'
 
 export { defineMessage, parseClientMessage, parseServerMessage } from './hmr'
 export type {

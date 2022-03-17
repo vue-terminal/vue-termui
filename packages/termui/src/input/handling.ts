@@ -8,6 +8,7 @@ import {
   isKeypressEvent,
   KeyboardEventHandlerFn,
   KeyboardEventRawHandlerFn,
+  InputEventHandler,
 } from './types'
 
 export interface InputHandlerOptions {
@@ -20,6 +21,10 @@ export const KeyEventMapSymbol = Symbol() as InjectionKey<
 
 export const MouseEventMapSymbol = Symbol() as InjectionKey<
   Map<MouseEventType, Set<MouseEventHandler>>
+>
+
+export const InputEventSetSymbol = Symbol() as InjectionKey<
+  Set<InputEventHandler>
 >
 
 export function attachInputHandler(
@@ -37,8 +42,11 @@ export function attachInputHandler(
     [MouseEventType.any, new Set()],
   ])
 
+  const inputEventSet = new Set<InputEventHandler>()
+
   app.provide(KeyEventMapSymbol, keyEventMap)
   app.provide(MouseEventMapSymbol, mouseEventMap)
+  app.provide(InputEventSetSymbol, inputEventSet)
 
   function handleOnData(data: Buffer) {
     const input = String(data)

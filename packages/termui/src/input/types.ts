@@ -26,6 +26,18 @@ export interface _InputEventModifiers {
    */
   metaKey: boolean
 }
+
+/**
+ * Raw information about an event
+ */
+export interface InputEventHandler {
+  (input: string): void
+}
+
+export function isInputEvent(event: unknown): event is string {
+  return typeof event === 'string'
+}
+
 export interface KeypressEvent extends _InputEventModifiers {
   /**
    * The pressed key in text. Special keys have their own representation while regular key letters like A, B, are just
@@ -41,6 +53,9 @@ export function isKeypressEvent(
 }
 
 export interface KeypressEventRaw extends _InputEventModifiers {
+  /**
+   * raw data
+   */
   input: string
   key: LiteralUnion<KeyboardEventKeyCode, string> | undefined
 }
