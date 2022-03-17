@@ -1,6 +1,6 @@
 import './styles/index.css'
 import { h, App } from 'vue'
-import { VPTheme } from '@vue/theme'
+import { VPTheme } from '@posva/vue-theme'
 // import Banner from './components/Banner.vue'
 import SponsorsAside from './components/SponsorsAside.vue'
 

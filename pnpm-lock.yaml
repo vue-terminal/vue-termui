@@ -101,13 +101,13 @@ importers:
 
   packages/docs:
     specifiers:
+      '@posva/vue-theme': ^1.0.1
       '@types/markdown-it': ^12.2.3
       '@types/node': ^16.9.1
-      '@vue/theme': ^1.0.1
       vitepress: ^0.22.2
       vue: ^3.2.31
     dependencies:
-      '@vue/theme': 1.0.1_vue@3.2.31
+      '@posva/vue-theme': 1.0.1_vue@3.2.31
       vitepress: 0.22.3
       vue: 3.2.31
     devDependencies:
@@ -418,6 +418,24 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
+  /@posva/vue-theme/1.0.1_vue@3.2.31:
+    resolution: {integrity: sha512-ZLQHtFH09yFCdU9Pde8am0P9iucP8slccg6g4mmulSCfo8KKbvKhBmdz4m3SwsxCD6xV6U6AQIm8EExamM8lJQ==}
+    dependencies:
+      '@docsearch/css': 3.0.0
+      '@docsearch/js': 3.0.0
+      '@vueuse/core': 7.7.1_vue@3.2.31
+      body-scroll-lock: 3.1.5
+      normalize.css: 8.0.1
+      shiki: 0.9.15
+    transitivePeerDependencies:
+      - '@algolia/client-search'
+      - '@types/react'
+      - '@vue/composition-api'
+      - react
+      - react-dom
+      - vue
+    dev: false
+
   /@rollup/plugin-alias/3.1.9_rollup@2.70.1:
     resolution: {integrity: sha512-QI5fsEvm9bDzt32k39wpOwZhVzRcL5ydcffUHMyLVaVaLeC70I8TJZ17F1z1eMoLu4E/UOcH9BWVkKpIKdrfiw==}
     engines: {node: '>=8.0.0'}
@@ -723,24 +741,6 @@ packages:
 
   /@vue/shared/3.2.31:
     resolution: {integrity: sha512-ymN2pj6zEjiKJZbrf98UM2pfDd6F2H7ksKw7NDt/ZZ1fh5Ei39X5tABugtT03ZRlWd9imccoK0hE8hpjpU7irQ==}
-
-  /@vue/theme/1.0.1_vue@3.2.31:
-    resolution: {integrity: sha512-yVynG5l1BNAh8eQCGg19cyt5TMcbqQCAErT/XZUJOjVT4FjGK1ofGc3wUnDan1JSRF2WNBLOLZHwjc5dJy1Haw==}
-    dependencies:
-      '@docsearch/css': 3.0.0
-      '@docsearch/js': 3.0.0
-      '@vueuse/core': 7.7.1_vue@3.2.31
-      body-scroll-lock: 3.1.5
-      normalize.css: 8.0.1
-      shiki: 0.9.15
-    transitivePeerDependencies:
-      - '@algolia/client-search'
-      - '@types/react'
-      - '@vue/composition-api'
-      - react
-      - react-dom
-      - vue
-    dev: false
 
   /@vueuse/core/7.7.1_vue@3.2.31:
     resolution: {integrity: sha512-PRRgbATMpoeUmkCEBtUeJgOwtew8s+4UsEd+Pm7MhkjL2ihCNrSqxNVtM6NFE4uP2sWnkGcZpCjPuNSxowJ1Ow==}

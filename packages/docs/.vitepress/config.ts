@@ -1,6 +1,6 @@
 import { defineConfigWithTheme } from 'vitepress'
-import type { Config as ThemeConfig } from '@vue/theme'
-import baseConfig from '@vue/theme/config'
+import type { Config as ThemeConfig } from '@posva/vue-theme'
+import baseConfig from '@posva/vue-theme/config'
 
 const nav = [
   {
@@ -110,6 +110,7 @@ export default defineConfigWithTheme<ThemeConfig>({
     // TODO: add this
     // docsDir: 'packages/docs',
     sidebar,
+    logo: '/logo.svg',
 
     // TODO: add
     // algolia: {
@@ -149,7 +150,7 @@ export default defineConfigWithTheme<ThemeConfig>({
   vite: {
     optimizeDeps: {
       include: [],
-      exclude: ['@vue/repl'],
+      exclude: ['@vue/repl', '@posva/vue-theme'],
     },
     // @ts-ignore
     ssr: {

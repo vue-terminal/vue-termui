@@ -5,7 +5,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@vue/theme": "^1.0.1",
+    "@posva/vue-theme": "^1.0.1",
     "vitepress": "^0.22.2",
     "vue": "^3.2.31"
   },
