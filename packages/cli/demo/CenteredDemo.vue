@@ -1,60 +1,40 @@
 <script setup lang="ts">
-import { ref, onMouseEvent, onInput, onKeypress, reactive } from 'vue-termui'
+import { ref, reactive, MouseDataEvent, MouseEventType } from 'vue-termui'
 import Logo from './VueTermUILogo.vue'
 
 const n = ref(0)
 
-onKeypress(['A', 'a'], (event) => {
+onKeyData(['ArrowUp', 'ArrowRight', '+'], (event) => {
   n.value++
 })
-onKeypress('+', (event) => {
-  n.value++
+onKeyData(['ArrowDown', 'ArrowLeft', '-'], (event) => {
+  n.value--
 })
 
-onKeypress((event) => {
-  event.key === 'ArrowDown'
+onKeyData((event) => {
+  lastPress.value = event.key || event.input
 })
 
-onMouseEvent(0, (event) => {
+const pressData = ref<MouseDataEvent>()
+onMouseData(MouseEventType.any, (event) => {
   // pressData.value = `MB${event.button}: ${event.clientX}x${event.clientY}`
+  position.x = event.clientX - 1
+  position.y = event.clientY - 1
+  pressData.value = event
 })
 
 const lastPress = ref('')
-function displayableChar(c: string) {
-  const i = c.charCodeAt(0)
-  if (
-    // Ansi readable characters
-    i >= 0x20 &&
-    i <= 0x84 &&
-    i !== 0x7f &&
-    i !== 0x83
-  ) {
-    return c
-  }
 
-  if (i <= 0xff) {
-    return `\\x${i.toString(16).padStart(2, '0')}`
-  } else {
-    return `\\u${i.toString(16).padStart(4, '0')}`
-  }
-}
-
-const mousetype = {
-  0: 'mousedown',
-  1: 'mousemove',
-  2: 'mouseup',
-}
-
-const pressData = ref({})
+const presses = ref(0)
 const position = reactive({ x: 1, y: 1 })
-onInput((data) => {
-  const escapedSeq = data.input.split('').map(displayableChar).join('')
-  lastPress.value = data.key!
-  pressData.value = { ...data, input: escapedSeq }
-  if ('clientX' in data) {
-    position.x = data.clientX - 1
-    position.y = data.clientY - 1
+onInputData(({ data, event }) => {
+  presses.value++
+  const escapedSeq = inputDataToString(data)
+  lastPress.value = ''
+  if (isKeyDataEvent(event)) {
+    lastPress.value += event.key
   }
+  lastPress.value += lastPress.value ? ` (${escapedSeq})` : escapedSeq
 })
 </script>
 
@@ -70,7 +50,9 @@ onInput((data) => {
   >
     <div>
       <span>
-        <Text color="red" bold dimmed>Last Keypress "{{ lastPress }}"</Text>
+        <Text color="red" bold dimmed
+          >Last Keypress ({{ presses }}) "{{ lastPress }}"</Text
+        >
         <br />
         <Link href="https://esm.dev">Site</Link>
       </span>
@@ -84,8 +66,8 @@ onInput((data) => {
       :left="position.x"
     >
       <span bold
-        >Mouse button: {{ pressData.button }} ({{
-          mousetype[pressData._type]
+        >Mouse button: {{ pressData?.button }} ({{
+          MouseEventType[pressData?._type ?? MouseEventType.unknown]
         }}): {{ position.x }}x{{ position.y }}</span
       >
     </div>
