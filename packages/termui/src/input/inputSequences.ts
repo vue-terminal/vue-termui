@@ -1,18 +1,18 @@
-import { debugSequence } from './debug'
+import { inputDataToString } from './debug'
 import { defineKeypressEvent, defineMouseEvent } from './keyEvents'
 import {
-  KeyboardEventKeyCode,
-  KeypressEvent,
-  MouseEvent,
+  KeyDataEventKeyCode,
+  KeyDataEvent,
+  MouseDataEvent,
   MouseEventButton,
   MouseEventType,
-  _InputEventModifiers,
+  _InputDataEventModifiers,
 } from './types'
 
 /**
  * Special lookup of keys that do not exactly follow the VT or xterm semantics.
  */
-export const SPECIAL_INPUT_KEY_TABLE = new Map<string, KeypressEvent>([
+export const SPECIAL_INPUT_KEY_TABLE = new Map<string, KeyDataEvent>([
   // I have no idea why this is like this
   // specific to iTerm
   ['\x1b\x1b[A', defineKeypressEvent('ArrowUp', { altKey: true })],
@@ -34,8 +34,6 @@ export const SPECIAL_INPUT_KEY_TABLE = new Map<string, KeypressEvent>([
 
   // ['\x08', 'Backspace'],
   ['\x7f', defineKeypressEvent('Backspace')],
-  // ['\x1b[3~', defineKeypressEvent('Delete')],
-  //   ['\x01', 'Delete'],
 
   // Special handling of Function keys
   ['\x1bOP', defineKeypressEvent('F1')],
@@ -48,12 +46,11 @@ export function isRawModeSupported(stdin: NodeJS.ReadStream) {
   return stdin.isTTY
 }
 
-const INPUT_SEQ_START = '\x1b[' // complex sequences
-const MOUSE_SEQ_START = '\x1b[M' // Mouse click
+const INPUT_SEQ_START = '\x1b[' // CSI escape sequences
 // https://www.systutorials.com/docs/linux/man/4-console_codes/
+const MOUSE_SEQ_START = '\x1b[M' // Mouse click
 const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
 const MOUSE_EXTENDED_SEQ_START = '\x1b[<' // Ends with M/m
-const CSI_SEQ_START = '\x1b['
 
 const enum InputSequenceParserState {
   xterm,
@@ -128,8 +125,8 @@ function parseXtermKeycodeSeq(seq: XtermKeycodeSeq) {
  */
 export function parseInputSequence(
   input: string
-): Array<MouseEvent | KeypressEvent | undefined> {
-  const inputSequences: Array<MouseEvent | KeypressEvent | undefined> = []
+): Array<MouseDataEvent | KeyDataEvent | undefined> {
+  const inputSequences: Array<MouseDataEvent | KeyDataEvent | undefined> = []
 
   while (input) {
     if (input.startsWith(MOUSE_EXTENDED_SEQ_START)) {
@@ -180,7 +177,7 @@ export function parseInputSequence(
       // TODO: correctly handle release
       const button =
         mouseButton > 2
-          ? MouseEventButton.main
+          ? MouseEventButton.left
           : (mouseButton as MouseEventButton)
 
       inputSequences.push(
@@ -232,7 +229,7 @@ export function parseInputSequence(
           defineKeypressEvent(
             String.fromCharCode(
               CHAR_A_CODE + charCode - 1
-            ) as KeyboardEventKeyCode,
+            ) as KeyDataEventKeyCode,
             {
               ctrlKey: true,
             }
@@ -242,7 +239,7 @@ export function parseInputSequence(
         // TODO: try consuming as much input as possible to output as a single chunk
         // e.g. doing composition: 你好 -> should output the whole nihao sentence in one event
         inputSequences.push(
-          defineKeypressEvent(charString as KeyboardEventKeyCode, {
+          defineKeypressEvent(charString as KeyDataEventKeyCode, {
             shiftKey: charCode >= CHAR_A_CODE && charCode <= CHAR_Z_CODE,
           })
         )
@@ -339,7 +336,7 @@ function parseCSISequence(input: string, startPos: number) {
   }
 }
 
-const VT_KEYCODE_TABLE = new Map<number, KeyboardEventKeyCode>([
+const VT_KEYCODE_TABLE = new Map<number, KeyDataEventKeyCode>([
   // vt sequences
   [1, 'Home'],
   [2, 'Insert'],
@@ -377,7 +374,7 @@ const VT_KEYCODE_TABLE = new Map<number, KeyboardEventKeyCode>([
   [34, 'F20'],
 ])
 
-const XTERM_KEYCODE_TABLE = new Map<string, KeyboardEventKeyCode>([
+const XTERM_KEYCODE_TABLE = new Map<string, KeyDataEventKeyCode>([
   // xterm sequences
   ['A', 'ArrowUp'],
   ['B', 'ArrowDown'],

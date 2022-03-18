@@ -2,18 +2,16 @@ import type { Plugin } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import type { ImportsMap } from 'unplugin-auto-import/types'
+import * as MyModule from 'vue-termui'
+
+type ModuleExports = keyof typeof MyModule
 
 export default function VueTermui(): Plugin[] {
   return [
     AutoImport({
       dts: true,
       include: [/\.[tj]sx$/, /\.vue$/, /\.vue\?vue/],
-      imports: [
-        {
-          'vue-termui': VueTuiExports,
-        },
-      ],
+      imports: [{ 'vue-termui': VueTuiExports }],
     }),
 
     Components({
@@ -105,7 +103,7 @@ export default function VueTermui(): Plugin[] {
   ]
 }
 
-export const VueTuiComponents = new Map<string, string>([
+export const VueTuiComponents = new Map<string, ModuleExports>([
   ['br', 'TuiNewline'],
   ['newline', 'TuiNewline'],
 
@@ -122,6 +120,10 @@ export const VueTuiComponents = new Map<string, string>([
   ['transform', 'TuiTextTransform'],
   ['text-transform', 'TuiTextTransform'],
 ])
+
+// copied from auto import plugin source code
+declare type ImportNameAlias = [ModuleExports, string]
+type ImportsMap = Record<string, (ModuleExports | ImportNameAlias)[]>
 
 // Having this on a different file fails...
 export const VueTuiExports: ImportsMap[string] = [
@@ -188,30 +190,12 @@ export const VueTuiExports: ImportsMap[string] = [
   'useLog',
   'useRootNode',
   'useStdout',
-  'onKeypress',
-  'onMouseEvent',
+  'onInputData',
+  'onKeyData',
+  'onMouseData',
   'MouseEventType',
-  'onInput',
-
-  // components
-  // 'TuiText',
-  // ['TuiText', 'Text'],
-  // ['TuiText', 'Span'],
-
-  // 'TuiNewline',
-  // ['TuiNewline', 'Newline'],
-  // ['TuiNewline', 'Br'],
-
-  // 'TuiBox',
-  // ['TuiBox', 'Div'],
-  // ['TuiBox', 'Box'],
-
-  // 'TuiLink',
-  // ['TuiLink', 'Link'],
-  // // One character doesn't seem to work
-  // // https://sfc.vuejs.org/#eyJBcHAudnVlIjoiPHNjcmlwdCBzZXR1cD5cbmltcG9ydCB7IHJlZiB9IGZyb20gJ3Z1ZSdcblxuY29uc3QgbXNnID0gcmVmKCdIZWxsbyBXb3JsZCEnKVxuXG5jb25zdCBUb3RvID0gKCkgPT4gJ0kgYW0gVG90bydcbmNvbnN0IFMgPSAoKSA9PiAnaGVoZSdcbmNvbnN0IFNhID0gKCkgPT4gJ2hhaGEnXG48L3NjcmlwdD5cblxuPHRlbXBsYXRlPlxuICA8aDE+e3sgbXNnIH19PC9oMT5cbiAgPGlucHV0IHYtbW9kZWw9XCJtc2dcIj5cbiAgPFMvPlxuICA8cy8+XG4gIDxzYS8+XG48L3RlbXBsYXRlPiIsImltcG9ydC1tYXAuanNvbiI6IntcbiAgXCJpbXBvcnRzXCI6IHtcbiAgICBcInZ1ZVwiOiBcImh0dHBzOi8vc2ZjLnZ1ZWpzLm9yZy92dWUucnVudGltZS5lc20tYnJvd3Nlci5qc1wiXG4gIH1cbn0ifQ==
-  // ['TuiLink', 'A'],
-
-  // 'TuiTextTransform',
-  // ['TuiTextTransform', 'TextTransform'],
+  'inputDataToString',
+  'isKeyDataEvent',
+  'isMouseDataEvent',
+  'isInputDataEvent',
 ]

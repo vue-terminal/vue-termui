@@ -22,6 +22,12 @@ function displayableChar(c: string) {
   }
 }
 
-export function debugSequence(input: string) {
+/**
+ * Converts a raw input with escapes codes into a printable representation of the string to debug.
+ *
+ * @param input - raw data from an `InputEvent`
+ * @returns a printable representation of the data
+ */
+export function inputDataToString(input: string) {
   return input.split('').map(displayableChar).join('')
 }

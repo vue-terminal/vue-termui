@@ -1,17 +1,17 @@
 import { inject, onMounted, onUnmounted } from '@vue/runtime-core'
 import { checkCurrentInstance, noop } from '../utils'
 import { MouseEventMapSymbol } from '../input/handling'
-import { MouseEventType, MouseEventHandler } from '../input/types'
+import { MouseEventType, MouseDataEventHandler } from '../input/types'
 import { RemoveListener } from './keyboard'
 
-export function onMouseEvent(
+export function onMouseData(
   type: MouseEventType,
-  handler: MouseEventHandler
+  handler: MouseDataEventHandler
 ): RemoveListener
-export function onMouseEvent(handler: MouseEventHandler): RemoveListener
-export function onMouseEvent(
-  typeOrHandler: MouseEventType | MouseEventHandler,
-  handler?: MouseEventHandler
+export function onMouseData(handler: MouseDataEventHandler): RemoveListener
+export function onMouseData(
+  typeOrHandler: MouseEventType | MouseDataEventHandler,
+  handler?: MouseDataEventHandler
 ): RemoveListener {
   if (!checkCurrentInstance('onInput')) return noop
 
@@ -20,7 +20,7 @@ export function onMouseEvent(
   const type: MouseEventType =
     typeof typeOrHandler !== 'function' ? typeOrHandler : MouseEventType.any
 
-  handler = handler || (typeOrHandler as MouseEventHandler)
+  handler = handler || (typeOrHandler as MouseDataEventHandler)
 
   if (!mouseEventMap.has(type)) {
     mouseEventMap.set(type, new Set())

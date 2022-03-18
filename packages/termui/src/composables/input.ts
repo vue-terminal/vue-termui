@@ -1,10 +1,10 @@
 import { inject, onMounted, onUnmounted } from '@vue/runtime-core'
 import { checkCurrentInstance, noop } from '../utils'
 import { InputEventSetSymbol } from '../input/handling'
-import { InputEventHandler } from '../input/types'
+import { InputDataEventHandler } from '../input/types'
 import { RemoveListener } from './keyboard'
 
-export function onInput(handler: InputEventHandler): RemoveListener {
+export function onInputData(handler: InputDataEventHandler): RemoveListener {
   if (!checkCurrentInstance('onInput')) return noop
 
   const inputEventSet = inject(InputEventSetSymbol)!

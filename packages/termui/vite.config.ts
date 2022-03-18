@@ -10,7 +10,7 @@ export default defineConfig({
     target: 'node14',
     outDir: 'dist',
     // sourcemap: isProduction ? false: 'inline',
-    emptyOutDir: true,
+    emptyOutDir: false,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'VueTermui',

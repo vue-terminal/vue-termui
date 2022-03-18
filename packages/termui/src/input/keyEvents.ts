@@ -1,10 +1,10 @@
 import type { LiteralUnion } from '../utils'
 import type {
-  KeyboardEventKeyCode,
-  KeypressEvent,
-  _InputEventModifiers,
+  KeyDataEventKeyCode,
+  KeyDataEvent,
+  _InputDataEventModifiers,
   MouseEventButton,
-  MouseEvent,
+  MouseDataEvent,
   MouseEventType,
 } from './types'
 
@@ -16,9 +16,9 @@ import type {
  * @returns
  */
 export function defineKeypressEvent(
-  key: LiteralUnion<KeyboardEventKeyCode, string>,
-  modifiers?: Partial<_InputEventModifiers>
-): KeypressEvent {
+  key: LiteralUnion<KeyDataEventKeyCode, string>,
+  modifiers?: Partial<_InputDataEventModifiers>
+): KeyDataEvent {
   return {
     key,
     altKey: false,
@@ -41,8 +41,8 @@ export function defineMouseEvent(
   clientX: number,
   clientY: number,
   _type: MouseEventType,
-  modifiers?: Partial<_InputEventModifiers>
-): MouseEvent {
+  modifiers?: Partial<_InputDataEventModifiers>
+): MouseDataEvent {
   return {
     button,
     _type,

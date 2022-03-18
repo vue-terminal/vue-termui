@@ -4,7 +4,7 @@ import { LiteralUnion } from '../utils'
  * Base for real keypress events.
  * @internal
  */
-export interface _InputEventModifiers {
+export interface _InputDataEventModifiers {
   /**
    * Is the Ctrl key pressed.
    */
@@ -28,55 +28,75 @@ export interface _InputEventModifiers {
 }
 
 /**
+ * Raw information of an input event and its parsed event if any.
+ */
+export interface InputDataEvent {
+  data: string
+
+  /**
+   * Parsed event (`MouseEventData` or `KeyDataEvent`) when possible, `null` otherwise.
+   */
+  event: KeyDataEvent | MouseDataEvent | null | undefined
+}
+
+/**
  * Raw information about an event
  */
-export interface InputEventHandler {
-  (input: string): void
+export interface InputDataEventHandler {
+  (input: InputDataEvent): void
 }
 
-export function isInputEvent(event: unknown): event is string {
-  return typeof event === 'string'
+export function isInputDataEvent(event: unknown): event is InputDataEvent {
+  return (
+    !!event && typeof event === 'object' && 'data' in event && 'event' in event
+  )
 }
 
-export interface KeypressEvent extends _InputEventModifiers {
+/**
+ * A recognized and correctly parsed Key Event.
+ */
+export interface KeyDataEvent extends _InputDataEventModifiers {
   /**
    * The pressed key in text. Special keys have their own representation while regular key letters like A, B, are just
    * that, A, B, etc.
    */
-  key: LiteralUnion<KeyboardEventKeyCode, string>
+  key: LiteralUnion<KeyDataEventKeyCode, string>
 }
 
-export function isKeypressEvent(
-  event: object | undefined
-): event is KeypressEvent | KeypressEventRaw {
-  return typeof event === 'object' && 'key' in event
+export function isKeyDataEvent(
+  event: unknown
+): event is KeyDataEvent | KeyDataEventRaw {
+  return !!event && typeof event === 'object' && 'key' in event
 }
 
-export interface KeypressEventRaw extends _InputEventModifiers {
+/**
+ * An unrecognized key event
+ */
+export interface KeyDataEventRaw extends _InputDataEventModifiers {
   /**
    * raw data
    */
   input: string
-  key: LiteralUnion<KeyboardEventKeyCode, string> | undefined
+  key: LiteralUnion<KeyDataEventKeyCode, string> | undefined
 }
 
-export interface KeyboardEventHandlerFn {
-  (event: KeypressEvent): void
+export interface KeyDataEventHandlerFn {
+  (event: KeyDataEvent): void
 }
 
-export interface KeyboardEventRawHandlerFn {
-  (event: KeypressEventRaw): void
+export interface KeyDataEventRawHandlerFn {
+  (event: KeyDataEventRaw): void
 }
 
-export type KeyboardEventHandler =
-  | KeyboardEventHandlerFn
-  | KeyboardEventRawHandlerFn
+export type KeyDataEventHandler =
+  | KeyDataEventHandlerFn
+  | KeyDataEventRawHandlerFn
 
 /**
  * Emulated keycodes based on browser's map to same event.key as in browser:
  * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
  */
-export type KeyboardEventKeyCode =
+export type KeyDataEventKeyCode =
   | 'ArrowUp'
   | 'ArrowDown'
   | 'ArrowRight'
@@ -133,10 +153,15 @@ export type KeyboardEventKeyCode =
   | 'F19'
   | 'F20'
 
+/**
+ * Possible values for the `KeyDataEvent.key`.
+ */
+export type KeyDataEventKey = LiteralUnion<KeyDataEventKeyCode, string>
+
 function defineKeypressEvent(
-  key: KeyboardEventKeyCode,
-  modifiers?: Partial<_InputEventModifiers>
-): KeypressEvent {
+  key: KeyDataEventKeyCode,
+  modifiers?: Partial<_InputDataEventModifiers>
+): KeyDataEvent {
   return {
     key,
     altKey: false,
@@ -148,9 +173,18 @@ function defineKeypressEvent(
 }
 
 export const enum MouseEventButton {
-  main = 0, // usually left
-  aux = 1, // usually wheel button
-  secondary = 2, // usually the right button
+  /**
+   * Also known as `main`.
+   */
+  left = 0,
+  /**
+   * Also known as `auxiliary`, usually the wheel.
+   */
+  middle = 1,
+  /**
+   * Also known as secondary.
+   */
+  right = 2,
   // release = 3 // not really a button
 }
 
@@ -164,17 +198,17 @@ export enum MouseEventType {
   unknown = 99,
 }
 
-export interface MouseEvent extends _InputEventModifiers {
+export interface MouseDataEvent extends _InputDataEventModifiers {
   button: MouseEventButton
   _type: MouseEventType
   clientX: number
   clientY: number
 }
 
-export interface MouseEventHandler {
-  (event: MouseEvent): void
+export interface MouseDataEventHandler {
+  (event: MouseDataEvent): void
 }
 
-export function isMouseEvent(event: object | undefined): event is MouseEvent {
-  return typeof event === 'object' && 'button' in event
+export function isMouseDataEvent(event: unknown): event is MouseDataEvent {
+  return !!event && typeof event === 'object' && 'button' in event
 }

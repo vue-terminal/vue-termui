@@ -1,14 +1,14 @@
 import { InjectionKey, App } from '@vue/runtime-core'
 import { SPECIAL_INPUT_KEY_TABLE, parseInputSequence } from './inputSequences'
 import {
-  KeyboardEventHandler,
+  KeyDataEventHandler,
   MouseEventType,
-  MouseEventHandler,
-  isMouseEvent,
-  isKeypressEvent,
-  KeyboardEventHandlerFn,
-  KeyboardEventRawHandlerFn,
-  InputEventHandler,
+  MouseDataEventHandler,
+  isMouseDataEvent,
+  isKeyDataEvent,
+  KeyDataEventHandlerFn,
+  KeyDataEventRawHandlerFn,
+  InputDataEventHandler,
 } from './types'
 
 export interface InputHandlerOptions {
@@ -16,15 +16,15 @@ export interface InputHandlerOptions {
 }
 
 export const KeyEventMapSymbol = Symbol() as InjectionKey<
-  Map<string, Set<KeyboardEventHandler>>
+  Map<string, Set<KeyDataEventHandler>>
 >
 
 export const MouseEventMapSymbol = Symbol() as InjectionKey<
-  Map<MouseEventType, Set<MouseEventHandler>>
+  Map<MouseEventType, Set<MouseDataEventHandler>>
 >
 
 export const InputEventSetSymbol = Symbol() as InjectionKey<
-  Set<InputEventHandler>
+  Set<InputDataEventHandler>
 >
 
 export function attachInputHandler(
@@ -32,17 +32,17 @@ export function attachInputHandler(
   stdin: NodeJS.ReadStream,
   { setRawMode }: InputHandlerOptions
 ) {
-  const keyEventMap = new Map<string, Set<KeyboardEventHandler>>([
+  const keyEventMap = new Map<string, Set<KeyDataEventHandler>>([
     // create an any handler
     ['@any', new Set()],
   ])
 
-  const mouseEventMap = new Map<MouseEventType, Set<MouseEventHandler>>([
+  const mouseEventMap = new Map<MouseEventType, Set<MouseDataEventHandler>>([
     // create an any handler
     [MouseEventType.any, new Set()],
   ])
 
-  const inputEventSet = new Set<InputEventHandler>()
+  const inputEventSet = new Set<InputDataEventHandler>()
 
   app.provide(KeyEventMapSymbol, keyEventMap)
   app.provide(MouseEventMapSymbol, mouseEventMap)
@@ -56,7 +56,7 @@ export function attachInputHandler(
     const events = specialEvent ? [specialEvent] : parseInputSequence(input)
 
     for (const event of events) {
-      if (isMouseEvent(event)) {
+      if (isMouseDataEvent(event)) {
         if (mouseEventMap.has(event._type)) {
           mouseEventMap.get(event._type)!.forEach((handler) => {
             handler(event)
@@ -71,21 +71,21 @@ export function attachInputHandler(
             input,
           })
         })
-      } else if (isKeypressEvent(event)) {
+      } else if (isKeyDataEvent(event)) {
         if (keyEventMap.has(event.key)) {
           keyEventMap.get(event.key)!.forEach((handler) => {
-            ;(handler as KeyboardEventHandlerFn)(event)
+            ;(handler as KeyDataEventHandlerFn)(event)
           })
         }
         keyEventMap.get('@any')!.forEach((handler) => {
-          ;(handler as KeyboardEventRawHandlerFn)({
+          ;(handler as KeyDataEventRawHandlerFn)({
             input,
             ...event,
           })
         })
       }
       inputEventSet.forEach((handler) => {
-        handler(input)
+        handler({ data: input, event })
       })
     }
   }

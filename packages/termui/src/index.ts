@@ -27,27 +27,29 @@ export * from './components'
 // re-export Vue core APIs
 export * from '@vue/runtime-core'
 
-export { onKeypress } from './composables/keyboard'
-export { onMouseEvent } from './composables/mouse'
-export { onInput } from './composables/input'
+export { onKeyData } from './composables/keyboard'
+export { onMouseData } from './composables/mouse'
+export { onInputData } from './composables/input'
+
+export { inputDataToString } from './input/debug'
 export {
   MouseEventType,
-  isInputEvent,
-  isKeypressEvent,
-  isMouseEvent,
+  isInputDataEvent,
+  isKeyDataEvent,
+  isMouseDataEvent,
 } from './input/types'
 export type {
-  InputEventHandler,
-  KeyboardEventHandler,
-  KeyboardEventKeyCode,
-  KeyboardEventRawHandlerFn,
-  KeyboardEventHandlerFn,
-  KeypressEvent,
-  KeypressEventRaw,
-  MouseEvent,
-  MouseEventHandler,
+  InputDataEventHandler,
+  KeyDataEventHandler,
+  KeyDataEventKeyCode,
+  KeyDataEventRawHandlerFn,
+  KeyDataEventHandlerFn,
+  KeyDataEvent,
+  KeyDataEventRaw,
+  MouseDataEvent,
+  MouseDataEventHandler,
   MouseEventButton,
-  _InputEventModifiers,
+  _InputDataEventModifiers,
 } from './input/types'
 
 export { defineMessage, parseClientMessage, parseServerMessage } from './hmr'

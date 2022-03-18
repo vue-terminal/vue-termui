@@ -1,25 +1,23 @@
 import { inject, onMounted, onUnmounted } from '@vue/runtime-core'
 import { KeyEventMapSymbol } from '../input/handling'
 import {
-  KeyboardEventHandler,
-  KeyboardEventHandlerFn,
-  KeyboardEventKeyCode,
-  KeyboardEventRawHandlerFn,
+  KeyDataEventHandler,
+  KeyDataEventHandlerFn,
+  KeyDataEventKey,
+  KeyDataEventRawHandlerFn,
 } from '../input/types'
 import { checkCurrentInstance, LiteralUnion, noop } from '../utils'
 
 export type RemoveListener = () => void
 
-type KeyboardEventKey = LiteralUnion<KeyboardEventKeyCode, string>
-
-export function onKeypress(handler: KeyboardEventRawHandlerFn): RemoveListener
-export function onKeypress(
-  key: KeyboardEventKey | KeyboardEventKey[],
-  handler: KeyboardEventHandlerFn
+export function onKeyData(handler: KeyDataEventRawHandlerFn): RemoveListener
+export function onKeyData(
+  key: KeyDataEventKey | KeyDataEventKey[],
+  handler: KeyDataEventHandlerFn
 ): RemoveListener
-export function onKeypress(
-  keyOrHandler: KeyboardEventKey | KeyboardEventKey[] | KeyboardEventHandler,
-  handler?: KeyboardEventHandler
+export function onKeyData(
+  keyOrHandler: KeyDataEventKey | KeyDataEventKey[] | KeyDataEventHandler,
+  handler?: KeyDataEventHandler
 ): RemoveListener {
   if (!checkCurrentInstance('onInput')) return noop
 
