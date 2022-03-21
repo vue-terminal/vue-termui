@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, MouseDataEvent, MouseEventType } from 'vue-termui'
 import Logo from './VueTermUILogo.vue'
+import Input from './Input.vue'
 
 const n = ref(0)
 
