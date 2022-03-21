@@ -68,7 +68,7 @@ export default defineConfig({
           comments: false,
           isNativeTag: () => false,
           // getTextMode: node => ???,
-          isCustomElement: (tag) => tag.startsWith('tui-'),
+          isCustomElement: (tag) => tag.startsWith('tui:'),
         },
       },
     }),

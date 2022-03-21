@@ -38,7 +38,7 @@ export default defineConfig({
           whitespace: 'condense',
           comments: false,
           // getTextMode: node => ???,
-          isCustomElement: (tag) => tag.startsWith('tui-'),
+          isCustomElement: (tag) => tag.startsWith('tui:'),
         },
       },
     }),

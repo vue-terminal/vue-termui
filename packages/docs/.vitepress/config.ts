@@ -53,9 +53,9 @@ export const sidebar = {
     //   items: [
     //     {
     //       text: 'TuiBox',
-    //       link: '/guide/components/tui-box',
+    //       link: '/guide/components/tui:box',
     //     },
-    //     { text: 'TuiText', link: '/guide/components/tui-text' },
+    //     { text: 'TuiText', link: '/guide/components/tui:text' },
     //   ],
     // },
     // {

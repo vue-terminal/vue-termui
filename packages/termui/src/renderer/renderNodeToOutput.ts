@@ -65,7 +65,7 @@ const renderNodeToOutput = (
       newTransformers = [node.internal_transform, ...transformers]
     }
 
-    if (node.nodeName === 'tui-text') {
+    if (node.nodeName === 'tui:text') {
       let text = squashTextNodes(node)
 
       if (text.length > 0) {
@@ -84,11 +84,11 @@ const renderNodeToOutput = (
       return
     }
 
-    if (node.nodeName === 'tui-box') {
+    if (node.nodeName === 'tui:box') {
       renderBorders(x, y, node, output)
     }
 
-    if (node.nodeName === 'tui-root' || node.nodeName === 'tui-box') {
+    if (node.nodeName === 'tui:root' || node.nodeName === 'tui:box') {
       for (const childNode of node.childNodes) {
         renderNodeToOutput(childNode, output, {
           offsetX: x,

@@ -74,7 +74,7 @@ export const TuiText = defineComponent({
 
     return () => {
       return h(
-        'tui-text',
+        'tui:text',
         {
           style: { ...defaultStyle, textWrap: props.wrap },
           internal_transform: transform,

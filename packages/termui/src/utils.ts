@@ -1,4 +1,4 @@
-import { getCurrentInstance } from '@vue/runtime-core'
+import { getCurrentInstance, Ref } from '@vue/runtime-core'
 
 const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null)
@@ -53,3 +53,5 @@ export function checkCurrentInstance(fnName: string) {
 }
 
 export const noop = () => {}
+
+export type MaybeRef<T> = Ref<T> | T

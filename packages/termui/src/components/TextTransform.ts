@@ -24,7 +24,7 @@ export const TuiTextTransform: FunctionalComponent<{
   //   scheduleUpdate()
   // })
   return h(
-    'tui-text',
+    'tui:text',
     {
       style: defaultStyle,
       internal_transform: props.transform,

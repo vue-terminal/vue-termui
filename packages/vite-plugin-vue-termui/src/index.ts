@@ -93,10 +93,10 @@ export default function VueTermui(): Plugin[] {
           whitespace: 'condense',
           comments: false,
           // term ui has no native tags
-          // isNativeTag: (tag) => tag.startsWith('tui-'),
+          // isNativeTag: (tag) => tag.startsWith('tui:'),
           isNativeTag: () => false,
           // getTextMode: node => ???,
-          isCustomElement: (tag) => tag.startsWith('tui-'),
+          isCustomElement: (tag) => tag.startsWith('tui:'),
         },
       },
     }),

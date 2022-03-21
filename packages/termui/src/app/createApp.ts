@@ -39,7 +39,7 @@ export function createApp(
 
   // FIXME: do we need this?
   app.config.compilerOptions.isCustomElement = (tag) =>
-    tag.startsWith('Tui') || tag.startsWith('tui-')
+    tag.startsWith('Tui') || tag.startsWith('tui:')
 
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
@@ -86,7 +86,7 @@ export function createApp(
     log.clear()
 
     stdout.on('resize', onResize)
-    const rootEl = new DOMElement('tui-root')
+    const rootEl = new DOMElement('tui:root')
     rootEl.toString = () => `<Root>`
 
     newApp.provide(rootNodeSymbol, rootEl)

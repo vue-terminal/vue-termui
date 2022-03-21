@@ -74,8 +74,8 @@ export function squashTextNodes(node: DOMElement): string {
         nodeText = childNode.nodeValue
       } else {
         if (
-          childNode.nodeName === 'tui-text' ||
-          childNode.nodeName === 'tui-virtual-text'
+          childNode.nodeName === 'tui:text' ||
+          childNode.nodeName === 'tui:virtual-text'
         ) {
           nodeText = squashTextNodes(childNode)
         }

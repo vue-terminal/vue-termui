@@ -21,10 +21,10 @@ export class TuiNode {
 }
 
 export type DOMElementName =
-  | 'tui-text'
-  | 'tui-virtual-text'
-  | 'tui-root'
-  | 'tui-box'
+  | 'tui:text'
+  | 'tui:virtual-text'
+  | 'tui:root'
+  | 'tui:box'
 export type NodeName = DOMElementName | '#text' | '#comment'
 
 export class DOMElement extends TuiNode {
@@ -38,7 +38,7 @@ export class DOMElement extends TuiNode {
     // text elements create their yoga nodes when they are inserted
     // because they need to know their parent to become a virtual text (no yoga node)
     // or a regular text node
-    if (nodeName !== 'tui-text' && nodeName !== 'tui-virtual-text') {
+    if (nodeName !== 'tui:text' && nodeName !== 'tui:virtual-text') {
       this.ensureYogaNode()
     }
   }
@@ -59,37 +59,61 @@ export class DOMElement extends TuiNode {
 
   insertNode(el: DOMNode, anchor?: DOMNode | null) {
     if (
-      (this.nodeName === 'tui-text' || this.nodeName === 'tui-virtual-text') &&
-      el.nodeName === 'tui-text'
+      (this.nodeName === 'tui:text' || this.nodeName === 'tui:virtual-text') &&
+      el.nodeName === 'tui:text'
     ) {
-      el.nodeName = 'tui-virtual-text'
+      el.nodeName = 'tui:virtual-text'
+    } else if (
+      this.nodeName !== 'tui:text' &&
+      this.nodeName !== 'tui:virtual-text' &&
+      el.nodeName == '#text'
+    ) {
+      // TODO: Fragment!
     }
+
+    // TODO: is anchor is fragment, keep track of it as it should be removed with this node
 
     if (el.nodeName !== '#text' && el.nodeName !== '#comment') {
       el.ensureYogaNode()
     }
 
-    const insertAt = anchor ? this.childNodes.indexOf(anchor) : -1 // insert at the end
+    let yogaIndex = 0
+    let insertAt = 0
+    const totalChildNodes = this.childNodes.length
 
-    if (insertAt >= 0) {
+    for (insertAt = 0; insertAt < totalChildNodes; insertAt++) {
+      const node = this.childNodes[insertAt]
+      if (node === anchor) {
+        // we found the anchor, we can stop with the current yogaIndex value
+        break
+      }
+      // Only increment the index if the node isn't a fragment
+      if (isDOMElement(node)) {
+        yogaIndex++
+      }
+    }
+
+    if (insertAt < totalChildNodes) {
       this.childNodes.splice(insertAt, 0, el)
     } else {
+      yogaIndex = -1
       this.childNodes.push(el)
     }
 
     if (this.yogaNode && el.yogaNode) {
+      // TODO: if child already has a parent, it has to be removed first
       this.yogaNode.insertChild(
         el.yogaNode,
-        insertAt >= 0 ? insertAt : this.yogaNode.getChildCount()
+        yogaIndex >= 0 ? yogaIndex : this.yogaNode.getChildCount()
       )
     }
     el.parentNode = this
   }
 
   ensureYogaNode() {
-    if (!this.yogaNode && this.nodeName !== 'tui-virtual-text') {
+    if (!this.yogaNode && this.nodeName !== 'tui:virtual-text') {
       this.yogaNode = Yoga.Node.create()
-      if (this.nodeName === 'tui-text') {
+      if (this.nodeName === 'tui:text') {
         this.yogaNode.setMeasureFunc(measureTextNode.bind(null, this))
       }
     }
@@ -150,4 +174,8 @@ export function getMaxWidth(yogaNode: Yoga.YogaNode) {
     yogaNode.getComputedBorder(Yoga.EDGE_LEFT) -
     yogaNode.getComputedBorder(Yoga.EDGE_RIGHT)
   )
+}
+
+export function isDOMElement(node: unknown): node is DOMElement {
+  return !!node && node instanceof DOMElement
 }

@@ -50,7 +50,7 @@ export const TuiBox: FunctionalComponent<TuiBoxProps> = (
   { attrs, slots }
 ) => {
   return h(
-    'tui-box',
+    'tui:box',
     {
       style: {
         flexDirection: props.flexDirection ?? 'row',

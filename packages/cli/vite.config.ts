@@ -12,5 +12,8 @@ export default defineConfig({
       'vue-termui': resolve('../termui/src/index.ts'),
     },
   },
-  plugins: [VueTermui(), Inspect()],
+  plugins: [
+    VueTermui(),
+    // Inspect()
+  ],
 })
