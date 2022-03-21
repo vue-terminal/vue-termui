@@ -2,7 +2,7 @@
   "name": "vite-plugin-vue-termui",
   "description": "Vite Plugin for Vue TermUI",
   "private": false,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "sideEffects": false,
   "scripts": {
     "dev": "tsup -w",
@@ -54,7 +54,7 @@
     "unplugin-auto-import": "^0.6.1",
     "unplugin-vue-components": "^0.18.0",
     "vue": "^3.2.25",
-    "vue-termui": ">=0.0.7"
+    "vue-termui": ">=0.0.10"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",

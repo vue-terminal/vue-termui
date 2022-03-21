@@ -1,3 +1,14 @@
+## [0.0.14](https://github.com/posva/vue-termui/compare/@vue-termui/cli@0.0.13...@vue-termui/cli@0.0.14) (2022-03-21)
+
+### Bug Fixes
+
+- exit app when done ([a1461db](https://github.com/posva/vue-termui/commit/a1461dbcfa6a2906e78cd5fed1bbdcc9c77d16f2))
+
+### Features
+
+- auto detect port ([8fd7f40](https://github.com/posva/vue-termui/commit/8fd7f409437582e8f3957535aa87e18176e09a42))
+- focus management ([6198d1c](https://github.com/posva/vue-termui/commit/6198d1c84ccbfca1d734fe1e049fb16842bc8136))
+
 ## [0.0.13](https://github.com/posva/vue-termui/compare/@vue-termui/cli@0.0.12...@vue-termui/cli@0.0.13) (2022-03-15)
 
 ### Bug Fixes

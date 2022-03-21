@@ -1,3 +1,37 @@
+## [0.0.10](https://github.com/posva/vue-termui/compare/vue-termui@0.0.9...vue-termui@0.0.10) (2022-03-21)
+
+### Bug Fixes
+
+- exit app when done ([a1461db](https://github.com/posva/vue-termui/commit/a1461dbcfa6a2906e78cd5fed1bbdcc9c77d16f2))
+
+### Code Refactoring
+
+- rename input properties to avoid collisions with dom ([3149bea](https://github.com/posva/vue-termui/commit/3149beab70e378e20113cb84e44eff0aa16bfc68))
+
+### Features
+
+- add handling of onInput ([e28bfe4](https://github.com/posva/vue-termui/commit/e28bfe464ac80e67d00200a19c1105867179a72c))
+- auto detect port ([8fd7f40](https://github.com/posva/vue-termui/commit/8fd7f409437582e8f3957535aa87e18176e09a42))
+- **components:** wip input ([e8a5940](https://github.com/posva/vue-termui/commit/e8a59409043058b115d9e39f24240f894e7251b2))
+- focus management ([6198d1c](https://github.com/posva/vue-termui/commit/6198d1c84ccbfca1d734fe1e049fb16842bc8136))
+- onInput emits raw data ([d693db4](https://github.com/posva/vue-termui/commit/d693db4ca295babc9bcf9ce9b8a34d9c51cb9ad9))
+- wip focus handler ([da25da2](https://github.com/posva/vue-termui/commit/da25da2c2cf442d5a5aadc0d1e587a14ae60ce82))
+
+### BREAKING CHANGES
+
+- all of the input events have been renamed to avoid
+  collisions and errors with dom. All names containing Mouse are now named
+  MouseData (to avoid collisions with MouseEvent and others) and to make
+  things consistent, all Keypress and Keyboard are named KeyData. This is
+  because to generate these events, we listen to the `data` event on the
+  `stdin` and `Key` is shorter than `Keyboard`.
+
+* `*Keypress*` -> `*KeyData*`
+* `*Keyboard*` -> `*KeyData*`
+* `*Mouse*` -> `*MouseData*`
+
+- onInput emits a single raw data now
+
 ## [0.0.9](https://github.com/posva/vue-termui/compare/vue-termui@0.0.8...vue-termui@0.0.9) (2022-03-15)
 
 ### Bug Fixes
