@@ -1,3 +1,9 @@
+## [0.0.10](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.9...create-vue-termui@0.0.10) (2022-03-21)
+
+### Bug Fixes
+
+- demo ([23d9ef1](https://github.com/posva/vue-termui/commit/23d9ef1a6e132958f6160a7a3143e02fd22d5957))
+
 ## [0.0.9](https://github.com/posva/vue-termui/compare/create-vue-termui@0.0.8...create-vue-termui@0.0.9) (2022-03-15)
 
 ### Bug Fixes
