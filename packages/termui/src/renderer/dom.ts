@@ -1,4 +1,5 @@
 import Yoga from 'yoga-layout-prebuilt'
+import type { Focusable } from '../focus/types'
 import type { OutputTransformer } from './Output'
 import type { Styles } from './styles'
 import { measureTextNode } from './text'
@@ -9,6 +10,7 @@ export class TuiNode {
   internal_static?: boolean
   internal_transform?: OutputTransformer
   style: Styles = {}
+  focusable: Focusable | null = null
 
   constructor(parentNode: DOMElement | null) {
     this.parentNode = parentNode

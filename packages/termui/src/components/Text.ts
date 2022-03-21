@@ -16,6 +16,18 @@ export const defaultStyle: Styles = {
   flexDirection: 'row',
 }
 
+export interface TuiTextProps {
+  color?: ForegroundColor
+  bgColor?: ForegroundColor
+  dimmed?: boolean
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  strikethrough?: boolean
+  inverse?: boolean
+  wrap?: Styles['textWrap']
+}
+
 export const TuiText = defineComponent({
   name: 'TuiText',
 

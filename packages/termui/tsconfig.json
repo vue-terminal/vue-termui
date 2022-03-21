@@ -13,7 +13,10 @@
     "esModuleInterop": true,
     "composite": true,
     "skipLibCheck": true,
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "paths": {
+      "~/*": ["src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"]
 }

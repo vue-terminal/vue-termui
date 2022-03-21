@@ -15,6 +15,7 @@ import { createLog } from '../renderer/LogUpdate'
 import { baseCreateApp } from '../renderer'
 import { RootProps, TuiApp, TuiAppOptions } from './types'
 import { isRawModeSupported } from '../input/inputSequences'
+import { createFocusManager, FocusManagerSymbol } from '../focus/FocusManager'
 
 const noop = () => {}
 
@@ -37,26 +38,8 @@ export function createApp(
     .provide(logSymbol, log)
     .provide(stdoutSymbol, stdout)
 
-  // FIXME: do we need this?
-  app.config.compilerOptions.isCustomElement = (tag) =>
-    tag.startsWith('Tui') || tag.startsWith('tui:')
-
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
-
-  // TODO: use auto import to enable treeshaking
-  // for some reason it currently fails..
-  // newApp.component('TuiText', TuiText)
-  // newApp.component('Text', TuiText)
-  // newApp.component('Span', TuiText)
-
-  // newApp.component('TuiNewline', TuiNewline)
-  // newApp.component('Newline', TuiNewline)
-  // newApp.component('Br', TuiNewline)
-
-  // newApp.component('TuiBox', TuiBox)
-  // newApp.component('Box', TuiBox)
-  // newApp.component('Div', TuiBox)
 
   const onResize = () => {
     // log('Resize')
@@ -87,10 +70,14 @@ export function createApp(
 
     stdout.on('resize', onResize)
     const rootEl = new DOMElement('tui:root')
+    // for debugging purposes
     rootEl.toString = () => `<Root>`
+
+    const focusManager = createFocusManager(rootEl)
 
     newApp.provide(rootNodeSymbol, rootEl)
     newApp.provide(renderOnceSymbol, renderOnce)
+    newApp.provide(FocusManagerSymbol, focusManager)
 
     // TODO: is raw mode supported?
     let rawModeEnableCount = 0
@@ -135,24 +122,13 @@ export function createApp(
       // eslint-disable-next-line unicorn/no-hex-escape
       if (input === CTRL_C && exitOnCtrlC) {
         return exitApp()
+      } else if (input === ESC) {
+        focusManager.focus(null)
+      } else if (input === TAB) {
+        focusManager.focusNext()
+      } else if (input === SHIFT_TAB) {
+        focusManager.focusPrevious()
       }
-
-      // Reset focus when there's an active focused component on Esc
-      // if (input === ESC && this.state.activeFocusId) {
-      //   this.setState({
-      //     activeFocusId: undefined,
-      //   })
-      // }
-
-      // if (this.state.isFocusEnabled && this.state.focusables.length > 0) {
-      //   if (input === TAB) {
-      //     this.focusNext()
-      //   }
-
-      //   if (input === SHIFT_TAB) {
-      //     this.focusPrevious()
-      //   }
-      // }
     }
     detachKeyboardHandler = attachInputHandler(app, stdin, { setRawMode })
 

@@ -7,6 +7,12 @@ export default defineConfig({
     __DEV__: `process.env.NODE_ENV === "development"`,
   },
 
+  resolve: {
+    alias: {
+      '~/': resolve(__dirname, './src'),
+    },
+  },
+
   plugins: [Vue()],
 
   build: {

@@ -1,4 +1,10 @@
-import { getCurrentInstance, Ref } from '@vue/runtime-core'
+import {
+  getCurrentInstance,
+  Ref,
+  ComponentInternalInstance,
+  VNode,
+} from '@vue/runtime-core'
+import { DOMElement, DOMNode } from './renderer/dom'
 
 const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null)
@@ -55,3 +61,13 @@ export function checkCurrentInstance(fnName: string) {
 export const noop = () => {}
 
 export type MaybeRef<T> = Ref<T> | T
+
+export function getVnodeFromInstance(instance: ComponentInternalInstance) {
+  return instance.vnode as VNode<DOMNode, DOMElement> | undefined
+}
+
+export function getElementFromInstance(
+  instance: ComponentInternalInstance | undefined | null
+): DOMNode | null | undefined {
+  return (instance?.vnode as VNode<DOMNode, DOMElement> | undefined)?.el
+}

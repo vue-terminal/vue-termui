@@ -1,9 +1,16 @@
-import { Ref } from '@vue/runtime-core'
+import { ComponentInternalInstance, ComputedRef, Ref } from '@vue/runtime-core'
+import { MaybeRef } from '../utils'
 
 export interface Focusable {
-  active: Ref<boolean>
+  active: ComputedRef<boolean>
   disabled: Ref<boolean>
-  id: Ref<FocusId | null>
+  id: MaybeRef<FocusId>
+
+  /**
+   * Instance attached to the focusable
+   * @internal
+   */
+  _i: ComponentInternalInstance
 }
 
 /**

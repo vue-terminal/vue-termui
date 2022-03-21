@@ -8,32 +8,7 @@ import {
 } from './dom'
 import { applyStyles } from './styles'
 import { OutputTransformer } from './Output'
-
-function removeNode(node: DOMNode) {
-  // recurse for children
-  if (node.nodeName !== '#comment' && node.nodeName !== '#text') {
-    node.childNodes.map(removeNode)
-  }
-
-  if (node.parentNode) {
-    const selfIndex = node.parentNode.childNodes.indexOf(node)
-    // TODO: refactor into removeChild
-    if (selfIndex > -1) {
-      node.parentNode.childNodes.splice(selfIndex, 1)
-    }
-    // remove the yoga node as well
-    if (node.yogaNode) {
-      node.parentNode.yogaNode?.removeChild(node.yogaNode)
-      node.yogaNode.unsetMeasureFunc()
-      node.yogaNode.freeRecursive()
-    }
-
-    // detach from parent
-    node.parentNode = null
-  }
-
-  // Queue an update of dom
-}
+import { nextSibling, remove } from './nodeOpts'
 
 export const { render, createApp: baseCreateApp } = createRenderer<
   DOMNode,
@@ -65,7 +40,7 @@ export const { render, createApp: baseCreateApp } = createRenderer<
   insert(el, parent, anchor) {
     parent.insertNode(el, anchor)
   },
-  remove: removeNode,
+  remove,
   createElement(type) {
     // TODO: runtime check valid values
     // console.log('createElement', type)
@@ -84,11 +59,7 @@ export const { render, createApp: baseCreateApp } = createRenderer<
     // console.log('parentNode', node)
     return node.parentNode
   },
-  nextSibling(node) {
-    if (!node.parentNode) return null
-    const index = node.parentNode.childNodes.indexOf(node)
-    return (index >= 0 && node.parentNode.childNodes[index + 1]) || null
-  },
+  nextSibling,
 
   // TODO: When is this called?
   setElementText(node, text) {
