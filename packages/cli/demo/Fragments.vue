@@ -3,7 +3,7 @@ import { ref, reactive, MouseDataEvent, MouseEventType } from 'vue-termui'
 import Input from './Input.vue'
 
 const n = ref(0)
-setInterval(() => {
+useInterval(() => {
   n.value++
 }, 300)
 </script>

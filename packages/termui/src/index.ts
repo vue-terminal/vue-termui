@@ -30,6 +30,7 @@ export * from '@vue/runtime-core'
 export { onKeyData } from './composables/keyboard'
 export { onMouseData } from './composables/mouse'
 export { onInputData } from './composables/input'
+export { useInterval, useTimeout } from './composables/utils'
 
 export { inputDataToString } from './input/debug'
 export {

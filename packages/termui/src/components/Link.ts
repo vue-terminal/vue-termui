@@ -33,16 +33,15 @@ export const TuiLink = defineComponent({
 
     return () =>
       h(
-        // @ts-expect-error: doesn't like disabled prop
         TuiTextTransform,
         {
           inverse: active.value,
           dimmed: props.disabled,
           ...props,
-          transform: (text) =>
-            props.disabled
-              ? (v: string) => v
-              : terminalLink(text, props.href, {
+          transform: props.disabled
+            ? undefined
+            : (text) =>
+                terminalLink(text, props.href, {
                   fallback: props.fallback ?? true,
                 }),
         },

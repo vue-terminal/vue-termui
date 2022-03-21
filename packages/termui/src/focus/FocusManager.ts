@@ -116,7 +116,9 @@ export function createFocusManager(
       // we did a full loop
       node !== startNode &&
       // we skip any non focusable
-      !node.focusable
+      (!node.focusable ||
+        // or disabled element
+        node.focusable.disabled.value)
     )
 
     if (node && node.focusable) {
@@ -145,7 +147,9 @@ export function createFocusManager(
       // we did a full loop
       node !== lastNode &&
       // we skip any non focusable
-      !node.focusable
+      (!node.focusable ||
+        // or disabled element
+        node.focusable.disabled.value)
     )
 
     if (node && node.focusable) {

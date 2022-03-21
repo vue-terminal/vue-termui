@@ -51,10 +51,12 @@ declare global {
   const triggerRef: typeof import('vue-termui')['triggerRef']
   const unref: typeof import('vue-termui')['unref']
   const useAttrs: typeof import('vue-termui')['useAttrs']
+  const useInterval: typeof import('vue-termui')['useInterval']
   const useLog: typeof import('vue-termui')['useLog']
   const useRootNode: typeof import('vue-termui')['useRootNode']
   const useSlots: typeof import('vue-termui')['useSlots']
   const useStdout: typeof import('vue-termui')['useStdout']
+  const useTimeout: typeof import('vue-termui')['useTimeout']
   const watch: typeof import('vue-termui')['watch']
   const watchEffect: typeof import('vue-termui')['watchEffect']
 }

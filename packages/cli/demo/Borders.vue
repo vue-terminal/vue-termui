@@ -6,33 +6,33 @@ import { TuiBox as Box } from 'vue-termui'
   <Box flexDirection="column" :padding="2">
     <Box>
       <Box borderStyle="single" :marginRight="2">
-        <TuiText>single</TuiText>
+        <Text>single</Text>
       </Box>
 
       <Box borderStyle="double" :marginRight="2">
-        <TuiText>double</TuiText>
+        <Text>double</Text>
       </Box>
 
       <Box borderStyle="round" :marginRight="2">
-        <TuiText>round</TuiText>
+        <Text>round</Text>
       </Box>
 
       <Box borderStyle="bold">
-        <TuiText>bold</TuiText>
+        <Text>bold</Text>
       </Box>
     </Box>
 
     <Box :marginTop="1">
       <Box borderStyle="singleDouble" :marginRight="2">
-        <TuiText>singleDouble</TuiText>
+        <Text>singleDouble</Text>
       </Box>
 
       <Box borderStyle="doubleSingle" :marginRight="2">
-        <TuiText>doubleSingle</TuiText>
+        <Text>doubleSingle</Text>
       </Box>
 
       <Box borderStyle="classic">
-        <TuiText>classic</TuiText>
+        <Text>classic</Text>
       </Box>
     </Box>
   </Box>

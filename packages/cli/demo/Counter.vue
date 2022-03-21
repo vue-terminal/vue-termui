@@ -2,11 +2,9 @@
 import { ref, onMounted } from 'vue-termui'
 
 const n = ref(0)
-onMounted(() => {
-  setInterval(() => {
-    n.value++
-  }, 1)
-})
+useInterval(() => {
+  n.value++
+}, 1)
 </script>
 
 <template>

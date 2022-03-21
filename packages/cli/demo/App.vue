@@ -37,11 +37,9 @@ const colors: Array<ForegroundColor> = [
 ]
 
 const n = ref(0)
-onMounted(() => {
-  setInterval(() => {
-    n.value++
-  }, 1000)
-})
+useInterval(() => {
+  n.value++
+}, 1000)
 </script>
 
 <template>

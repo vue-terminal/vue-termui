@@ -7,7 +7,7 @@ const disabled = ref(0)
 onKeyData(['d', 'D'], () => {
   disabled.value = (disabled.value + 1) % 4
 })
-setInterval(() => {
+useInterval(() => {
   n.value++
 }, 300)
 </script>
@@ -27,7 +27,7 @@ setInterval(() => {
       v-for="i in 4"
       :href="`https://esm.dev/labs/${i - 1}`"
       :disabled="disabled === i - 1"
-      >Lab {{ i }}</Link
+      >Lab {{ i }}{{ disabled === i - 1 ? ' (disabled)' : '' }}</Link
     >
   </Div>
 </template>

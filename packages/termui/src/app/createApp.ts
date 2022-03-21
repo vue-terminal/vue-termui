@@ -1,7 +1,7 @@
 import { Component } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
-import { TuiText, TuiNewline, TuiBox, TuiApp as TuiRoot } from '../components'
+import { TuiApp as TuiRoot } from '../components'
 import { attachInputHandler } from '../input/handling'
 import { onExit } from '../deps/signal-exit'
 import { DOMElement } from '../renderer/dom'
@@ -102,11 +102,11 @@ export function createApp(
           stdin.addListener('data', appOnData)
           stdin.resume()
           stdin.setRawMode(true)
-          stdin.write(ACTIVATE_MOUSE)
+          stdout.write(ACTIVATE_MOUSE)
         }
       } else if (--rawModeEnableCount === 0) {
         // TODO: should we write these codes to stdin or stdout?
-        stdin.write(DEACTIVATE_MOUSE)
+        stdout.write(DEACTIVATE_MOUSE)
         stdin.setRawMode(false)
         stdin.removeListener('data', appOnData)
         stdin.pause()
@@ -121,7 +121,8 @@ export function createApp(
       // Exit on Ctrl+C
       // eslint-disable-next-line unicorn/no-hex-escape
       if (input === CTRL_C && exitOnCtrlC) {
-        return exitApp()
+        stopApp()
+        // setTimeout(stopApp, 1000)
       } else if (input === ESC) {
         focusManager.focus(null)
       } else if (input === TAB) {
@@ -130,7 +131,10 @@ export function createApp(
         focusManager.focusPrevious()
       }
     }
-    detachKeyboardHandler = attachInputHandler(app, stdin, { setRawMode })
+
+    if (!renderOnce) {
+      detachKeyboardHandler = attachInputHandler(app, stdin, { setRawMode })
+    }
 
     mount(rootEl)
     return newApp
@@ -160,22 +164,22 @@ export function createApp(
     return exitPromise
   }
 
-  function exitApp(error?: TuiError) {
+  function stopApp(error?: TuiError) {
+    cliCursor.show(stdout)
+    newApp.unmount()
     if (error) {
       rejectExitPromise(error)
     } else {
       resolveExitPromise()
     }
-    cliCursor.show(stdout)
-    newApp.unmount()
   }
-  _currentExitApp = exitApp
+  _currentExitApp = stopApp
 
   const removeOnExitListener = onExit((code, signal) => {
-    console.log({ code, signal })
+    // console.log({ code, signal })
     if (code !== 0) {
       // TODO: depending on the signal or code
-      exitApp(signal !== 'SIGINT' ? undefined : new TuiError(code, signal))
+      stopApp(signal !== 'SIGINT' ? undefined : new TuiError(code, signal))
     }
   })
 
@@ -183,7 +187,7 @@ export function createApp(
   // TODO: check if it works when no ws is installed, if not maybe move to dynamic import
   if (__DEV__) {
     import('../hmr').then(({ setupHMRSocket }) => {
-      setupHMRSocket(newApp, exitApp)
+      setupHMRSocket(newApp, stopApp)
     })
   }
 

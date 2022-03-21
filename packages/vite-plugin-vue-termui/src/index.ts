@@ -198,4 +198,8 @@ export const VueTuiExports: ImportsMap[string] = [
   'isKeyDataEvent',
   'isMouseDataEvent',
   'isInputDataEvent',
+
+  // composables
+  'useTimeout',
+  'useInterval',
 ]
