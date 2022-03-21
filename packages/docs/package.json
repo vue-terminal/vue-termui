@@ -1,4 +1,6 @@
 {
+  "name": "docs",
+  "private": true,
   "scripts": {
     "dev": "vitepress",
     "build": "vitepress build",
