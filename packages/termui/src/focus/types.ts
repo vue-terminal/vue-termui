@@ -6,4 +6,7 @@ export interface Focusable {
   id: Ref<FocusId | null>
 }
 
+/**
+ * Types for the `id` of a Focusable element.
+ */
 export type FocusId = string | symbol

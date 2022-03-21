@@ -1,8 +1,15 @@
-import { ComponentInternalInstance } from '@vue/runtime-core'
+import {
+  ComponentInternalInstance,
+  InjectionKey,
+  ShallowRef,
+  shallowRef,
+} from '@vue/runtime-core'
 import { noop } from '../utils'
 import { Focusable, FocusId } from './types'
 
 export interface FocusManager {
+  activeElement: ShallowRef<Focusable | null>
+
   /**
    * @internal
    */
@@ -17,7 +24,9 @@ export interface FocusManager {
   focusPrevious(): Focusable | null
 
   /**
-   * Traps the focus within the current component tree until it is is deactivated
+   * Traps the focus within the current component tree until it is is deactivated.
+   * TODO: should it return trap controls?
+   * TODO: createFocusTrap() ?
    */
   trapFocus(options?: FocusTrapOptions): () => void
 }
@@ -29,29 +38,34 @@ export interface FocusTrapOptions {
   restoreOnExit?: boolean
 }
 
+export const FocusManagerSymbol = Symbol(
+  'vue-termui:FocusManager'
+) as InjectionKey<FocusManager>
+
 export function createFocusManager(): FocusManager {
-  function focus(id: FocusId) {
+  const activeElement = shallowRef<Focusable | null>(null)
+
+  const focus: FocusManager['focus'] = (id) => {
     return null
   }
 
-  function focusNext() {
+  const focusNext: FocusManager['focusNext'] = () => {
     return null
   }
-  function focusPrevious() {
+  const focusPrevious: FocusManager['focusPrevious'] = () => {
     return null
   }
 
-  function trapFocus() {
+  const trapFocus: FocusManager['trapFocus'] = () => {
     return noop
   }
 
-  function _add(instance: any) {
-    // instance.$focusContext = {}
-  }
-
-  function _remove(instance: Focusable) {}
+  const _add: FocusManager['_add'] = (instance) => {}
+  const _remove: FocusManager['_remove'] = (instance) => {}
 
   return {
+    activeElement,
+
     _add,
     _remove,
 
