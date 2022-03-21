@@ -6,14 +6,14 @@
 const n = ref(0)
 
 const counter = ref(0)
-onKeypress(['+', 'ArrowRight', 'ArrowUp'], () => {
+onKeyData(['+', 'ArrowRight', 'ArrowUp'], () => {
   counter.value++
 })
-onKeypress(['-', 'ArrowLeft', 'ArrowDown'], () => {
+onKeyData(['-', 'ArrowLeft', 'ArrowDown'], () => {
   counter.value--
 })
 
-setInterval(() => {
+useInterval(() => {
   n.value++
 }, 600)
 </script>
