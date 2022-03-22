@@ -391,3 +391,6 @@ const XTERM_KEYCODE_TABLE = new Map<string, KeyDataEventKeyCode>([
   ['R', 'F3'],
   ['S', 'F4'],
 ])
+
+export const SAVE_SCREEN_BUFFER = '\x1b[?1049h'
+export const RESTORE_SCREEN_BUFFER = '\x1b[?1049l'

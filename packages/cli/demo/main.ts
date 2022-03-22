@@ -8,7 +8,7 @@ import App from './Focusables.vue'
 // import App from './Counter.vue'
 // import App from './Borders.vue'
 
-createApp(App).mount({
+createApp(App, { swapScreens: true }).mount({
   // TODO: is this option really useful? when rendering once, any change should do a full reload one could just call
   // exitApp when they are done rendering on onMounted and it would would handle everything renderOnce: true,
 })

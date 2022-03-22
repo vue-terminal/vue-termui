@@ -14,7 +14,11 @@ import {
 import { createLog } from '../renderer/LogUpdate'
 import { baseCreateApp } from '../renderer'
 import { RootProps, TuiApp, TuiAppOptions } from './types'
-import { isRawModeSupported } from '../input/inputSequences'
+import {
+  isRawModeSupported,
+  RESTORE_SCREEN_BUFFER,
+  SAVE_SCREEN_BUFFER,
+} from '../input/inputSequences'
 import { createFocusManager, FocusManagerSymbol } from '../focus/FocusManager'
 
 const noop = () => {}
@@ -26,6 +30,7 @@ export function createApp(
     stdout = process.stdout,
     stdin = process.stdin,
     stderr = process.stderr,
+    swapScreens,
     ...rootProps
   }: RootProps & TuiAppOptions = {}
 ) {
@@ -66,6 +71,10 @@ export function createApp(
   let detachKeyboardHandler: undefined | (() => void)
   newApp.mount = ({ renderOnce = false, exitOnCtrlC = true } = {}) => {
     cliCursor.hide(stdout)
+    if (swapScreens) {
+      stdout.write(SAVE_SCREEN_BUFFER)
+      stdout.cursorTo(0, 0)
+    }
     log.clear()
 
     stdout.on('resize', onResize)
@@ -141,6 +150,10 @@ export function createApp(
   }
 
   newApp.unmount = () => {
+    cliCursor.show(stdout)
+    if (swapScreens) {
+      stdout.write(RESTORE_SCREEN_BUFFER)
+    }
     stdout.off('resize', onResize)
     // also calls setRawMode(false)
     detachKeyboardHandler?.()
@@ -165,7 +178,6 @@ export function createApp(
   }
 
   function stopApp(error?: TuiError) {
-    cliCursor.show(stdout)
     newApp.unmount()
     if (error) {
       rejectExitPromise(error)

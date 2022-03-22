@@ -42,6 +42,13 @@ export interface TuiAppOptions {
    * @default process.stderr
    */
   stderr?: NodeJS.WriteStream
+
+  /**
+   * Switches the current screen buffer when mounting the app and restores it when exiting. This is useful for
+   * fullscreen applications and applications relying on mouse coordinates.Using this will always display the app at the
+   * top left corner.
+   */
+  swapScreens?: boolean
 }
 
 export type RootProps = Record<string, unknown>
