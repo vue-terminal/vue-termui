@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, MouseDataEvent, MouseEventType } from 'vue-termui'
 import Input from './Input.vue'
+import { GlobalEvents } from './components/GlobalEvents'
 
 const n = ref(0)
 const disabled = ref(0)
@@ -22,6 +23,10 @@ useInterval(() => {
     borderStyle="round"
     title="Focusables"
   >
+    <GlobalEvents
+      @keypress.+.right.up="disabled++"
+      @keypress.-.left.down="disabled--"
+    />
     <Link href="https://esm.dev">My Website</Link>
     <Text underline>Cannot be focused</Text>
     <Link
