@@ -19,7 +19,7 @@ import {
   useRootNode,
 } from '../injectionSymbols'
 import { stdoutSymbol } from '../composables/writeStreams'
-import { onResize } from '../composables/utils'
+import { onResize } from '../composables/screen'
 // TODO: useSettings()
 
 export const TuiApp = defineComponent({
@@ -93,12 +93,14 @@ export const TuiApp = defineComponent({
             needsUpdate = false
           }
         }, 32)
+        stdout.on('resize', scheduleUpdate)
       }
       renderTuiApp()
     })
 
     onUnmounted(() => {
       clearInterval(interval)
+      stdout.off('resize', scheduleUpdate)
     })
 
     function scheduleUpdate() {
@@ -106,7 +108,6 @@ export const TuiApp = defineComponent({
     }
     provide(scheduleUpdateSymbol, scheduleUpdate)
 
-    onResize(scheduleUpdate)
     onUpdated(scheduleUpdate)
 
     onErrorCaptured((error, target) => {

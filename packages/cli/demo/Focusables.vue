@@ -5,9 +5,12 @@ import {
   MouseDataEvent,
   MouseEventType,
   useStdoutDimensions,
+  useTitle,
 } from 'vue-termui'
 import Input from './Input.vue'
 import { GlobalEvents } from './components/GlobalEvents'
+
+const [cols, rows] = useStdoutDimensions()
 
 const n = ref(0)
 const disabled = ref(0)
@@ -18,8 +21,7 @@ useInterval(() => {
   n.value++
   // write(`n: ${n.value}\n`)
 }, 300)
-
-const [cols, rows] = useStdoutDimensions()
+useTitle(computed(() => `Counting ${n.value}...`))
 </script>
 
 <template>
