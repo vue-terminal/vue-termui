@@ -22,7 +22,7 @@ export interface FocusableOptions {
   /**
    * Is initially disabled. Defaults to `false` and can be changed.
    */
-  disabled?: boolean
+  disabled?: MaybeRef<boolean>
 
   /**
    * Unique `id` for the focusable element. Can be a `string` or a `symbol`. If none is provided, a `symbol` will be
@@ -49,20 +49,14 @@ export function useFocus({
 
   const active = computed<boolean>(() => activeElement.value === focusable)
 
-  let internalDisabled = !!startsDisabled
-  const disabled = customRef<boolean>((track, trigger) => ({
-    get() {
-      track()
-      return internalDisabled
-    },
-    set(disabled) {
-      internalDisabled = disabled
-      if (disabled && active.value) {
-        focus(null)
-      }
-      trigger()
-    },
-  }))
+  const disabled = ref(
+    isRef(startsDisabled) ? startsDisabled : !!startsDisabled
+  )
+  watch(disabled, (disabled) => {
+    if (disabled && active.value) {
+      focus(null)
+    }
+  })
 
   const focusable: Focusable = {
     disabled,

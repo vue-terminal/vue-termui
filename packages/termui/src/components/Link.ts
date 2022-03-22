@@ -1,4 +1,9 @@
-import { defineComponent, FunctionalComponent, h } from '@vue/runtime-core'
+import {
+  defineComponent,
+  FunctionalComponent,
+  h,
+  toRef,
+} from '@vue/runtime-core'
 import { TuiTextTransform } from './TextTransform'
 import terminalLink from 'terminal-link'
 import { TuiText } from './Text'
@@ -29,7 +34,10 @@ export const TuiLink = defineComponent({
     disabled: Boolean,
   },
   setup(props, { slots }) {
-    const { active } = useFocus({ active: true })
+    const { active } = useFocus({
+      active: true,
+      disabled: toRef(props, 'disabled'),
+    })
 
     return () =>
       h(
