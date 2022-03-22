@@ -7,48 +7,50 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
    *
    * @default 0
    */
-  margin?: Number
+  margin?: number
 
   /**
    * Horizontal margin. Equivalent to setting `marginLeft` and `marginRight`.
    *
    * @default 0
    */
-  marginX?: Number
+  marginX?: number
 
   /**
    * Vertical margin. Equivalent to setting `marginTop` and `marginBottom`.
    *
    * @default 0
    */
-  marginY?: Number
+  marginY?: number
 
   /**
    * Padding on all sides. Equivalent to setting `paddingTop`, `paddingBottom`, `paddingLeft` and `paddingRight`.
    *
    * @default 0
    */
-  padding?: Number
+  padding?: number
 
   /**
    * Horizontal padding. Equivalent to setting `paddingLeft` and `paddingRight`.
    *
    * @default 0
    */
-  paddingX?: Number
+  paddingX?: number
 
   /**
    * Vertical padding. Equivalent to setting `paddingTop` and `paddingBottom`.
    *
    * @default 0
    */
-  paddingY?: Number
+  paddingY?: number
+
+  /**
+   * Optional title to display.
+   */
+  title?: string
 }
 
-export const TuiBox: FunctionalComponent<TuiBoxProps> = (
-  props,
-  { attrs, slots }
-) => {
+export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
   return h(
     'tui:box',
     {

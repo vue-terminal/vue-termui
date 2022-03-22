@@ -20,6 +20,7 @@ useInterval(() => {
     flexDirection="column"
     alignItems="center"
     borderStyle="round"
+    title="Focusables"
   >
     <Link href="https://esm.dev">My Website</Link>
     <Text underline>Cannot be focused</Text>

@@ -16,6 +16,9 @@ export type TextWrap =
 export interface Styles {
   readonly textWrap?: TextWrap
 
+  // TODO: move somewhere else
+  readonly title?: string
+
   readonly position?: 'absolute' | 'relative'
 
   /**

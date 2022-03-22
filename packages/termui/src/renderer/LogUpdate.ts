@@ -1,6 +1,9 @@
 import { Writable } from 'stream'
 import ansiEscapes from 'ansi-escapes'
 import cliCursor from 'cli-cursor'
+import { DOMElement } from './dom'
+import { applyStyles } from './styles'
+import type { OutputTransformer } from './Output'
 
 export interface LogUpdate {
   clear: () => void
