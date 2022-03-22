@@ -7,6 +7,8 @@ import {
   onUpdated,
   onErrorCaptured,
   inject,
+  DefineComponent,
+  PropType,
 } from '@vue/runtime-core'
 import ansiEscapes from 'ansi-escapes'
 import { renderRoot } from '../renderer/render'
@@ -15,23 +17,39 @@ import {
   scheduleUpdateSymbol,
   useLog,
   useRootNode,
-  useStdout,
 } from '../injectionSymbols'
+import { stdoutSymbol } from '../composables/writeStreams'
+import { onResize } from '../composables/utils'
 // TODO: useSettings()
 
 export const TuiApp = defineComponent({
   name: 'TuiApp',
   props: {
     root: {
-      type: Object,
+      type: Object as PropType<DefineComponent>,
+      required: true,
+    },
+    stdout: {
+      type: Object as PropType<NodeJS.WriteStream>,
       required: true,
     },
   },
   setup(props, { attrs }) {
     const log = useLog()
 
+    const { stdout } = props
+
+    const writeToStdout: NodeJS.WriteStream['write'] = (...args) => {
+      log.clear()
+      // @ts-expect-error: args fails for some reason
+      const ret = stdout.write.apply(stdout, args)
+      log(lastOutput)
+      return ret
+    }
+
+    provide(stdoutSymbol, { stdout, write: writeToStdout })
+
     const rootNode = useRootNode()
-    const stdout = useStdout()
 
     let lastOutput: string = ''
 
@@ -88,9 +106,8 @@ export const TuiApp = defineComponent({
     }
     provide(scheduleUpdateSymbol, scheduleUpdate)
 
-    onUpdated(() => {
-      scheduleUpdate()
-    })
+    onResize(scheduleUpdate)
+    onUpdated(scheduleUpdate)
 
     onErrorCaptured((error, target) => {
       debugger
@@ -99,7 +116,6 @@ export const TuiApp = defineComponent({
       console.log(target)
     })
 
-    // TODO: could return a Box
     return () => h(props.root, attrs)
   },
 })

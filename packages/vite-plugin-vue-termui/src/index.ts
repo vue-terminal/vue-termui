@@ -189,12 +189,12 @@ export const VueTuiExports: ImportsMap[string] = [
   // vue-termui API
   'useLog',
   'useRootNode',
-  'useStdout',
   'onInputData',
   'onKeyData',
   'onMouseData',
   'MouseEventType',
   'inputDataToString',
+  // TODO: only keep most used functions
   'isKeyDataEvent',
   'isMouseDataEvent',
   'isInputDataEvent',

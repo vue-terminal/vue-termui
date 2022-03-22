@@ -1,4 +1,5 @@
-import { onMounted, onUnmounted } from '@vue/runtime-core'
+import { onMounted, onUnmounted, ref } from '@vue/runtime-core'
+import { useStdout } from './writeStreams'
 
 export function useInterval(fn: () => void, interval?: number) {
   let handle: ReturnType<typeof setInterval>
@@ -33,4 +34,38 @@ function useTimeFunction<RT = any>(
       clear(handle)
     })
   }
+}
+
+/**
+ * Listen to resize events on the terminal. Automatically removes the event handler when unmounting.
+ *
+ * @param handler - callback
+ * @returns a function to remove the listener
+ */
+export function onResize(handler: () => void) {
+  const { stdout } = useStdout()
+
+  onMounted(() => {
+    stdout.on('resize', handler)
+  })
+  function remove() {
+    stdout.off('resize', handler)
+  }
+
+  onUnmounted(remove)
+
+  return remove
+}
+
+export function useStdoutDimensions() {
+  const { stdout } = useStdout()
+  const width = ref(stdout.columns)
+  const height = ref(stdout.rows)
+
+  onResize(() => {
+    width.value = stdout.columns
+    height.value = stdout.rows
+  })
+
+  return [width, height]
 }

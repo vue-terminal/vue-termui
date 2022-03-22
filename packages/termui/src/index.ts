@@ -18,8 +18,6 @@ export {
   logSymbol,
   useRootNode,
   rootNodeSymbol,
-  stdoutSymbol,
-  useStdout,
 } from './injectionSymbols'
 
 export * from './components'
@@ -30,7 +28,14 @@ export * from '@vue/runtime-core'
 export { onKeyData } from './composables/keyboard'
 export { onMouseData } from './composables/mouse'
 export { onInputData } from './composables/input'
-export { useInterval, useTimeout } from './composables/utils'
+export {
+  useInterval,
+  useTimeout,
+  onResize,
+  useStdoutDimensions,
+} from './composables/utils'
+export { useStdout } from './composables/writeStreams'
+export type { UseStdoutReturn } from './composables/writeStreams'
 
 export { inputDataToString } from './input/debug'
 export {

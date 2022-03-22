@@ -1,4 +1,5 @@
-import { Component } from '@vue/runtime-core'
+import type { Component } from '@vue/runtime-core'
+import { markRaw } from '@vue/runtime-core'
 import cliCursor from 'cli-cursor'
 import { TuiError } from '../errors/TuiError'
 import { TuiApp as TuiRoot } from '../components'
@@ -7,7 +8,6 @@ import { onExit } from '../deps/signal-exit'
 import { DOMElement } from '../renderer/dom'
 import {
   logSymbol,
-  stdoutSymbol,
   rootNodeSymbol,
   renderOnceSymbol,
 } from '../injectionSymbols'
@@ -37,19 +37,13 @@ export function createApp(
   const log = createLog(stdout)
 
   const app = baseCreateApp(TuiRoot, {
-    root: rootComponent,
+    root: markRaw(rootComponent),
+    stdout: markRaw(stdout),
     ...rootProps,
-  })
-    .provide(logSymbol, log)
-    .provide(stdoutSymbol, stdout)
+  }).provide(logSymbol, log)
 
   const { mount, unmount } = app
   const newApp = app as unknown as TuiApp
-
-  const onResize = () => {
-    // log('Resize')
-    // schedule rerender
-  }
 
   // P s = 9 → Send Mouse X & Y on button press. See the section Mouse Tracking.
   // const MOUSE_MODE = '1002'
@@ -77,7 +71,6 @@ export function createApp(
     }
     log.clear()
 
-    stdout.on('resize', onResize)
     const rootEl = new DOMElement('tui:root')
     // for debugging purposes
     rootEl.toString = () => `<Root>`
@@ -154,7 +147,6 @@ export function createApp(
     if (swapScreens) {
       stdout.write(RESTORE_SCREEN_BUFFER)
     }
-    stdout.off('resize', onResize)
     // also calls setRawMode(false)
     detachKeyboardHandler?.()
     removeOnExitListener()

@@ -16,13 +16,6 @@ export function useRootNode() {
   return inject(rootNodeSymbol)!
 }
 
-export const stdoutSymbol = Symbol(
-  'vue-termui:stdout'
-) as InjectionKey<NodeJS.WriteStream>
-export function useStdout() {
-  return inject(stdoutSymbol)!
-}
-
 export const scheduleUpdateSymbol = Symbol(
   'vue-termui:scheduleUpdate'
 ) as InjectionKey<() => void>

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref, reactive, MouseDataEvent, MouseEventType } from 'vue-termui'
+import {
+  ref,
+  reactive,
+  MouseDataEvent,
+  MouseEventType,
+  useStdoutDimensions,
+} from 'vue-termui'
 import Input from './Input.vue'
 import { GlobalEvents } from './components/GlobalEvents'
 
@@ -10,13 +16,16 @@ onKeyData(['d', 'D'], () => {
 })
 useInterval(() => {
   n.value++
+  // write(`n: ${n.value}\n`)
 }, 300)
+
+const [cols, rows] = useStdoutDimensions()
 </script>
 
 <template>
   <Div
-    width="100%"
-    :height="20"
+    :width="cols"
+    :height="rows"
     justifyContent="center"
     flexDirection="column"
     alignItems="center"
