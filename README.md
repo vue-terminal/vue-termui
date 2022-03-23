@@ -1,8 +1,18 @@
-<!-- <p align="center">
-  <a href="https://esm.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://pinia.vuejs.org/logo.svg" alt="Pinia logo">
+<p align="center">
+  <a href="https://vue-termui.esm.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://vue-termui.esm.dev/logo-big.svg" alt="Vue TermUI logo">
   </a>
-</p> -->
+</p>
+
+<br/>
+
+<p align="center">
+  <a href="https://npmjs.com/package/vue-termui"><img src="https://badgen.net/npm/v/vue-termui" alt="npm package"></a>
+  <a href="https://github.com/posva/vue-termui/actions/workflows/test.yml?query=branch%3Amain"><img src="https://github.com/posva/vue-termui/workflows/test/badge.svg?branch=main" alt="build status"></a>
+  <a href="https://codecov.io/github/posva/vue-termui"><img src="https://badgen.net/codecov/c/github/posva/vue-termui" alt="code coverage"></a>
+</p>
+
+<br/>
 
 # Vue TermUI
 
