@@ -1,3 +1,26 @@
+## [0.0.11](https://github.com/posva/vue-termui/compare/vue-termui@0.0.10...vue-termui@0.0.11) (2022-03-26)
+
+### Bug Fixes
+
+- **focus:** pass disabled ref to useFocus ([b42248c](https://github.com/posva/vue-termui/commit/b42248c8ef59da21a33db876bdeaf615d76be4df))
+
+### Code Refactoring
+
+- rewrite useStdout() ([7cfba52](https://github.com/posva/vue-termui/commit/7cfba5296a7728e2a5920ed85a41504c14f9c14c))
+
+### Features
+
+- allow swapping screens for fullscreen apps ([71e0cdc](https://github.com/posva/vue-termui/commit/71e0cdcc161a7c5531e36da9b6441d2e26bff895))
+- **box:** add basic title ([e5b488d](https://github.com/posva/vue-termui/commit/e5b488d6e7e18853e4ff5f2e9fa96742c87fcfd3))
+- useTitle ([a8b14ce](https://github.com/posva/vue-termui/commit/a8b14ce0c8b7aa3e31f1f963a650d672de261ef1))
+
+### BREAKING CHANGES
+
+- now it returns an object with `stdout` and a `write`
+  method. `stdout` is just the stdout being used by the app while `write`
+  lets you write to the output without messing up with the current output.
+  Useful for debugging.
+
 ## [0.0.10](https://github.com/posva/vue-termui/compare/vue-termui@0.0.9...vue-termui@0.0.10) (2022-03-21)
 
 ### Bug Fixes

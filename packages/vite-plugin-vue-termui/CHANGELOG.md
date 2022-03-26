@@ -1,3 +1,16 @@
+## [0.0.9](https://github.com/posva/vue-termui/compare/vite-plugin-vue-termui@0.0.8...vite-plugin-vue-termui@0.0.9) (2022-03-26)
+
+### Code Refactoring
+
+- rewrite useStdout() ([7cfba52](https://github.com/posva/vue-termui/commit/7cfba5296a7728e2a5920ed85a41504c14f9c14c))
+
+### BREAKING CHANGES
+
+- now it returns an object with `stdout` and a `write`
+  method. `stdout` is just the stdout being used by the app while `write`
+  lets you write to the output without messing up with the current output.
+  Useful for debugging.
+
 ## [0.0.8](https://github.com/posva/vue-termui/compare/vite-plugin-vue-termui@0.0.7...vite-plugin-vue-termui@0.0.8) (2022-03-21)
 
 ### Bug Fixes
