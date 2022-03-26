@@ -39,6 +39,7 @@ export function createApp(
   const app = baseCreateApp(TuiRoot, {
     root: markRaw(rootComponent),
     stdout: markRaw(stdout),
+    swapScreens,
     ...rootProps,
   }).provide(logSymbol, log)
 

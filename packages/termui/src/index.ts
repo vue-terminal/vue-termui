@@ -33,6 +33,12 @@ export { onResize, useStdoutDimensions, useTitle } from './composables/screen'
 export { useStdout } from './composables/writeStreams'
 export type { UseStdoutReturn } from './composables/writeStreams'
 
+export { useFocus } from './focus/Focusable'
+export { useFocusManager } from './focus/FocusManager'
+export type { FocusableOptions } from './focus/Focusable'
+export type { FocusId, Focusable } from './focus/types'
+export type { FocusManager, FocusManagerOptions } from './focus/FocusManager'
+
 export { inputDataToString } from './input/debug'
 export {
   MouseEventType,

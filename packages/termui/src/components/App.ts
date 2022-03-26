@@ -23,7 +23,7 @@ import { onResize } from '../composables/screen'
 // TODO: useSettings()
 
 export const TuiApp = defineComponent({
-  name: 'TuiApp',
+  name: 'TuiRoot',
   props: {
     root: {
       type: Object as PropType<DefineComponent>,
@@ -33,6 +33,7 @@ export const TuiApp = defineComponent({
       type: Object as PropType<NodeJS.WriteStream>,
       required: true,
     },
+    swapScreens: Boolean,
   },
   setup(props, { attrs }) {
     const log = useLog()
@@ -65,9 +66,11 @@ export const TuiApp = defineComponent({
 
       // console.log('update', { hasStaticOutput })
 
-      if (outputHeight >= stdout.rows) {
+      if (outputHeight >= stdout.rows || props.swapScreens) {
         stdout.write(
-          ansiEscapes.clearTerminal + /* fullStaticOutput + */ output
+          ansiEscapes.cursorTo(0, 0) +
+            ansiEscapes.eraseDown +
+            /* fullStaticOutput + */ output
         )
 
         lastOutput = output

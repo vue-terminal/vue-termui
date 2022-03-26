@@ -27,7 +27,7 @@ useTitle(computed(() => `Counting ${n.value}...`))
 <template>
   <Div
     :width="cols"
-    :height="rows"
+    :height="30"
     justifyContent="center"
     flexDirection="column"
     alignItems="center"
