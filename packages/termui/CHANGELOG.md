@@ -1,3 +1,9 @@
+## [0.0.12](https://github.com/posva/vue-termui/compare/vue-termui@0.0.11...vue-termui@0.0.12) (2022-03-26)
+
+### Bug Fixes
+
+- clear screen when swapScreens is true ([5ef1f9e](https://github.com/posva/vue-termui/commit/5ef1f9eebced1b1bbda919639bec0d451fc96aa3))
+
 ## [0.0.11](https://github.com/posva/vue-termui/compare/vue-termui@0.0.10...vue-termui@0.0.11) (2022-03-26)
 
 ### Bug Fixes
