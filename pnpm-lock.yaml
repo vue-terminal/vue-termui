@@ -4,7 +4,7 @@ importers:
 
   .:
     specifiers:
-      '@types/node': ^17.0.21
+      '@types/node': ^16.0.0
       '@vitejs/plugin-vue': ^2.3.1
       c8: ^7.11.0
       chalk: ^5.0.1
@@ -24,7 +24,7 @@ importers:
       vue: ^3.2.31
       vue-tsc: ^0.31.4
     devDependencies:
-      '@types/node': 17.0.21
+      '@types/node': 16.11.26
       '@vitejs/plugin-vue': 2.3.1_vite@2.9.5+vue@3.2.31
       c8: 7.11.0
       chalk: 5.0.1
@@ -103,14 +103,12 @@ importers:
     specifiers:
       '@posva/vue-theme': ^1.0.1
       '@types/markdown-it': ^12.2.3
-      '@types/node': ^16.9.1
       vitepress: ^0.22.2
     dependencies:
       '@posva/vue-theme': 1.0.1_vue@3.2.31
       vitepress: 0.22.3
     devDependencies:
       '@types/markdown-it': 12.2.3
-      '@types/node': 16.11.26
 
   packages/playground:
     specifiers:

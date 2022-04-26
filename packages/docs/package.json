@@ -11,8 +11,7 @@
     "vitepress": "^0.22.2"
   },
   "devDependencies": {
-    "@types/markdown-it": "^12.2.3",
-    "@types/node": "^16.9.1"
+    "@types/markdown-it": "^12.2.3"
   },
   "pnpm": {
     "peerDependencyRules": {
