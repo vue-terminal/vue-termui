@@ -16,11 +16,11 @@ importers:
       p-series: ^3.0.0
       prettier: ^2.6.2
       semver: ^7.3.7
-      tsup: ^5.12.1
+      tsup: ^5.12.6
       typescript: ^4.6.3
       unplugin-auto-import: ^0.6.6
       vite: ^2.9.5
-      vitest: ^0.7.0
+      vitest: ^0.7.13
       vue: ^3.2.31
       vue-tsc: ^0.31.4
     devDependencies:
@@ -36,11 +36,11 @@ importers:
       p-series: 3.0.0
       prettier: 2.6.2
       semver: 7.3.7
-      tsup: 5.12.1_typescript@4.6.3
+      tsup: 5.12.6_typescript@4.6.3
       typescript: 4.6.3
       unplugin-auto-import: 0.6.6_vite@2.9.5
       vite: 2.9.5
-      vitest: 0.7.0_c8@7.11.2
+      vitest: 0.7.13_c8@7.11.2
       vue: 3.2.31
       vue-tsc: 0.31.4_typescript@4.6.3
 
@@ -131,7 +131,7 @@ importers:
       slice-ansi: ^5.0.0
       string-width: ^5.1.0
       terminal-link: ^3.0.0
-      type-fest: ^2.12.0
+      type-fest: ^2.12.2
       widest-line: ^4.0.1
       wrap-ansi: ^8.0.1
       ws: ^8.5.0
@@ -146,7 +146,7 @@ importers:
       slice-ansi: 5.0.0
       string-width: 5.1.2
       terminal-link: 3.0.0
-      type-fest: 2.12.0
+      type-fest: 2.12.2
       widest-line: 4.0.1
       wrap-ansi: 8.0.1
       yoga-layout-prebuilt: 1.10.0
@@ -3379,8 +3379,8 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /tsup/5.12.1_typescript@4.6.3:
-    resolution: {integrity: sha512-vI7E4T6+6n5guQ9UKUOkQmzd1n4V9abGK71lbnzJMLJspbkNby5zlwWvgvHafLdYCb1WXpjFuqqmNLjBA0Wz3g==}
+  /tsup/5.12.6_typescript@4.6.3:
+    resolution: {integrity: sha512-tpePOgdMRKRgazF+ujq9k1Fo44PUFUJJjRLtxq87pQrYW/Ub/fu1GpFGLzdUF9qjJ4FX1ykhf2d9mWCNy+jAtg==}
     hasBin: true
     peerDependencies:
       typescript: ^4.1.0
@@ -3433,8 +3433,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /type-fest/2.12.0:
-    resolution: {integrity: sha512-Qe5GRT+n/4GoqCNGGVp5Snapg1Omq3V7irBJB3EaKsp7HWDo5Gv2d/67gfNyV+d5EXD+x/RF5l1h4yJ7qNkcGA==}
+  /type-fest/2.12.2:
+    resolution: {integrity: sha512-qt6ylCGpLjZ7AaODxbpyBZSs9fCI9SkL3Z9q2oxMBQhs/uyY+VD8jHA8ULCGmWQJlBgqvO3EJeAngOHD8zQCrQ==}
     engines: {node: '>=12.20'}
     dev: false
 
@@ -3664,9 +3664,9 @@ packages:
       - stylus
     dev: false
 
-  /vitest/0.7.0_c8@7.11.2:
-    resolution: {integrity: sha512-qLq4VEWJRyhscfzjhlNA+mrCrBQ2Vh7M9ew90yudOfoNUT0ilmFdRriRMN8m8BkKw/7txoTvT1X3oQB7B4Pk3A==}
-    engines: {node: '>=14.14.0'}
+  /vitest/0.7.13_c8@7.11.2:
+    resolution: {integrity: sha512-UCHeJEOK+qCBa/e4UtkCfv0wIZ125T4Nf2R0J/46v/Wnv6bt9zGfAyKAI6siYFhvLvg20MgDIreROtVgedHFWw==}
+    engines: {node: '>=v14.19.1'}
     hasBin: true
     peerDependencies:
       '@vitest/ui': '*'

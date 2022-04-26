@@ -31,11 +31,11 @@
     "p-series": "^3.0.0",
     "prettier": "^2.6.2",
     "semver": "^7.3.7",
-    "tsup": "^5.12.1",
+    "tsup": "^5.12.6",
     "typescript": "^4.6.3",
     "unplugin-auto-import": "^0.6.6",
     "vite": "^2.9.5",
-    "vitest": "^0.7.0",
+    "vitest": "^0.7.13",
     "vue": "^3.2.31",
     "vue-tsc": "^0.31.4"
   }
