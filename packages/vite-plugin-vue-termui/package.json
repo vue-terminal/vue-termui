@@ -58,7 +58,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "unplugin-auto-import": "^0.6.4",
     "unplugin-vue-components": "^0.18.0",
     "vue-termui": "workspace:*"
   }

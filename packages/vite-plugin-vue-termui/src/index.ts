@@ -44,6 +44,14 @@ export default function VueTermui(): Plugin[] {
           define: {
             'process.env.NODE_ENV': JSON.stringify(env.mode),
           },
+
+          resolve: {
+            alias: {
+              '#ansi-styles': 'ansi-styles',
+              '#supports-color': 'supports-color',
+            },
+          },
+
           build: {
             target: 'node14',
             rollupOptions: {
