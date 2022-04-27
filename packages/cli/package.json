@@ -39,21 +39,21 @@
     "vue-termui-cli",
     "vue-termui"
   ],
-  "funding": "https://github.com/posva/vue-termui?sponsor=1",
+  "funding": "https://github.com/posva-sponsors/vue-termui?sponsor=1",
   "license": "MIT",
   "author": "Eduardo San Martin Morote (https://esm.dev)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/posva/vue-termui.git",
+    "url": "https://github.com/posva-sponsors/vue-termui.git",
     "directory": "packages/cli"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "bugs": {
-    "url": "https://github.com/posva/vue-termui/issues"
+    "url": "https://github.com/posva-sponsors/vue-termui/issues"
   },
-  "homepage": "https://github.com/posva/vue-termui#readme",
+  "homepage": "https://github.com/posva-sponsors/vue-termui#readme",
   "dependencies": {
     "picocolors": "^1.0.0",
     "vite-node": "^0.10.0",

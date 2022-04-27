@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "repository": {
-    "url": "https://github.com/posva/vue-termui.git",
+    "url": "https://github.com/posva-sponsors/vue-termui.git",
     "type": "git"
   },
   "scripts": {

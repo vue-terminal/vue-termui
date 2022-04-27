@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SponsorsGroup from './SponsorsGroup.vue'
+// import SponsorsGroup from './SponsorsGroup.vue'
 </script>
 
 <template>
@@ -17,12 +17,6 @@ import SponsorsGroup from './SponsorsGroup.vue'
       Build Terminal UIs like you have never built them before.
     </p>
 
-    <pre>
-_________
-/\__\__\__\
-\/__/\__\_/
-  \/__/
-    </pre>
     <p class="actions">
       <a class="get-started" href="/guide/introduction.html">
         Get Started

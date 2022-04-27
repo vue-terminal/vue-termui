@@ -128,13 +128,16 @@ export default defineConfigWithTheme<ThemeConfig>({
     // },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/posva/vue-termui' },
+      {
+        icon: 'github',
+        link: 'https://github.com/posva-sponsors/vue-termui',
+      },
       { icon: 'twitter', link: 'https://twitter.com/posva' },
-      { icon: 'discord', link: 'https://discord.com/invite/HBherRA' },
+      { icon: 'discord', link: 'https://discord.gg/HPVS2AbgXP' },
     ],
 
     editLink: {
-      repo: 'posva/vue-termui',
+      repo: 'posva-sponsors/vue-termui',
       text: 'Edit this page on GitHub',
     },
 

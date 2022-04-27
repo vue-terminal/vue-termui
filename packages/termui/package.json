@@ -28,7 +28,7 @@
     "termui",
     "tui"
   ],
-  "funding": "https://github.com/posva/vue-termui?sponsor=1",
+  "funding": "https://github.com/posva-sponsors/vue-termui?sponsor=1",
   "license": "MIT",
   "author": "Eduardo San Martin Morote (https://esm.dev)",
   "scripts": {
@@ -66,11 +66,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/posva/vue-termui.git",
+    "url": "https://github.com/posva-sponsors/vue-termui.git",
     "directory": "packages/termui"
   },
   "bugs": {
-    "url": "https://github.com/posva/vue-termui/issues"
+    "url": "https://github.com/posva-sponsors/vue-termui/issues"
   },
-  "homepage": "https://github.com/posva/vue-termui#readme"
+  "homepage": "https://github.com/posva-sponsors/vue-termui#readme"
 }
