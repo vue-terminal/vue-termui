@@ -48,16 +48,16 @@ export const sidebar = {
         },
       ],
     },
-    // {
-    //   text: 'Built-in Components',
-    //   items: [
-    //     {
-    //       text: 'TuiBox',
-    //       link: '/guide/components/tui:box',
-    //     },
-    //     { text: 'TuiText', link: '/guide/components/tui:text' },
-    //   ],
-    // },
+    {
+      text: 'Built-in Components',
+      items: [
+        // {
+        //   text: 'TuiBox',
+        //   link: '/guide/components/tui:box',
+        // },
+        { text: 'TuiText', link: '/guide/components/tui-text' },
+      ],
+    },
     // {
     //   text: 'Advanced',
     //   items: [
@@ -138,6 +138,7 @@ export default defineConfigWithTheme<ThemeConfig>({
 
     editLink: {
       repo: 'posva-sponsors/vue-termui',
+      folder: 'packages/docs/src',
       text: 'Edit this page on GitHub',
     },
 

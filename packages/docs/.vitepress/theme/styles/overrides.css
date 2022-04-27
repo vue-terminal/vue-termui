@@ -35,3 +35,7 @@
 .vt-doc .custom-block.tip.tip a {
   /* color: var(--vt-c-brand-secondary); */
 }
+
+.vt-doc.vt-doc a > code {
+  color: var(--vt-c-brand);
+}

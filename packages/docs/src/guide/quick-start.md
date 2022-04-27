@@ -4,18 +4,19 @@ footer: false
 
 # Quick Start
 
-TODO:
-
-### Local
+Let's get a simple Vue TermUI app running on your machine so you can start building your cool new terminal app 😎
 
 :::tip Pre-requisites
 
 - Familiarity with the command line
-- Install [Node.js](https://nodejs.org/)
-  :::
+- [Node.js](https://nodejs.org/) v14 (Recommended v14)
 
-To create a build-tool-enabled Vue project on your machine, run the following command in your command line (without the `>` sign):
+:::
 
-<div class="language-sh"><pre><code><span class="line"><span style="color:var(--vt-c-green);">&gt;</span> <span style="color:#A6ACCD;">npm create vue-termui@latest</span></span></code></pre></div>
+You can start a project by using the starter. It is configured to use TypeScript by default:
 
-<!-- This command will install and execute [create-vue](https://github.com/vuejs/create-vue), the official Vue project scaffolding tool. You will be presented with prompts for a number of optional features such as TypeScript and testing support: -->
+```sh
+npm create vue-termui@latest
+```
+
+This command will install and execute `create-vue-termui`, the official Vue TermUI project scaffolding tool.
