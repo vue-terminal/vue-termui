@@ -50,7 +50,7 @@
   "homepage": "https://github.com/posva/vue-termui#readme",
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "@vue/compiler-sfc": "^3.2.25",
+    "@vue/compiler-sfc": "^3.2.33",
     "unplugin-auto-import": "^0.6.1",
     "unplugin-vue-components": "^0.18.0",
     "vue": "^3.2.25",
