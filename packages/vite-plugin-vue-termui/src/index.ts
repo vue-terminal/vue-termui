@@ -24,11 +24,11 @@ export default function VueTermui(): Plugin[] {
             const importName = VueTuiComponents.get(name)
             if (importName) {
               return {
-                importName,
+                name: importName,
                 // always first uppercase letter
                 // TODO: use camelize / capitalize functions from utils folder in vue-termui
-                name: name[0].toUpperCase() + name.slice(1),
-                path: 'vue-termui',
+                as: name[0].toUpperCase() + name.slice(1),
+                from: 'vue-termui',
               }
             }
           },
