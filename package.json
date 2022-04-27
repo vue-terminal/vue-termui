@@ -11,9 +11,8 @@
     "build": "pnpm run -r build --filter ./packages/cli --filter ./packages/termui --filter ./packages/vite-plugin-vue-termui",
     "types": "pnpm run -r types --filter ./packages/termui",
     "test": "pnpm run -r test --parallel --filter ./packages",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:serve": "vitepress serve docs"
+    "docs": "pnpm run -r dev --filter ./packages/docs",
+    "docs:build": "pnpm run -r build --filter ./packages/docs"
   },
   "engines": {
     "node": ">=16.0.0"
