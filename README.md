@@ -20,6 +20,8 @@
 
 Build TUIs (Terminal User Interfaces) with ease and benefit from the best Developer Experience out there.
 
+### [🧑‍💻 Join the Discord Server!](https://discord.gg/HPVS2AbgXP)
+
 ## Features
 
 - Dev Server with **instant** HMR (Hot Module Replacement)
