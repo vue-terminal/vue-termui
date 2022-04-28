@@ -1,7 +1,7 @@
 import cliBoxes from 'cli-boxes'
 import { colorize } from './textColor'
 import { DOMElement } from './dom'
-import { Output } from './output'
+import { Output } from './Output'
 import stringWidth from 'string-width'
 
 export function renderBorders(
