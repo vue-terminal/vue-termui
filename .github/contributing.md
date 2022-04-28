@@ -15,6 +15,8 @@ Here are some guidelines to make the process smoother:
 - **Set a coherent title** - Make sure your commit(s) message means something. Note commits will be squashed.
 - **Consider our release cycle** - We try to follow [SemVer v2.0.0](http://semver.org/). Randomly breaking public APIs is not an option.
 
+Check the [project guidelines](#project-guidelines) to find help moving around the codebase.
+
 ## Creating issues
 
 ### Bug reports
@@ -25,6 +27,24 @@ When creating an issue, try to provide a minimal reproduction or a failing test 
 
 Lay out the reasoning behind it and propose an API for it. Ideally, you should have a practical example to prove the utility of the feature you're requesting.
 
-## Project
+## Project Guidelines
 
-This project uses pnpm workspaces and contains
+This project uses pnpm workspaces and contains different packages:
+
+### packages/core
+
+This folder contains the `vue-termui` package. It's contains the Vue Custom Renderer, all the logic to handle terminal escape codes and input, and client HMR code.
+
+### packages/vite-plugin-vue-termui
+
+This folder contains the `vite-plugin-vue-termui` package. It's contains the Vite plugin that is required to build a Vue TermUI project and includes other Vite plugins like the Vue one and automatic imports.
+
+### packages/create-vue-termui
+
+This folder contains the `create-vue-termui` package. It's the scaffolding tool to create a Vue TermUI project.
+
+### packages/cli
+
+This folder contains the `@vue-termui/cli` package. It's the CLI used to develop and bundle Vue TermUI applications. It contains the HMR logic used on the server.
+
+Note: **Any other folder is probably a test and might be outdated.**
