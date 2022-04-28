@@ -2,6 +2,7 @@
   "name": "root",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@6.32.9",
   "repository": {
     "url": "https://github.com/posva-sponsors/vue-termui.git",
     "type": "git"
