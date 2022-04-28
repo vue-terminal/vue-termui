@@ -34,7 +34,7 @@
   "scripts": {
     "types": "tsc --emitDeclarationOnly",
     "lint": "echo TODO:",
-    "build": "pnpm run types && vite build",
+    "build": "vite build && pnpm run types",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vue-termui -r 1"
   },
   "dependencies": {
