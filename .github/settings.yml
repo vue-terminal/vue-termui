@@ -1,0 +1,26 @@
+labels:
+  - name: 🐞 bug
+    color: ee0701
+    description: Something isn't working
+  - name: contribution welcome
+    color: 0e8a16
+  - name: discussion
+    color: 4935ad
+  - name: :sparkles: enhancement
+    color: a2eeef
+    description: New Feature or request
+  - name: good first issue
+    color: 7057ff
+  - name: help wanted
+    color: 008672
+  - name: wontfix
+    color: ffffff
+  - name: WIP
+    color: ffffff
+  - name: need repro
+    color: c9581c
+  - name: feature request
+    color: fbca04
+  - name: 📚 docs
+    color: 0052cc
+    description: Related to documentation changes
