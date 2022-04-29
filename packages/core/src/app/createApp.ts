@@ -102,7 +102,7 @@ export function createApp(
 
       if (isEnabled) {
         if (++rawModeEnableCount === 1) {
-          stdin.addListener('data', appOnData)
+          stdin.on('data', appOnData)
           stdin.resume()
           stdin.setRawMode(true)
           stdout.write(ACTIVATE_MOUSE)
@@ -111,7 +111,7 @@ export function createApp(
         // TODO: should we write these codes to stdin or stdout?
         stdout.write(DEACTIVATE_MOUSE)
         stdin.setRawMode(false)
-        stdin.removeListener('data', appOnData)
+        stdin.off('data', appOnData)
         stdin.pause()
       }
     }

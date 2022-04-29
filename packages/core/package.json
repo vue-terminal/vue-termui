@@ -32,6 +32,8 @@
   "license": "MIT",
   "author": "Eduardo San Martin Morote (https://esm.dev)",
   "scripts": {
+    "test": "vitest run",
+    "test:dev": "vitest",
     "types": "tsc --emitDeclarationOnly",
     "lint": "echo TODO:",
     "build": "vite build && pnpm run types",

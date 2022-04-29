@@ -29,6 +29,8 @@ export const TuiApp = defineComponent({
       type: Object as PropType<DefineComponent>,
       required: true,
     },
+
+    // TODO: remove and useStdout() ?
     stdout: {
       type: Object as PropType<NodeJS.WriteStream>,
       required: true,

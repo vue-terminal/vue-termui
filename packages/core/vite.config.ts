@@ -1,6 +1,8 @@
+/// <reference types="vitest" />
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
   define: {
@@ -13,7 +15,7 @@ export default defineConfig({
     },
   },
 
-  plugins: [Vue()],
+  plugins: [Vue(), AutoImport({ imports: ['vitest'], dts: true })],
 
   build: {
     target: 'node14',
@@ -48,6 +50,14 @@ export default defineConfig({
         'yoga-layout-prebuilt',
         'ws',
       ],
+    },
+  },
+
+  test: {
+    include: ['src/**/*.spec.ts'],
+    coverage: {
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/index.ts'],
     },
   },
 })

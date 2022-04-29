@@ -128,7 +128,6 @@ export function createFocusManager(
 
   const focusPrevious: FocusManager['focusPrevious'] = () => {
     // the rootNode cannot be focused, so it's safe to start from there
-    debugger
     const lastNode = getLastNode(rootNode)
     const startNode: DOMNode =
       getElementFromInstance(activeElement.value?._i) || lastNode
@@ -158,6 +157,7 @@ export function createFocusManager(
   }
 
   const trapFocus: FocusManager['trapFocus'] = () => {
+    // TODO:
     return noop
   }
 

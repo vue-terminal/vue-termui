@@ -90,7 +90,7 @@ export function attachInputHandler(
     }
   }
 
-  stdin.addListener('data', handleOnData)
+  stdin.on('data', handleOnData)
   setRawMode(true)
 
   return () => {
