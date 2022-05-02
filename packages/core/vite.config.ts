@@ -56,8 +56,9 @@ export default defineConfig({
   test: {
     include: ['src/**/*.spec.ts'],
     coverage: {
+      reporter: ['text', 'html', 'lcov'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.spec.ts', 'src/index.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/index.ts', 'src/mocks'],
     },
   },
 })

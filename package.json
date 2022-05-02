@@ -12,7 +12,7 @@
     "build": "pnpm run -r build --filter ./packages/core --filter ./packages/vite-plugin-vue-termui --filter ./packages/cli",
     "lint": "pnpm run -r lint",
     "types": "pnpm run -r types --filter ./packages/core",
-    "test": "pnpm run -r test --parallel --filter ./packages",
+    "test": "pnpm run -r test --parallel --filter ./packages -- --coverage",
     "docs": "pnpm run -r dev --filter ./packages/docs",
     "docs:build": "pnpm run -r build --filter ./packages/docs"
   },

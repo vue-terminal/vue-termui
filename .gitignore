@@ -22,3 +22,4 @@ dist-ssr
 *.sw?
 tsconfig.tsbuildinfo
 @vite:client.ts
+coverage
