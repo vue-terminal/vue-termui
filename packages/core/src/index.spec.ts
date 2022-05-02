@@ -10,7 +10,7 @@ import {
   onKeyData,
   nextTick,
 } from './index'
-import { createStdin, createStdout } from './stdmock'
+import { createStdin, createStdout } from './mocks/stdmock'
 
 // TODO: nextTick should schedule a render or force it and await for the render
 const delay = (t: number) => new Promise((r) => setTimeout(r, t))

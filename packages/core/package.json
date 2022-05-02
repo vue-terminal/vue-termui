@@ -34,7 +34,7 @@
   "scripts": {
     "test": "vitest run",
     "test:dev": "vitest",
-    "types": "tsc --emitDeclarationOnly",
+    "types": "tsc --emitDeclarationOnly -p ./tsconfig.build.json",
     "lint": "echo TODO:",
     "build": "vite build && pnpm run types",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vue-termui -r 1"
