@@ -79,10 +79,8 @@ jobs:
       - name: Test
         run: pnpm run test
 
-      - if: matrix.node_version == '16.x'
-        uses: codecov/codecov-action@v2
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-            files: ./packages/core/coverage/lcov.info
-            fail_ci_if_error: true
-            verbose: true
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./packages/core/coverage/lcov.info
+          fail_ci_if_error: true
