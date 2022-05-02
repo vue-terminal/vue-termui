@@ -9,7 +9,7 @@ Let's get a simple Vue TermUI app running on your machine so you can start build
 :::tip Pre-requisites
 
 - Familiarity with the command line
-- [Node.js](https://nodejs.org/) v14 (Recommended v14)
+- [Node.js](https://nodejs.org/) v14 (Recommended v16+)
 
 :::
 
