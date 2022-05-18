@@ -50,15 +50,12 @@
   "homepage": "https://github.com/posva-sponsors/vue-termui#readme",
   "peerDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "@vue/compiler-sfc": "^3.2.33",
     "unplugin-auto-import": "^0.6.1",
     "unplugin-vue-components": "^0.18.0",
     "vue": "^3.2.25",
     "vue-termui": ">=0.0.11"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^2.3.1",
-    "unplugin-vue-components": "^0.19.3",
     "vue-termui": "workspace:*"
   }
 }

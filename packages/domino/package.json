@@ -1,0 +1,20 @@
+{
+  "name": "domino",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "vtui-app": "./dist/main.mjs"
+  },
+  "scripts": {
+    "dev": "esmo ../cli/src/cli.ts dev src/main.ts",
+    "build": "esmo ../cli/src/cli.ts build"
+  },
+  "dependencies": {
+    "vue-termui": "workspace:*"
+  },
+  "devDependencies": {
+    "@vue-termui/cli": "workspace:*",
+    "vite-plugin-vue-termui": "workspace:*"
+  }
+}

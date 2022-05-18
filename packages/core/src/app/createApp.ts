@@ -13,20 +13,18 @@ import {
 } from '../injectionSymbols'
 import { createLog } from '../renderer/LogUpdate'
 import { baseCreateApp } from '../renderer'
-import { RootProps, TuiApp, TuiAppOptions } from './types'
+import type { RootProps, TuiApp, TuiAppOptions } from './types'
 import {
   isRawModeSupported,
   RESTORE_SCREEN_BUFFER,
   SAVE_SCREEN_BUFFER,
 } from '../input/inputSequences'
 import { createFocusManager, FocusManagerSymbol } from '../focus/FocusManager'
-
-const noop = () => {}
+import { noop } from '../utils'
 
 export function createApp(
   rootComponent: Component,
   {
-    // TODO: move this options to mount
     stdout = process.stdout,
     stdin = process.stdin,
     stderr = process.stderr,

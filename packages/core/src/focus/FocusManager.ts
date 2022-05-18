@@ -8,12 +8,7 @@ import {
 } from '@vue/runtime-core'
 import { nextSibling, previousSibling } from '../renderer/nodeOpts'
 import { DOMElement, DOMNode, isDOMElement } from '../renderer/dom'
-import {
-  checkCurrentInstance,
-  getElementFromInstance,
-  noop,
-  getVnodeFromInstance,
-} from '../utils'
+import { checkCurrentInstance, getElementFromInstance, noop } from '../utils'
 import { Focusable, FocusId } from './types'
 
 export interface FocusManager {

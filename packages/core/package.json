@@ -61,7 +61,6 @@
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1",
     "@types/ws": "^8.5.3",
-    "@vue/runtime-core": "^3.2.33",
     "ws": "^8.5.0"
   },
   "engines": {

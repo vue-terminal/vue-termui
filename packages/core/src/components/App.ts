@@ -30,7 +30,7 @@ export const TuiApp = defineComponent({
       required: true,
     },
 
-    // TODO: remove and useStdout() ?
+    // we need this as a prop instead of useStdout because we need to define the write function here based on the last final render output
     stdout: {
       type: Object as PropType<NodeJS.WriteStream>,
       required: true,

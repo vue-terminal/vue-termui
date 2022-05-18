@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
-import VueTermui from 'vite-plugin-vue-termui'
-import Inspect from 'vite-plugin-inspect'
+// use dev version directly
+import VueTermui from '../vite-plugin-vue-termui/src'
 import { resolve } from 'path'
 
 export default defineConfig({
@@ -9,11 +9,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // Use development version instead of dist
       'vue-termui': resolve('../core/src/index.ts'),
     },
   },
-  plugins: [
-    VueTermui(),
-    // Inspect()
-  ],
+  plugins: [VueTermui()],
 })

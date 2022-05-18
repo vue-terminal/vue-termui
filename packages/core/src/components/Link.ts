@@ -1,12 +1,6 @@
-import {
-  defineComponent,
-  FunctionalComponent,
-  h,
-  toRef,
-} from '@vue/runtime-core'
+import { defineComponent, h, toRef } from '@vue/runtime-core'
 import { TuiTextTransform } from './TextTransform'
 import terminalLink from 'terminal-link'
-import { TuiText } from './Text'
 import { useFocus } from '../focus/Focusable'
 
 // export const TuiLink: FunctionalComponent<{

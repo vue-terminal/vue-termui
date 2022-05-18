@@ -1,12 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
-import {
-  PropType,
-  h,
-  inject,
-  defineComponent,
-  onUpdated,
-  FunctionalComponent,
-} from '@vue/runtime-core'
+import { h, inject, FunctionalComponent } from '@vue/runtime-core'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import type { OutputTransformer } from '../renderer/Output'
 import { defaultStyle, TuiTextProps } from './Text'

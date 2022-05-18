@@ -2,8 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
+    "useDefineForClassFields": true,
     "module": "esnext",
     "sourceMap": true,
+    "types": ["vite/client"],
     "lib": ["esnext", "dom"]
   },
   "include": [
@@ -12,6 +14,6 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "./auto-imports.d.ts"
+    "./*.d.ts"
   ]
 }
