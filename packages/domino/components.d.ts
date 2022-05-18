@@ -6,6 +6,8 @@ import '@vue/runtime-core'
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Box: typeof import('vue-termui')['TuiBox']
+    DominoTile: typeof import('./src/components/DominoTile.vue')['default']
+    HandDominoTile: typeof import('./src/components/HandDominoTile.vue')['default']
     Text: typeof import('vue-termui')['TuiText']
   }
 }

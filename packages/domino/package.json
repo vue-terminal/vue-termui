@@ -8,7 +8,9 @@
   },
   "scripts": {
     "dev": "esmo ../cli/src/cli.ts dev src/main.ts",
-    "build": "esmo ../cli/src/cli.ts build"
+    "build": "esmo ../cli/src/cli.ts build",
+    "test": "vitest run",
+    "test:dev": "vitest"
   },
   "dependencies": {
     "vue-termui": "workspace:*"

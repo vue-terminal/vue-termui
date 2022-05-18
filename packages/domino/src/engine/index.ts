@@ -1,0 +1,8 @@
+export { Player } from './Player'
+export { DominoGame } from './DominoGame'
+export type { DominoGameEvents } from './DominoGame'
+export { DominoTile, DominoTileDirection } from './DominoTile'
+export type { DominoTileValue } from './DominoTile'
+export { DominoTileBoard } from './DominoTileBoard'
+export type { DominoTileBoardPosition } from './DominoTileBoard'
+export { DominoTilePile } from './DominoTilePile'

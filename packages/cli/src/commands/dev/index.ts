@@ -72,6 +72,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
       deps: string[],
       callback: HotCallback['fn'] = () => {}
     ) {
+      // console.debug('accept dep', deps)
       const mod = hotModulesMap.get(fullPath) || {
         id: ownerPath,
         callbacks: [],
@@ -122,13 +123,14 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   const entryPoint = resolve('.' + entryPointId)
 
   server.watcher.on('change', async (fullPath) => {
-    // console.error('changed file', fullPath)
     const existingModule = hotModulesMap.get(fullPath)
 
     // full reload, tell the app to stop
     if (fullPath === entryPoint) {
       // throw new InvalidateSignal()
     }
+
+    // console.error('changed file', fullPath, existingModule)
 
     if (existingModule) {
       const newModule = await runner.directRequest(
