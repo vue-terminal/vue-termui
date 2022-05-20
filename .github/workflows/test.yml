@@ -58,6 +58,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Build types
+        run: pnpm run types
+
   test:
     runs-on: ${{ matrix.os }}
 

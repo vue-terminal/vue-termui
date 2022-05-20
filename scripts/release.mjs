@@ -28,12 +28,9 @@ let {
 //   (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)[0])
 const EXPECTED_BRANCH = 'main'
 
-const incrementVersion = (increment) =>
-  semver.inc(currentVersion, increment, preId)
-const bin = (name) => resolve(__dirname, '../node_modules/.bin/' + name)
 /**
  * @param bin {string}
- * @param args {string}
+ * @param args {readonly string[]}
  * @param opts {import('execa').CommonOptions<string>}
  * @returns
  */
