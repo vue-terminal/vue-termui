@@ -20,6 +20,7 @@
   },
   "include": [
     "../../auto-imports.d.ts",
+    "./auto-imports.d.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.vue"

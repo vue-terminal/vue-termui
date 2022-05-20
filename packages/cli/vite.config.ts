@@ -15,5 +15,5 @@ export default defineConfig({
     },
   },
 
-  plugins: [VueTermui()],
+  plugins: [VueTermui({ autoImportOptions: { imports: ['vitest'] } })],
 })

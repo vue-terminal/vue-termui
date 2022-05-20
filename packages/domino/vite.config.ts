@@ -18,9 +18,14 @@ export default defineConfig({
   },
 
   plugins: [
-    AutoImport({ imports: ['vitest'], dts: true }),
     //
-    VueTermui(),
+    VueTermui({
+      autoImportOptions: {
+        include: [/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/],
+        imports: ['vitest'],
+        dts: true,
+      },
+    }),
   ],
 
   test: {

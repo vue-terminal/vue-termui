@@ -6,12 +6,49 @@ import * as MyModule from 'vue-termui'
 
 type ModuleExports = keyof typeof MyModule
 
-export default function VueTermui(): Plugin[] {
+type AutoImportOptions = Parameters<typeof AutoImport>[0]
+
+export interface VueTermuiOptios {
+  autoImportOptions?: AutoImportOptions
+}
+
+/**
+ * Typesafe alternative to Array.isArray
+ * https://github.com/microsoft/TypeScript/pull/48228
+ */
+export const isArray: (arg: ArrayLike<any> | any) => arg is ReadonlyArray<any> =
+  Array.isArray
+
+function optionAsArray<T>(
+  value: T | undefined | null
+): Extract<T, readonly any[]> {
+  const v = isArray(value)
+    ? (value as Extract<T, readonly any[]>)
+    : value != null
+    ? [value as Exclude<T, readonly any[]>]
+    : []
+
+  // @ts-expect-error: just easier...
+  return v
+}
+
+export default function VueTermui({
+  autoImportOptions = {},
+}: VueTermuiOptios = {}): Plugin[] {
   return [
     AutoImport({
       dts: true,
-      include: [/\.[tj]sx$/, /\.vue$/, /\.vue\?vue/],
-      imports: [{ 'vue-termui': VueTuiExports }],
+      ...autoImportOptions,
+      include: [
+        ...optionAsArray(autoImportOptions.include),
+        /\.[tj]sx?$/,
+        /\.vue$/,
+        /\.vue\?vue/,
+      ],
+      imports: [
+        ...optionAsArray(autoImportOptions.imports),
+        { 'vue-termui': VueTuiExports },
+      ],
     }),
 
     Components({
