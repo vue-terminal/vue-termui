@@ -1,4 +1,5 @@
 import Yoga from 'yoga-layout-prebuilt'
+import { indentHTML } from '../utils/indentHTML'
 import type { Focusable } from '../focus/types'
 import type { OutputTransformer } from './Output'
 import type { Styles } from './styles'
@@ -6,6 +7,7 @@ import { measureTextNode } from './text'
 
 export class TuiNode {
   parentNode: DOMElement | null
+  // TODO: make this mandatory but with null or undefined and create more types in DOMElement
   yogaNode?: Yoga.YogaNode
   internal_static?: boolean
   internal_transform?: OutputTransformer
@@ -19,6 +21,10 @@ export class TuiNode {
   clone(): DOMNode {
     // this must be implemented by each extend
     throw new Error('clone method not implemented')
+  }
+
+  toString(indent?: boolean) {
+    return `<??></>`
   }
 }
 
@@ -57,6 +63,14 @@ export class DOMElement extends TuiNode {
     // copy.internal_transform = this.internal_transform
 
     return copy
+  }
+
+  toString(indent?: boolean) {
+    const html = `<${this.nodeName}>
+${this.childNodes.join('\n')}
+</${this.nodeName}>`
+
+    return indent || this.nodeName === 'tui:root' ? indentHTML(html) : html
   }
 
   insertNode(el: DOMNode, anchor?: DOMNode | null) {
@@ -134,6 +148,11 @@ export class TextNode extends TuiNode {
   clone(): TextNode {
     return new TextNode(this.nodeValue, this.parentNode)
   }
+
+  toString(): string {
+    return this.nodeValue
+    // return `<#text>${this.nodeValue}</>`
+  }
 }
 
 export class CommentNode extends TuiNode {
@@ -147,6 +166,10 @@ export class CommentNode extends TuiNode {
 
   clone(): CommentNode {
     return new CommentNode(this.nodeValue, this.parentNode)
+  }
+
+  toString(): string {
+    return `<!--${this.nodeValue}-->`
   }
 }
 

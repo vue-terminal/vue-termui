@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
 // use dev version directly
 import VueTermui from '../vite-plugin-vue-termui/src'

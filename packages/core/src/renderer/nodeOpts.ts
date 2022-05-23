@@ -3,21 +3,99 @@ import {
   DOMElement,
   DOMElementName,
   DOMNode,
+  isDOMElement,
   TextNode,
 } from './dom'
 import type { OutputTransformer } from './Output'
 import { applyStyles } from './styles'
 
+/**
+ * Retrieves the next sibling of the given node. Does not go through parent (like DOM Node.nextSibling()).
+ *
+ * @param node - node to be start at
+ * @returns
+ */
 export function nextSibling(node: DOMNode) {
   if (!node.parentNode) return null
   const index = node.parentNode.childNodes.indexOf(node)
-  return (index >= 0 && node.parentNode.childNodes[index + 1]) || null
+  return node.parentNode.childNodes[index + 1] || null
 }
 
+/**
+ * Retrieves the previous sibling of the given node. Does not go through its parent (like DOM Node.nextSibling()).
+ *
+ * @param node - node to be start at
+ * @returns
+ */
 export function previousSibling(node: DOMNode) {
   if (!node.parentNode) return null
   const index = node.parentNode.childNodes.indexOf(node)
-  return (index >= 0 && node.parentNode.childNodes[index - 1]) || null
+  return node.parentNode.childNodes[index - 1] || null
+}
+
+/**
+ * Retrieve the deepest left-most node in a tree. This is the first node in a DFS inorder traversal.
+ *
+ * @param node - node to start at
+ * @returns the last node in the tree
+ */
+export function getFirstLeaf(node: DOMNode): DOMNode {
+  let cursor: DOMNode = node
+  while (isDOMElement(cursor) && cursor.childNodes.length > 0) {
+    cursor = cursor.childNodes[0]
+  }
+
+  return cursor
+}
+
+/**
+ * Retrieve the deepest right-most node in a tree. This is the last node in a DFS inorder traversal.
+ *
+ * @param node - node to start at
+ * @returns the last node in the tree
+ */
+export function getLastLeaf(node: DOMNode): DOMNode {
+  let cursor: DOMNode = node
+  while (isDOMElement(cursor) && cursor.childNodes.length > 0) {
+    cursor = cursor.childNodes[cursor.childNodes.length - 1]
+  }
+
+  return cursor
+}
+
+/**
+ * Gets the previous node in the tree traversing parent's children when possible. Returns `null` if we reached the end.
+ * This allows the user to iterate again and have control of the loop.
+ *
+ * @param node - node to start at
+ */
+export function previousDeepSibling(node: DOMNode): DOMNode | null {
+  const previous = previousSibling(node)
+  // get the last leaf of the previous sibling or the parent
+  return (previous && getLastLeaf(previous)) || node.parentNode
+}
+
+/**
+ * Gets the next node in the tree traversing parent's children when possible. Returns `null` if we reached the end.
+ * This allows the user to iterate again and have control of the loop.
+ * @param node - node to start at
+ */
+export function nextDeepSibling(node: DOMNode): DOMNode | null {
+  // check if the node has children and go to the first one
+  if (isDOMElement(node) && node.childNodes.length > 0) {
+    return node.childNodes[0]
+  }
+
+  // get the next sibling or
+  let cursor: DOMNode | null = node
+  let next: DOMNode | null = null
+
+  while (!next && cursor) {
+    next = nextSibling(cursor)
+    cursor = cursor.parentNode
+  }
+
+  return next
 }
 
 export function remove(node: DOMNode) {

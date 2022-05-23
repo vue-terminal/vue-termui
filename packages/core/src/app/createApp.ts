@@ -71,8 +71,6 @@ export function createApp(
     log.clear()
 
     const rootEl = new DOMElement('tui:root')
-    // for debugging purposes
-    rootEl.toString = () => `<Root>`
 
     const focusManager = createFocusManager(rootEl)
 

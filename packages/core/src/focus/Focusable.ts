@@ -78,7 +78,12 @@ export function useFocus({
       focus(unref(id))
     }
   })
-  onUnmounted(() => _remove(focusable))
+  onUnmounted(() => {
+    _remove(focusable)
+    // this is okay because the focusable is being destroyed
+    // @ts-expect-error: avoid cyclic references
+    focusable._i = null
+  })
 
   return focusable
 }

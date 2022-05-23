@@ -53,6 +53,7 @@ describe('Full App', () => {
 
     stdin.emit('data', 'A')
     await nextTick()
+    // TODO: we probably need a custom nextTick that triggers after a render
     await delay(40)
 
     expect(stdout.write).toHaveBeenLastCalledWith(

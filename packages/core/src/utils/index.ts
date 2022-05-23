@@ -4,7 +4,7 @@ import {
   ComponentInternalInstance,
   VNode,
 } from '@vue/runtime-core'
-import { DOMElement, DOMNode } from './renderer/dom'
+import { DOMElement, DOMNode } from '../renderer/dom'
 
 const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   const cache: Record<string, string> = Object.create(null)

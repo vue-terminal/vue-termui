@@ -6,10 +6,15 @@ import {
   shallowRef,
   unref,
 } from '@vue/runtime-core'
-import { nextSibling, previousSibling } from '../renderer/nodeOpts'
+import {
+  getLastLeaf,
+  previousDeepSibling,
+  nextDeepSibling,
+} from '../renderer/nodeOpts'
 import { DOMElement, DOMNode, isDOMElement } from '../renderer/dom'
 import { checkCurrentInstance, getElementFromInstance, noop } from '../utils'
 import { Focusable, FocusId } from './types'
+import { indentHTML } from '../utils/indentHTML'
 
 export interface FocusManager {
   activeElement: ShallowRef<Focusable | null | undefined>
@@ -26,7 +31,7 @@ export interface FocusManager {
   _changeFocusableId(newId: FocusId, oldId: FocusId): void
 
   /**
-   * Focus a Focusable or remove the current focus by passing `null`.
+   * Focus a Focusable or remove the current focus by passing `null`. Returns the currently Focusable or null otherwise.
    *
    * @param id - id of the focusable
    */
@@ -92,62 +97,63 @@ export function createFocusManager(
     }
   }
 
-  const focusNext: FocusManager['focusNext'] = () => {
-    // the rootNode cannot be focused, so it's safe to start from there
-    const startNode: DOMNode =
-      getElementFromInstance(activeElement.value?._i) || rootNode
-    let node: DOMNode | null = startNode
-    // startNode === rootNode ? rootNode.childNodes[0] : nextSibling(startNode)
+  const focusPrevious: FocusManager['focusPrevious'] = () => {
+    const lastNode = getLastLeaf(rootNode)
+    const activeNode = getElementFromInstance(activeElement.value?._i)
+    let startNode = activeNode
+    let cursor: DOMNode | null | undefined = activeNode
 
     do {
-      node = nextDeepSibling(node, true)
-      // we reached the end of the tree and we didn't start at the root node
-      // so let's try going from the root
-      if (!node && startNode !== rootNode && cyclic) {
-        node = nextDeepSibling(rootNode, true)!
+      // get the previous deep node or the very last node
+      cursor = (cursor && previousDeepSibling(cursor)) || lastNode
+
+      // cursor cannot be empty but startNode can
+      if (cursor === startNode) {
+        break
       }
+      // it is safe to set the starter node to the lastNode now
+      // so we can detect full loops
+      startNode = startNode || lastNode
     } while (
-      node &&
-      // we did a full loop
-      node !== startNode &&
+      cursor &&
       // we skip any non focusable
-      (!node.focusable ||
+      (!cursor.focusable ||
         // or disabled element
-        node.focusable.disabled.value)
+        cursor.focusable.disabled.value)
     )
 
-    if (node && node.focusable) {
-      return focus(unref(node.focusable.id))
+    if (cursor.focusable) {
+      return focus(unref(cursor.focusable.id))
     }
   }
 
-  const focusPrevious: FocusManager['focusPrevious'] = () => {
-    // the rootNode cannot be focused, so it's safe to start from there
-    const lastNode = getLastNode(rootNode)
-    const startNode: DOMNode =
-      getElementFromInstance(activeElement.value?._i) || lastNode
-    let node: DOMNode | null = startNode
-    // startNode === rootNode ? rootNode.childNodes[0] : nextSibling(startNode)
+  const focusNext: FocusManager['focusNext'] = () => {
+    const firstNode = rootNode
+    const activeNode = getElementFromInstance(activeElement.value?._i)
+    let startNode = activeNode
+    let cursor: DOMNode | null | undefined = activeNode
 
     do {
-      node = nextDeepSibling(node, false)
-      // we reached the rootNode of the tree and we didn't start at the root node
-      // so let's try going from the root
-      if (!node && startNode !== lastNode && cyclic) {
-        node = nextDeepSibling(lastNode, false)!
+      // get the next deep node or the very first node (the root)
+      cursor = (cursor && nextDeepSibling(cursor)) || firstNode
+
+      // cursor cannot be empty but startNode can
+      if (cursor === startNode) {
+        break
       }
+      // it is safe to set the starter node to the lastNode now
+      // so we can detect full loops
+      startNode = startNode || firstNode
     } while (
-      node &&
-      // we did a full loop
-      node !== lastNode &&
+      cursor &&
       // we skip any non focusable
-      (!node.focusable ||
+      (!cursor.focusable ||
         // or disabled element
-        node.focusable.disabled.value)
+        cursor.focusable.disabled.value)
     )
 
-    if (node && node.focusable) {
-      return focus(unref(node.focusable.id))
+    if (cursor.focusable) {
+      return focus(unref(cursor.focusable.id))
     }
   }
 
@@ -159,6 +165,7 @@ export function createFocusManager(
   const _add: FocusManager['_add'] = (focusable) => {
     focusableMap.set(unref(focusable.id), focusable)
     const el = getElementFromInstance(focusable._i)
+    // TODO: can el be an array? If so, should we error and allow only single element root?
     if (!el) {
       throw new Error('NO VNODE wat')
     }
@@ -168,6 +175,12 @@ export function createFocusManager(
     const id = unref(focusable.id)
     const existingFocusable = focusableMap.get(id)
     if (existingFocusable) {
+      // remove the cyclic referenc
+      const el = getElementFromInstance(focusable._i)
+      if (el) {
+        el.focusable = null
+      }
+
       focusableMap.delete(id)
       // if the focusable being removed is focused, remove focus
       if (activeElement.value === existingFocusable) {
@@ -198,42 +211,4 @@ export function createFocusManager(
     focusPrevious,
     trapFocus,
   }
-}
-
-/**
- * Gets the next deep sibling. A DFS tree search. Returns `null` if we reached the root.
- *
- * @param node - node to start at
- */
-function nextDeepSibling(node: DOMNode, forward: boolean): DOMNode | null {
-  // check if the node has children
-  if (forward && isDOMElement(node) && node.childNodes.length > 0) {
-    return node.childNodes[0]
-  } else {
-    // get the next sibling based on the parent
-    let nextNode = (forward ? nextSibling : previousSibling)(node)
-    if (nextNode) return nextNode
-    // no next sibling, find the closest parent next sibling
-    nextNode = node.parentNode
-    while (nextNode) {
-      const sibling = (forward ? nextSibling : previousSibling)(nextNode)
-      if (sibling) {
-        return sibling
-      }
-      // try again with the parent
-      nextNode = nextNode.parentNode
-    }
-
-    // we reached the root
-    return null
-  }
-}
-
-function getLastNode(node: DOMElement): DOMNode {
-  let cursor: DOMNode = node
-  while (isDOMElement(cursor) && cursor.childNodes.length > 0) {
-    cursor = cursor.childNodes[cursor.childNodes.length - 1]
-  }
-
-  return cursor
 }

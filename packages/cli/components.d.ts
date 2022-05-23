@@ -5,6 +5,7 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Box: typeof import('vue-termui')['TuiBox']
     Div: typeof import('vue-termui')['TuiBox']
     Link: typeof import('vue-termui')['TuiLink']
     Text: typeof import('vue-termui')['TuiText']
