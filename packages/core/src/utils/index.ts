@@ -71,3 +71,6 @@ export function getElementFromInstance(
 ): DOMNode | null | undefined {
   return (instance?.vnode as VNode<DOMNode, DOMElement> | undefined)?.el
 }
+
+export * from './indentHTML'
+export * from './fileLog'

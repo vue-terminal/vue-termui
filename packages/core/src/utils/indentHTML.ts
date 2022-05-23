@@ -66,6 +66,7 @@ const INDENT = '  '
  */
 export function indentHTML(html: string): string {
   let indent = 0
+  let isOpen = false
 
   return html.split('\n').reduce((result, line) => {
     // if (line.includes('virtual-text')) {
@@ -75,14 +76,21 @@ export function indentHTML(html: string): string {
     if (line.startsWith('</')) {
       indent--
       // last line was just text
-      if (!result.trimEnd().endsWith('>')) {
+      if (!result.endsWith('>') && isOpen) {
+        isOpen = false
         return result + line
       }
+      isOpen = false
       return result + '\n' + INDENT.repeat(indent) + line
     }
 
     if (line.startsWith('<')) {
-      return result + (result ? '\n' : '') + INDENT.repeat(indent++) + line
+      const currentIndent = indent
+      if (!line.startsWith('<!--')) {
+        indent++
+        isOpen = true
+      }
+      return result + (result ? '\n' : '') + INDENT.repeat(currentIndent) + line
     }
     return result + line
   }, '')

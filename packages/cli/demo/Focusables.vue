@@ -9,6 +9,7 @@ import {
 } from 'vue-termui'
 import Input from './Input.vue'
 import { GlobalEvents } from './components/GlobalEvents'
+import { useDebugLog, onKeyData } from 'vue-termui'
 
 const [cols, rows] = useStdoutDimensions()
 
@@ -22,6 +23,16 @@ useInterval(() => {
   // write(`n: ${n.value}\n`)
 }, 300)
 useTitle(computed(() => `Counting ${n.value}...`))
+
+const root = useRootNode()
+const write = useDebugLog('logs.log')
+
+onKeyData('D', (event) => {
+  if (event.ctrlKey) {
+    write('\n' + root)
+    write('-'.repeat(80))
+  }
+})
 </script>
 
 <template>

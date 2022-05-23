@@ -33,6 +33,8 @@ export { onResize, useStdoutDimensions, useTitle } from './composables/screen'
 export { useStdout } from './composables/writeStreams'
 export type { UseStdoutReturn } from './composables/writeStreams'
 
+export { useDebugLog } from './utils'
+
 export { useFocus } from './focus/Focusable'
 export { useFocusManager } from './focus/FocusManager'
 export type { FocusableOptions } from './focus/Focusable'

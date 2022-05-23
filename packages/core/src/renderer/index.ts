@@ -30,4 +30,8 @@ export const { render, createApp: baseCreateApp } = createRenderer<
   createElement,
   createText,
   createComment,
+
+  cloneNode(node) {
+    return node.clone()
+  },
 })

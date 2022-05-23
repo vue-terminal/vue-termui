@@ -133,15 +133,25 @@ export default function VueTermui({
       },
     },
     Vue({
+      reactivityTransform: true,
       template: {
         compilerOptions: {
           whitespace: 'condense',
-          comments: false,
+          // comments: false,
           // term ui has no native tags
-          // isNativeTag: (tag) => tag.startsWith('tui:'),
-          isNativeTag: () => false,
+          isNativeTag: (tag) => tag.startsWith('tui:'),
+          // isNativeTag: () => false,
           // getTextMode: node => ???,
-          isCustomElement: (tag) => tag.startsWith('tui:'),
+          // isCustomElement: (tag) => tag.startsWith('tui:'),
+          isVoidTag: (tag) => tag.toLowerCase() === 'hr',
+
+          // nodeTransforms: [
+          //   (node, context) => {
+          //     console.log('---')
+          //     console.log(node)
+          //     console.log('---')
+          //   },
+          // ],
         },
       },
     }),

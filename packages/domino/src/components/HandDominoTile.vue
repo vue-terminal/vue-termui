@@ -14,10 +14,10 @@ const { active } = useFocus({
 </script>
 
 <template>
-  <Text
-    ><Text :inverse="active">{{ tile }}</Text
-    >&nbsp;</Text
-  >
+  <Text>
+    <Text :inverse="active">{{ tile }}</Text>
+    <Text>&nbsp;</Text>
+  </Text>
 </template>
 
 <!-- <Box borderStyle="round" flexDirection="column">
