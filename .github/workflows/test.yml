@@ -92,6 +92,5 @@ jobs:
 
       - uses: codecov/codecov-action@v2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
           files: ./packages/core/coverage/lcov.info
           fail_ci_if_error: true
