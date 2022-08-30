@@ -7,21 +7,19 @@
   "type": "module",
   "version": "0.0.14",
   "scripts": {
-    "dev": "esmo src/cli.ts dev demo/main.ts",
-    "demo:build": "esmo src/cli.ts build demo/main.ts",
-    "build": "rimraf dist && rollup -c --environment NODE_ENV:production",
-    "build:dev": "rimraf dist && rollup -c -w",
+    "dev": "unbuild --stub",
+    "build": "tsup",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l @vue-termui/cli -r 1"
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "types": "./dist/index.d.ts"
     },
     "./*": "./*"
   },
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
     "vtui": "./vtui.mjs"
@@ -56,11 +54,11 @@
   "homepage": "https://github.com/posva-sponsors/vue-termui#readme",
   "dependencies": {
     "picocolors": "^1.0.0",
-    "vite-node": "^0.10.0",
+    "vite-node": "^0.22.1",
     "ws": "^8.5.0"
   },
   "peerDependencies": {
-    "vite": "^2.8.6",
+    "vite": "^2.0.0",
     "vite-plugin-vue-termui": ">=0.0.8",
     "vue-termui": ">=0.0.10"
   },
@@ -83,5 +81,12 @@
     "vite-plugin-inspect": "^0.5.0",
     "vite-plugin-vue-termui": "workspace:*",
     "vue-termui": "workspace:*"
+  },
+  "unbuild": { 
+    "entries": [
+      "src/cli",
+      "src/index"
+    ],
+    "clean": true
   }
 }

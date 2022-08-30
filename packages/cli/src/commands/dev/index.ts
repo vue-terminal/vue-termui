@@ -10,10 +10,14 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
     logLevel: 'error',
     clearScreen: false,
-  })
+  }) as any
   await server.pluginContainer.buildStart({})
 
-  const node = new ViteNodeServer(server, {})
+  const node = new ViteNodeServer(server, {
+    deps: {
+      fallbackCJS: true,
+    },
+  })
 
   const runner = new ViteNodeRunner({
     root: server.config.root,
@@ -28,7 +32,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
       '/@vite/client': {
         injectQuery: (id: string) => id,
         createHotContext,
-        updateStyle() {},
+        updateStyle() { },
       },
     },
   })
@@ -70,7 +74,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
 
     function acceptDeps(
       deps: string[],
-      callback: HotCallback['fn'] = () => {}
+      callback: HotCallback['fn'] = () => { }
     ) {
       // console.debug('accept dep', deps)
       const mod = hotModulesMap.get(fullPath) || {
@@ -122,7 +126,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   const entryPointId = `/${entryFile}`
   const entryPoint = resolve('.' + entryPointId)
 
-  server.watcher.on('change', async (fullPath) => {
+  server.watcher.on('change', async (fullPath: string) => {
     const existingModule = hotModulesMap.get(fullPath)
 
     // full reload, tell the app to stop

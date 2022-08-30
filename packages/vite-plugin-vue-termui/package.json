@@ -5,7 +5,7 @@
   "version": "0.0.9",
   "sideEffects": false,
   "scripts": {
-    "dev": "tsup -w",
+    "dev": "unbuild --stub",
     "build": "tsup",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vite-plugin-vue-termui -r 1",
     "prepublishOnly": "npm run build"
@@ -57,5 +57,10 @@
   },
   "devDependencies": {
     "vue-termui": "workspace:*"
+  },
+  "unbuild": { 
+    "entries": [
+      "src/index"
+    ]
   }
 }

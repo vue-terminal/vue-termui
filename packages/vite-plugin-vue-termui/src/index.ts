@@ -25,8 +25,8 @@ function optionAsArray<T>(
   const v = isArray(value)
     ? (value as Extract<T, readonly any[]>)
     : value != null
-    ? [value as Exclude<T, readonly any[]>]
-    : []
+      ? [value as Exclude<T, readonly any[]>]
+      : []
 
   // @ts-expect-error: just easier...
   return v
