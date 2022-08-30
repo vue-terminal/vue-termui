@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
-// use dev version directly
-import VueTermui from '../vite-plugin-vue-termui/src'
+import VueTermui from 'vite-plugin-vue-termui'
 import { resolve } from 'path'
 
 export default defineConfig({
@@ -39,7 +38,6 @@ export default defineConfig({
   },
 
   plugins: [
-    //
     VueTermui({
       autoImportOptions: {
         include: [/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/],
@@ -48,4 +46,4 @@ export default defineConfig({
       },
     }),
   ],
-} as any)
+} )

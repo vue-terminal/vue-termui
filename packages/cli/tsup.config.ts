@@ -6,7 +6,8 @@ export default defineConfig({
   format: ['esm', 'cjs'],
   dts: true,
   esbuildOptions(options) {
-    if (options.format === 'esm') options.outExtension = { '.js': '.mjs' }
+    if (options.format === 'esm')
+      options.outExtension = { '.js': '.mjs' }
   },
   entry: [
     // commands because why not

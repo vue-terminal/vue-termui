@@ -10,7 +10,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
     logLevel: 'error',
     clearScreen: false,
-  }) as any
+  })
   await server.pluginContainer.buildStart({})
 
   const node = new ViteNodeServer(server, {
