@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://npmjs.com/package/vue-termui"><img src="https://badgen.net/npm/v/vue-termui" alt="npm package"></a>
   <a href="https://github.com/posva-sponsors/vue-termui/actions/workflows/test.yml?query=branch%3Amain"><img src="https://github.com/posva-sponsors/vue-termui/actions/workflows/test.yml/badge.svg" alt="build status"></a>
-  <a href="https://codecov.io/github/posva-sponsors/vue-termui"><img src="https://badgen.net/codecov/c/github/posva-sponsors/vue-termui" alt="code coverage"></a>
+  <a href="https://codecov.io/github/vue-terminal/vue-termui"><img src="https://badgen.net/codecov/c/github/vue-terminal/vue-termui" alt="code coverage"></a>
 </p>
 
 <br/>
