@@ -34,6 +34,7 @@ export default defineConfig({
         'assert',
         'node:events',
         'node:assert',
+        'node:fs',
         '@vue/runtime-core',
         'ansi-escapes',
         'chalk',
