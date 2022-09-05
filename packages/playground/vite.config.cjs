@@ -27,7 +27,7 @@ export default defineConfig({
       'yoga-layout-prebuilt',
       'is-fullwidth-code-point',
       'terminal-link',
-      'restore-cursor'
+      'restore-cursor',
     ],
   },
   resolve: {
