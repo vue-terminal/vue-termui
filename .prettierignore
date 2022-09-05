@@ -1,0 +1,4 @@
+__build__
+dist
+coverage
+auto-imports.d.ts

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue-termui'
+// import { ref, onMounted } from 'vue-termui'
 
 const n = ref(0)
 useInterval(() => {

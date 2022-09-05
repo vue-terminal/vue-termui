@@ -1,0 +1,19 @@
+{
+  "name": "@vue-termui/playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vtui dev",
+    "build": "vtui build"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "vue-termui": "workspace:*",
+    "@vue-termui/cli": "workspace:*",
+    "vite-plugin-vue-termui": "workspace:*",
+    "@vue/runtime-core": "^3.2.33"
+  }
+}

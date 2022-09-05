@@ -9,6 +9,9 @@ export default defineConfig({
   dts: true,
   // entry: [resolve(__dirname, 'src/index.ts')],
   entry: ['src/index.ts'],
+  esbuildOptions(options) {
+    if (options.format === 'cjs') options.outExtension = { '.js': '.cjs' }
+  },
   external: [
     ...Object.keys(peerDependencies),
     'unplugin-auto-import/vite',

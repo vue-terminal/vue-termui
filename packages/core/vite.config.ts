@@ -16,7 +16,6 @@ export default defineConfig({
   },
 
   plugins: [Vue(), AutoImport({ imports: ['vitest'], dts: true })],
-
   build: {
     target: 'node14',
     outDir: 'dist',

@@ -9,8 +9,11 @@
   },
   "scripts": {
     "release": "node scripts/release.mjs",
+    "dev": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' dev",
     "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' build",
-    "lint": "pnpm run -r lint",
+    "play:dev": "pnpm run --filter  './packages/playground' dev",
+    "lint": "prettier --check packages README.md",
+    "lint:fix": "prettier --write packages README.md",
     "types": "pnpm run -r types",
     "test": "pnpm run --parallel -r test --coverage",
     "docs": "pnpm run -r dev --filter ./packages/docs",
@@ -21,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^16.11.29",
-    "@vitejs/plugin-vue": "^2.3.1",
+    "@vitejs/plugin-vue": "^3.0.3",
     "@vue/compiler-sfc": "^3.2.33",
     "@vue/runtime-core": "^3.2.33",
     "c8": "^7.11.2",
@@ -36,11 +39,12 @@
     "semver": "^7.3.7",
     "tsup": "^5.12.6",
     "typescript": "^4.6.3",
-    "unplugin-auto-import": "^0.7.1",
-    "unplugin-vue-components": "^0.19.5",
-    "vite": "^2.9.6",
+    "unplugin-auto-import": "^0.11.2",
+    "unplugin-vue-components": "^0.22.4",
+    "vite": "^3.0.9",
     "vitest": "^0.10.0",
     "vue": "^3.2.33",
-    "vue-tsc": "^0.34.10"
+    "vue-tsc": "^0.34.10",
+    "unbuild": "^0.8.9"
   }
 }
