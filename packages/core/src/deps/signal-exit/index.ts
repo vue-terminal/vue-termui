@@ -57,7 +57,7 @@ export function onExit(
 ): () => void {
   /* istanbul ignore if */
   if (!processOk(global.process)) {
-    return function () { }
+    return function () {}
   }
   assert.equal(
     typeof cb,
@@ -97,7 +97,7 @@ export var unload = function unload() {
   signals.forEach(function (sig) {
     try {
       process.removeListener(sig, sigListeners[sig])
-    } catch (er) { }
+    } catch (er) {}
   })
   process.emit = originalProcessEmit
   process.reallyExit = originalProcessReallyExit
@@ -174,7 +174,7 @@ var load = function load() {
 
 export { load }
 
-var originalProcessReallyExit = hasProcess ? process.reallyExit : () => { }
+var originalProcessReallyExit = hasProcess ? process.reallyExit : () => {}
 var processReallyExit = function processReallyExit(code) {
   /* istanbul ignore if */
   if (!processOk(global.process)) {
@@ -188,7 +188,7 @@ var processReallyExit = function processReallyExit(code) {
   originalProcessReallyExit.call(process, process.exitCode)
 }
 
-var originalProcessEmit = hasProcess ? process.emit : () => { }
+var originalProcessEmit = hasProcess ? process.emit : () => {}
 var processEmit = function processEmit(ev, arg) {
   if (ev === 'exit' && processOk(global.process)) {
     /* istanbul ignore else */

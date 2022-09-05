@@ -1,6 +1,5 @@
 import blessed from 'neo-blessed'
 
-
 // Create a screen object.
 var screen = blessed.screen({
   smartCSR: true,

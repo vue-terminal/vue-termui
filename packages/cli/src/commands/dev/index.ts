@@ -32,7 +32,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
       '/@vite/client': {
         injectQuery: (id: string) => id,
         createHotContext,
-        updateStyle() { },
+        updateStyle() {},
       },
     },
   })
@@ -74,7 +74,7 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
 
     function acceptDeps(
       deps: string[],
-      callback: HotCallback['fn'] = () => { }
+      callback: HotCallback['fn'] = () => {}
     ) {
       // console.debug('accept dep', deps)
       const mod = hotModulesMap.get(fullPath) || {

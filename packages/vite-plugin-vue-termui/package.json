@@ -58,7 +58,7 @@
   "devDependencies": {
     "vue-termui": "workspace:*"
   },
-  "unbuild": { 
+  "unbuild": {
     "entries": [
       "src/index"
     ],
@@ -66,6 +66,5 @@
       "emitCJS": true
     },
     "clean": true
-
   }
 }

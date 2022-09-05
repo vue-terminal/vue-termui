@@ -12,7 +12,8 @@
     "dev": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' dev",
     "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' build",
     "play:dev": "pnpm run --filter  './packages/playground' dev",
-    "lint": "pnpm run -r lint",
+    "lint": "prettier --check packages README.md",
+    "lint:fix": "prettier --write packages README.md",
     "types": "pnpm run -r types",
     "test": "pnpm run --parallel -r test --coverage",
     "docs": "pnpm run -r dev --filter ./packages/docs",
@@ -45,6 +46,5 @@
     "vue": "^3.2.33",
     "vue-tsc": "^0.34.10",
     "unbuild": "^0.8.9"
-
   }
 }

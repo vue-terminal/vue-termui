@@ -10,8 +10,7 @@ export default defineConfig({
   // entry: [resolve(__dirname, 'src/index.ts')],
   entry: ['src/index.ts'],
   esbuildOptions(options) {
-    if (options.format === 'cjs')
-      options.outExtension = { '.js': '.cjs' }
+    if (options.format === 'cjs') options.outExtension = { '.js': '.cjs' }
   },
   external: [
     ...Object.keys(peerDependencies),

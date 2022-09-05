@@ -83,7 +83,7 @@
     "vite-plugin-vue-termui": "workspace:*",
     "vue-termui": "workspace:*"
   },
-  "unbuild": { 
+  "unbuild": {
     "entries": [
       "src/cli",
       "src/index"
