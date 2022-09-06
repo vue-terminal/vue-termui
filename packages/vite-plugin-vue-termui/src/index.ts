@@ -116,6 +116,8 @@ export default function VueTermui({
                 'wrap-ansi',
                 'yoga-layout',
                 'yoga-layout-prebuilt',
+                'terminal-link',
+                'cli-spinners',
               ],
 
               output: {
@@ -168,6 +170,8 @@ export const VueTuiComponents = new Map<string, ModuleExports>([
   // FIXME: this one doesn't currently work because it has one letter
   ['a', 'TuiLink'],
   ['link', 'TuiLink'],
+
+  ['loading', 'TuiLoading'],
 
   ['div', 'TuiBox'],
   ['box', 'TuiBox'],
