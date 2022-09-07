@@ -1,9 +1,9 @@
 import chalk, { ForegroundColor } from 'chalk'
-import { h, inject, FunctionalComponent } from '@vue/runtime-core'
-import { scheduleUpdateSymbol } from '../injectionSymbols'
+import { h, FunctionalComponent } from '@vue/runtime-core'
 import type { OutputTransformer } from '../renderer/Output'
 import { defaultStyle, TuiTextProps } from './Text'
 import { colorize } from '../renderer/textColor'
+import { useScheduleUpdate } from '../composables/scheduleUpdate'
 
 /**
  * A Text Transforms allows modifying the text before it is written to the stdout while accounting for line breaks and
@@ -14,8 +14,8 @@ export const TuiTextTransform: FunctionalComponent<
     transform?: OutputTransformer
   } & TuiTextProps
 > = (props, { slots }) => {
-  const scheduleUpdate = inject(scheduleUpdateSymbol)!
-  scheduleUpdate()
+  const { update } = useScheduleUpdate()
+  update()
   // onUpdated(() => {
   //   scheduleUpdate()
   // })

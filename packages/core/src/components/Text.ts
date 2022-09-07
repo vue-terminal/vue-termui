@@ -2,12 +2,13 @@ import chalk, { ForegroundColor } from 'chalk'
 import {
   PropType,
   h,
-  inject,
   defineComponent,
+  onMounted,
   onUpdated,
+  onUnmounted,
 } from '@vue/runtime-core'
 import type { Styles } from '../renderer/styles'
-import { scheduleUpdateSymbol } from '../injectionSymbols'
+import { useScheduleUpdate } from '../composables/scheduleUpdate'
 import { colorize } from '../renderer/textColor'
 
 export const defaultStyle: Styles = {
@@ -44,9 +45,18 @@ export const TuiText = defineComponent({
   },
 
   setup(props, { slots }) {
-    const scheduleUpdate = inject(scheduleUpdateSymbol)!
+    const { update } = useScheduleUpdate()
+
+    onMounted(() => {
+      update()
+    })
+
     onUpdated(() => {
-      scheduleUpdate()
+      update()
+    })
+
+    onUnmounted(() => {
+      update()
     })
 
     function transform(text: string): string {
