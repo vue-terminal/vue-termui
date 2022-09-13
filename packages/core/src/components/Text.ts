@@ -1,4 +1,4 @@
-import chalk from 'chalk'
+import chalk, { ForegroundColor } from 'chalk'
 import {
   PropType,
   h,
@@ -6,6 +6,7 @@ import {
   defineComponent,
   onUpdated,
 } from '@vue/runtime-core'
+import type { LiteralUnion } from 'type-fest'
 import type { Styles } from '../renderer/styles'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import { colorize } from '../renderer/textColor'
@@ -17,8 +18,8 @@ export const defaultStyle: Styles = {
 }
 
 export interface TuiTextProps {
-  color?: string
-  bgColor?: string
+  color?: LiteralUnion<ForegroundColor, string>
+  bgColor?: LiteralUnion<ForegroundColor, string>
   dimmed?: boolean
   bold?: boolean
   italic?: boolean
@@ -32,8 +33,8 @@ export const TuiText = defineComponent({
   name: 'TuiText',
 
   props: {
-    color: String,
-    bgColor: String,
+    color: String as PropType<LiteralUnion<ForegroundColor, string>>,
+    bgColor: String as PropType<LiteralUnion<ForegroundColor, string>>,
     dimmed: Boolean,
     bold: Boolean,
     italic: Boolean,
