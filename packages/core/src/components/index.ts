@@ -5,4 +5,5 @@ export { TuiApp } from './App'
 export { TuiBox } from './Box'
 
 export { TuiLink } from './Link'
+export { TuiTabs, TuiTab } from './Tabs'
 // export { default as TuiInput } from './Input.vue'

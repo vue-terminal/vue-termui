@@ -169,6 +169,9 @@ export const VueTuiComponents = new Map<string, ModuleExports>([
   ['a', 'TuiLink'],
   ['link', 'TuiLink'],
 
+  ['tabs', 'TuiTabs'],
+  ['tab', 'TuiTab'],
+
   ['div', 'TuiBox'],
   ['box', 'TuiBox'],
 
