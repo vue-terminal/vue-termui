@@ -6,7 +6,7 @@ import {
   defineComponent,
   onUpdated,
 } from '@vue/runtime-core'
-import type { LiteralUnion } from 'type-fest'
+import type { LiteralUnion } from '../utils'
 import type { Styles } from '../renderer/styles'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import { colorize } from '../renderer/textColor'
