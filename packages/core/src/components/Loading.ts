@@ -2,6 +2,7 @@ import {
   computed,
   defineComponent,
   h,
+  inject,
   onMounted,
   onUnmounted,
   onUpdated,
@@ -9,7 +10,7 @@ import {
 } from '@vue/runtime-core'
 import spinners from 'cli-spinners'
 import type { PropType } from '@vue/runtime-core'
-import { useScheduleUpdate } from '../composables/scheduleUpdate'
+import { scheduleUpdateSymbol } from '../injectionSymbols'
 import type { SpinnerName } from 'cli-spinners'
 
 export const TuiLoading = defineComponent({
@@ -26,10 +27,8 @@ export const TuiLoading = defineComponent({
     const spinner = computed(() => spinners[props.type ?? 'dots'])
     const frame = ref(0)
     let timer: NodeJS.Timer | null = null
-    const { update } = useScheduleUpdate()
-    onUpdated(() => {
-      update()
-    })
+    const scheduleUpdate = inject(scheduleUpdateSymbol)!
+    onUpdated(scheduleUpdate)
     onMounted(() => {
       timer = setInterval(() => {
         frame.value = (frame.value + 1) % spinner.value?.frames?.length

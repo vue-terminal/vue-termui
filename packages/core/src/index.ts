@@ -31,7 +31,6 @@ export { onInputData } from './composables/input'
 export { useInterval, useTimeout } from './composables/utils'
 export { onResize, useStdoutDimensions, useTitle } from './composables/screen'
 export { useStdout } from './composables/writeStreams'
-export { useScheduleUpdate } from './composables/scheduleUpdate'
 export type { UseStdoutReturn } from './composables/writeStreams'
 
 export { useDebugLog } from './utils'
