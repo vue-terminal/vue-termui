@@ -87,6 +87,9 @@ jobs:
       - name: Install
         run: pnpm i
 
+      - name: Dev
+        run: pnpm run dev
+
       - name: Test
         run: pnpm run test
 

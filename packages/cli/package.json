@@ -55,31 +55,21 @@
   "homepage": "https://github.com/posva-sponsors/vue-termui#readme",
   "dependencies": {
     "picocolors": "^1.0.0",
-    "vite-node": "^0.22.1",
+    "vite-node": "^0.23.4",
     "ws": "^8.5.0"
   },
   "peerDependencies": {
-    "vite": "^3.0.9",
+    "vite": "^3.1.2",
     "vite-plugin-vue-termui": ">=0.0.8",
     "vue-termui": ">=0.0.10"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.2.1",
     "@types/ws": "^8.5.3",
     "cac": "^6.7.12",
-    "esbuild": "^0.14.38",
-    "esno": "^0.14.1",
-    "fast-glob": "^3.2.11",
-    "pathe": "^0.2.0",
+    "fast-glob": "^3.2.12",
+    "pathe": "^0.3.7",
     "rimraf": "^3.0.2",
-    "rollup": "^2.70.2",
-    "rollup-plugin-dts": "^4.2.1",
-    "rollup-plugin-esbuild": "^4.9.1",
-    "rollup-plugin-license": "^2.7.0",
-    "vite-plugin-inspect": "^0.5.0",
+    "vite-plugin-inspect": "^0.7.1",
     "vite-plugin-vue-termui": "workspace:*",
     "vue-termui": "workspace:*"
   },
