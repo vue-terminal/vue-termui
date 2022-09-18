@@ -11,9 +11,9 @@
     "node": ">=14.0.0"
   },
   "devDependencies": {
-    "vue-termui": "workspace:*",
     "@vue-termui/cli": "workspace:*",
+    "@vue/runtime-core": "^3.2.39",
     "vite-plugin-vue-termui": "workspace:*",
-    "@vue/runtime-core": "^3.2.33"
+    "vue-termui": "workspace:*"
   }
 }

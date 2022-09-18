@@ -7,8 +7,8 @@
     "vtui-app": "./dist/main.mjs"
   },
   "scripts": {
-    "dev": "esmo ../cli/src/cli.ts dev src/main.ts",
-    "build": "esmo ../cli/src/cli.ts build",
+    "dev": "vtui dev",
+    "build": "vtui build",
     "test": "vitest run",
     "test:dev": "vitest"
   },
