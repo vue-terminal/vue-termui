@@ -29,6 +29,8 @@ Lay out the reasoning behind it and propose an API for it. Ideally, you should h
 
 ## Project Guidelines
 
+After pulling the project code and installing deps with `pnpm i`. run `pnpm run stub` at the root of the project. You can `cd packages/playground` and run `pnpm run dev` to test the playground.
+
 This project uses pnpm workspaces and contains different packages:
 
 ### packages/core
