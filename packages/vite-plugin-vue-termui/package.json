@@ -5,7 +5,7 @@
   "version": "0.0.9",
   "sideEffects": false,
   "scripts": {
-    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
     "build": "tsup",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vite-plugin-vue-termui -r 1",
     "prepublishOnly": "npm run build"

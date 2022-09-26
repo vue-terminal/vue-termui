@@ -9,7 +9,7 @@
   },
   "scripts": {
     "release": "node scripts/release.mjs",
-    "dev": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' dev",
+    "stub": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' stub",
     "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' build",
     "play:dev": "pnpm run --filter  './packages/playground' dev",
     "lint": "prettier --check packages README.md",
