@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@posva/vue-theme": "^1.0.1",
-    "vitepress": "^0.22.2"
+    "vitepress": "1.0.0-alpha.16"
   },
   "devDependencies": {
     "@types/markdown-it": "^12.2.3"
