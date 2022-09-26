@@ -1,16 +1,19 @@
-import './styles/index.css'
-import { h, App } from 'vue'
-import { VPTheme } from '@posva/vue-theme'
-// import Banner from './components/Banner.vue'
-import SponsorsAside from './components/SponsorsAside.vue'
+import { h } from 'vue'
+import Theme from 'vitepress/theme'
+import './styles/vars.css'
+// import HomeSponsors from './components/HomeSponsors.vue'
+// import AsideSponsors from './components/AsideSponsors.vue'
+import SvgImage from './components/SvgImage.vue'
 
-export default Object.assign({}, VPTheme, {
-  Layout: () => {
-    // @ts-ignore
-    return h(VPTheme.Layout, null, {
-      // banner: () => h(Banner),
-      // 'aside-mid': () => h(SponsorsAside),
-      // 'aside-bottom': () => h(VueJobs),
+export default {
+  ...Theme,
+  Layout() {
+    return h(Theme.Layout, null, {
+      // 'home-features-after': () => h(HomeSponsors),
+      // 'aside-ads-before': () => h(AsideSponsors),
     })
   },
-})
+  enhanceApp({ app }) {
+    app.component('SvgImage', SvgImage)
+  },
+}
