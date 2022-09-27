@@ -27,6 +27,7 @@ export default defineConfig({
       'yoga-layout-prebuilt',
       'is-fullwidth-code-point',
       'terminal-link',
+      'cli-spinners',
       'restore-cursor',
     ],
   },

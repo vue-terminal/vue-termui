@@ -90,6 +90,7 @@ importers:
       chalk: ^5.0.1
       cli-boxes: ^3.0.0
       cli-cursor: ^4.0.0
+      cli-spinners: ^2.7.0
       cli-truncate: ^3.1.0
       indent-string: ^5.0.0
       slice-ansi: ^5.0.0
@@ -105,6 +106,7 @@ importers:
       chalk: 5.0.1
       cli-boxes: 3.0.0
       cli-cursor: 4.0.0
+      cli-spinners: 2.7.0
       cli-truncate: 3.1.0
       indent-string: 5.0.0
       slice-ansi: 5.0.0
@@ -1289,6 +1291,11 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       restore-cursor: 4.0.0
+    dev: false
+
+  /cli-spinners/2.7.0:
+    resolution: {integrity: sha512-qu3pN8Y3qHNgE2AFweciB1IfMnmZ/fsNTEE+NOFjmGB2F/7rLhnhzppvpCnN4FovtP26k8lHyy9ptEbNwWFLzw==}
+    engines: {node: '>=6'}
     dev: false
 
   /cli-truncate/3.1.0:

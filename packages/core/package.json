@@ -44,6 +44,7 @@
     "chalk": "^5.0.1",
     "cli-boxes": "^3.0.0",
     "cli-cursor": "^4.0.0",
+    "cli-spinners": "^2.7.0",
     "cli-truncate": "^3.1.0",
     "indent-string": "^5.0.0",
     "slice-ansi": "^5.0.0",
