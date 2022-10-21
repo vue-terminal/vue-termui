@@ -93,7 +93,7 @@ jobs:
       - name: Test
         run: pnpm run test
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v2
         with:
           files: ./packages/core/coverage/lcov.info
           fail_ci_if_error: true
