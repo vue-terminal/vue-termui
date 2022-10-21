@@ -1,3 +1,10 @@
+## [0.0.10](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.9...vite-plugin-vue-termui@0.0.10) (2022-10-21)
+
+### Features
+
+- allow passing auto import options ([7ab9a00](https://github.com/vue-terminal/vue-termui/commit/7ab9a001a61156264a480014ab8ccd734988b3b9))
+- improve debug log ([98a4e50](https://github.com/vue-terminal/vue-termui/commit/98a4e50dc7ed1d24f1537cb44dc582cb5e07b651))
+
 ## [0.0.9](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.8...vite-plugin-vue-termui@0.0.9) (2022-03-26)
 
 ### Code Refactoring
