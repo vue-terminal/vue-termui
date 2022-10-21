@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@vue-termui/cli": "workspace:*",
-    "@vue/runtime-core": "^3.2.39",
+    "@vue/runtime-core": "^3.2.41",
     "vite-plugin-vue-termui": "workspace:*",
     "vue-termui": "workspace:*"
   }

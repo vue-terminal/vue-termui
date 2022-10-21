@@ -55,7 +55,7 @@
   "homepage": "https://github.com/vue-terminal/vue-termui#readme",
   "dependencies": {
     "picocolors": "^1.0.0",
-    "vite-node": "^0.23.4",
+    "vite-node": "^0.24.3",
     "ws": "^8.5.0"
   },
   "peerDependencies": {
@@ -67,9 +67,9 @@
     "@types/ws": "^8.5.3",
     "cac": "^6.7.12",
     "fast-glob": "^3.2.12",
-    "pathe": "^0.3.7",
+    "pathe": "^0.3.9",
     "rimraf": "^3.0.2",
-    "vite-plugin-inspect": "^0.7.1",
+    "vite-plugin-inspect": "^0.7.5",
     "vite-plugin-vue-termui": "workspace:*",
     "vue-termui": "workspace:*"
   },
