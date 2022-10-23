@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue-termui'
 const progress = ref(50)
-const interval = setInterval(() => {
-  progress.value += 1
-  if (progress.value > 100) {
-    clearInterval(interval)
-  }
+useInterval(() => {
+  progress.value < 100 && progress.value++
 }, 0)
 </script>
 
