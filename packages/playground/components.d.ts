@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     Div: typeof import('vue-termui')['TuiBox']
     Link: typeof import('vue-termui')['TuiLink']
     Span: typeof import('vue-termui')['TuiText']
+    Tab: typeof import('vue-termui')['TuiTab']
     Text: typeof import('vue-termui')['TuiText']
   }
 }
