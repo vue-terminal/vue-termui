@@ -8,11 +8,11 @@ useInterval(() => {
 <template>
   <Text>
     <Newline :n="2" />
-    <ProgressBar v-model="progress" color="green" />
+    <ProgressBar :value="progress" color="green" :width="12" />
     <Newline :n="2" />
-    <ProgressBar v-model="progress" color="yellow" />
+    <ProgressBar :value="progress" color="yellow" />
     <Newline :n="2" />
-    <ProgressBar v-model="progress" color="blue" />
+    <ProgressBar :value="progress" color="blue" :width="50" />
     <Newline :n="2" />
   </Text>
 </template>

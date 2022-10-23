@@ -33,12 +33,12 @@ export const TuiProgressBar = defineComponent({
       default: 'white',
       type: String as PropType<ForegroundColorProp>,
     },
-    barWidth: {
+    width: {
       required: false,
       default: 25,
       type: Number,
     },
-    modelValue: {
+    value: {
       required: true,
       type: Number,
     },
@@ -60,10 +60,10 @@ export const TuiProgressBar = defineComponent({
 
     const content = computed(() => {
       const type = FIGURES[props.type]
-      const w = Math.floor(props.modelValue * (props.barWidth / 100))
+      const w = Math.floor(props.value * (props.width / 100))
       const bg = colorize(type, props.bgColor, 'foreground')
       const fg = colorize(type, props.color, 'foreground')
-      return fg.repeat(w) + bg.repeat(props.barWidth - w)
+      return fg.repeat(w) + bg.repeat(props.width - w)
     })
 
     return () => {
