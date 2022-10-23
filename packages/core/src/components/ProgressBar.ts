@@ -7,10 +7,9 @@ import {
   onUnmounted,
   computed,
 } from '@vue/runtime-core'
-import type { ForegroundColor } from 'chalk'
 import type { PropType } from '@vue/runtime-core'
-import type { LiteralUnion } from '../utils'
 import { colorize } from '../renderer/textColor'
+import type { ForegroundColorProp } from '../renderer/textColor'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 
 const FIGURES = {
@@ -27,12 +26,12 @@ export const TuiProgressBar = defineComponent({
     color: {
       required: false,
       default: 'blue',
-      type: String as PropType<LiteralUnion<ForegroundColor, string>>,
+      type: String as PropType<ForegroundColorProp>,
     },
     bgColor: {
       required: false,
       default: 'white',
-      type: String as PropType<LiteralUnion<ForegroundColor, string>>,
+      type: String as PropType<ForegroundColorProp>,
     },
     barWidth: {
       required: false,
@@ -61,13 +60,10 @@ export const TuiProgressBar = defineComponent({
 
     const content = computed(() => {
       const type = FIGURES[props.type]
-      const w = props.modelValue * (props.barWidth / 100)
+      const w = Math.floor(props.modelValue * (props.barWidth / 100))
       const bg = colorize(type, props.bgColor, 'foreground')
       const fg = colorize(type, props.color, 'foreground')
-
-      return [...Array(props.barWidth)]
-        .map((_, i: number) => (i < w ? fg : bg))
-        .join('')
+      return fg.repeat(w) + bg.repeat(props.barWidth - w)
     })
 
     return () => {
