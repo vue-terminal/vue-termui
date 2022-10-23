@@ -2,7 +2,7 @@
 
 Contributions are welcome and will be fully credited!
 
-We accept contributions via Pull Requests on [Github](https://github.com/posva-sponsors/vue-termui).
+We accept contributions via Pull Requests on [Github](https://github.com/vue-terminal/vue-termui).
 
 ## Pull Requests
 
@@ -28,6 +28,8 @@ When creating an issue, try to provide a minimal reproduction or a failing test 
 Lay out the reasoning behind it and propose an API for it. Ideally, you should have a practical example to prove the utility of the feature you're requesting.
 
 ## Project Guidelines
+
+After pulling the project code and installing deps with `pnpm i`. run `pnpm run stub` at the root of the project. You can `cd packages/playground` and run `pnpm run dev` to test the playground.
 
 This project uses pnpm workspaces and contains different packages:
 

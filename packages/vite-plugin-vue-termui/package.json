@@ -2,10 +2,10 @@
   "name": "vite-plugin-vue-termui",
   "description": "Vite Plugin for Vue TermUI",
   "private": false,
-  "version": "0.0.9",
+  "version": "0.0.10",
   "sideEffects": false,
   "scripts": {
-    "dev": "unbuild --stub",
+    "stub": "unbuild --stub",
     "build": "tsup",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l vite-plugin-vue-termui -r 1",
     "prepublishOnly": "npm run build"
@@ -36,24 +36,24 @@
     "termui",
     "tui"
   ],
-  "funding": "https://github.com/posva-sponsors/vue-termui?sponsor=1",
+  "funding": "https://github.com/vue-terminal/vue-termui?sponsor=1",
   "license": "MIT",
   "author": "Eduardo San Martin Morote (https://esm.dev)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/posva-sponsors/vue-termui.git",
+    "url": "https://github.com/vue-terminal/vue-termui.git",
     "directory": "packages/vite-plugin-vue-termui"
   },
   "bugs": {
-    "url": "https://github.com/posva-sponsors/vue-termui/issues"
+    "url": "https://github.com/vue-terminal/vue-termui/issues"
   },
-  "homepage": "https://github.com/posva-sponsors/vue-termui#readme",
+  "homepage": "https://github.com/vue-terminal/vue-termui#readme",
   "peerDependencies": {
     "@vitejs/plugin-vue": "^3.0.3",
     "unplugin-auto-import": "^0.11.2",
     "unplugin-vue-components": "^0.22.4",
     "vue": "^3.2.25",
-    "vue-termui": ">=0.0.11"
+    "vue-termui": ">=0.0.13"
   },
   "devDependencies": {
     "vue-termui": "workspace:*"

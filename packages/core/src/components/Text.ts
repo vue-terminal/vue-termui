@@ -4,7 +4,9 @@ import {
   h,
   inject,
   defineComponent,
+  onMounted,
   onUpdated,
+  onUnmounted,
 } from '@vue/runtime-core'
 import type { LiteralUnion } from '../utils'
 import type { Styles } from '../renderer/styles'
@@ -46,9 +48,12 @@ export const TuiText = defineComponent({
 
   setup(props, { slots }) {
     const scheduleUpdate = inject(scheduleUpdateSymbol)!
-    onUpdated(() => {
-      scheduleUpdate()
-    })
+
+    onMounted(scheduleUpdate)
+
+    onUpdated(scheduleUpdate)
+
+    onUnmounted(scheduleUpdate)
 
     function transform(text: string): string {
       if (props.dimmed) {

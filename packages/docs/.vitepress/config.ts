@@ -1,6 +1,4 @@
-import { defineConfigWithTheme } from 'vitepress'
-import type { Config as ThemeConfig } from '@posva/vue-theme'
-import baseConfig from '@posva/vue-theme/config'
+import { defineConfig, DefaultTheme } from 'vitepress'
 
 const nav = [
   {
@@ -82,8 +80,7 @@ export const sidebar = {
   // ],
 }
 
-export default defineConfigWithTheme<ThemeConfig>({
-  extends: baseConfig,
+export default defineConfig({
   lang: 'en-US',
   title: 'Vue TermUI',
   description: 'Vue TermUI - The Modern Terminal UI Framework',
@@ -130,23 +127,20 @@ export default defineConfigWithTheme<ThemeConfig>({
     socialLinks: [
       {
         icon: 'github',
-        link: 'https://github.com/posva-sponsors/vue-termui',
+        link: 'https://github.com/vue-terminal/vue-termui',
       },
       { icon: 'twitter', link: 'https://twitter.com/posva' },
       { icon: 'discord', link: 'https://discord.gg/HPVS2AbgXP' },
     ],
 
     editLink: {
-      repo: 'posva-sponsors/vue-termui',
-      folder: 'packages/docs/src',
-      text: 'Edit this page on GitHub',
+      pattern:
+        'https://github.com/vue-terminal/vue-termui/edit/main/packages/docs/:path',
+      text: 'Suggest changes to this page',
     },
 
     footer: {
-      license: {
-        text: 'MIT License',
-        link: 'https://opensource.org/licenses/MIT',
-      },
+      message: 'Released under the MIT License',
       copyright: `Copyright © 2022-${new Date().getFullYear()} Eduardo San Martin Morote`,
     },
   },
