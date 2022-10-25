@@ -7,6 +7,7 @@ export {
   TuiNewline,
   TuiLink,
   TuiTextTransform,
+  TuiInput,
 } from './components'
 
 export { render } from './renderer'

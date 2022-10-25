@@ -1,12 +1,13 @@
 // import devtools from '@vue/devtools'
 // import devtools from '@vue/devtools/node'
 import { createApp } from 'vue-termui'
-import App from './Focusables.vue'
+// import App from './Focusables.vue'
 // import App from './Fragments.vue'
 // import App from './CenteredDemo.vue'
 // import App from './App.vue'
 // import App from './Counter.vue'
 // import App from './Borders.vue'
+import App from './InputDemo.vue'
 
 createApp(App, {
   // swapScreens: true,
