@@ -1,6 +1,5 @@
 import {
   computed,
-  customRef,
   onUnmounted,
   ref,
   watch,
@@ -9,6 +8,7 @@ import {
   unref,
   onMounted,
 } from '@vue/runtime-core'
+import type { WritableComputedRef } from '@vue/runtime-core'
 import { checkCurrentInstance, MaybeRef } from '../utils'
 import { Focusable, FocusId } from './types'
 import { useFocusManager } from './FocusManager'
@@ -35,7 +35,9 @@ export function useFocus({
   active: startsActive,
   disabled: startsDisabled,
   id: idSource,
-}: FocusableOptions = {}): Focusable {
+}: FocusableOptions = {}): Focusable & {
+  isFocus: WritableComputedRef<boolean>
+} {
   if (!checkCurrentInstance('useFocus')) {
     throw new Error('Cannot create a focusable without an instance')
   }
@@ -85,5 +87,19 @@ export function useFocus({
     focusable._i = null
   })
 
-  return focusable
+  return {
+    ...focusable,
+    isFocus: computed<boolean>({
+      get() {
+        return active.value
+      },
+      set(value) {
+        if (value) {
+          focus(unref(id))
+        } else {
+          focus(null)
+        }
+      },
+    }),
+  }
 }

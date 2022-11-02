@@ -1,17 +1,18 @@
 <script setup lang="ts">
 const value = ref('')
-const visible = ref(false)
-function submit() {
-  visible.value = true
-}
+const isFocus = ref(true)
+const value1 = ref('')
+const isFocus1 = ref(false)
+
+watch(value, (v: string) => {
+  if (v === 'hello') {
+    isFocus.value = false
+    isFocus1.value = true
+  }
+})
 </script>
 
 <template borderStyle="round">
-  <Input
-    v-model="value"
-    placeholder="Hello World"
-    @submit="submit"
-    type="password"
-  />
-  <Text v-if="visible">Value:{{ value }}</Text>
+  <Input v-model="value" :focus="isFocus" />
+  <Input v-model="value1" :focus="isFocus1" />
 </template>

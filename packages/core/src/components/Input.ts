@@ -1,11 +1,11 @@
-import { defineComponent, h, ref, computed, PropType } from '@vue/runtime-core'
+import { defineComponent, h, ref, computed, watch } from '@vue/runtime-core'
 import chalk from 'chalk'
 import { TuiText } from './Text'
 import { onInputData } from '../composables/input'
 import type { KeyDataEvent } from '../input/types'
+import { useFocus } from '../focus/Focusable'
 
 const SKIP_EVENT_KEY = ['ArrowUp', 'ArrowDown', 'Ctrl', 'Tab', 'Shift']
-const PWD_FIGURE = '*'
 
 export const TuiInput = defineComponent({
   props: {
@@ -14,131 +14,104 @@ export const TuiInput = defineComponent({
       required: false,
       default: '',
     },
-    cursor: {
-      type: Boolean,
-      required: false,
-      default: true,
-    },
     modelValue: {
       type: String,
       required: true,
     },
-    type: {
-      type: String as PropType<'text' | 'password'>,
-      required: false,
-      default: 'text',
+    focus: {
+      type: Boolean,
+      required: true,
     },
   },
-  emits: ['update:modelValue', 'change', 'submit'],
+  emits: ['update:modelValue'],
   setup(props, { emit }) {
+    const { active, isFocus } = useFocus({
+      active: props.focus,
+    })
     const cursorOffset = ref(props.modelValue.length)
-    const exited = ref(false)
     const content = computed(() => {
-      if (props.cursor && !exited.value) {
+      if (active.value) {
         if (props.modelValue) {
           if (
             props.modelValue &&
             props.modelValue.length <= cursorOffset.value
           ) {
-            return (
-              (props.type === 'text'
-                ? props.modelValue
-                : PWD_FIGURE.repeat(props.modelValue.length)) +
-              chalk.inverse(' ')
-            )
+            return props.modelValue + chalk.inverse(' ')
           }
 
           const l = props.modelValue.slice(0, cursorOffset.value)
           const m = chalk.inverse(props.modelValue[cursorOffset.value])
           const r = props.modelValue.slice(cursorOffset.value + 1)
 
-          return props.type === 'text'
-            ? l + m + r
-            : PWD_FIGURE.repeat(l.length) +
-                chalk.inverse(PWD_FIGURE) +
-                PWD_FIGURE.repeat(r.length)
+          return l + m + r
         } else {
           return props.placeholder ? '' : chalk.inverse(' ')
         }
       } else {
-        const value = props.modelValue
-        return props.type === 'text' ? value : PWD_FIGURE.repeat(value.length)
+        return props.modelValue
       }
     })
 
-    function updateCursorOffset(type: '-' | '+') {
-      if (type === '-') {
-        cursorOffset.value = Math.max(0, cursorOffset.value - 1)
-      } else {
-        cursorOffset.value = Math.min(
-          cursorOffset.value + 1,
-          +props.modelValue.length + 1
-        )
-      }
+    watch(
+      () => props.focus,
+      (value) => (isFocus.value = value)
+    )
+
+    function updateCursorOffset(offset: number) {
+      cursorOffset.value = Math.max(
+        0,
+        Math.min(cursorOffset.value + offset, props.modelValue.length + 1)
+      )
     }
 
     function updateValue(value: string) {
-      emit('change', value)
       emit('update:modelValue', value)
     }
 
-    const stop = onInputData(({ data, event }) => {
+    onInputData(({ data, event }) => {
+      if (!active.value) return
       const eventKey = (<KeyDataEvent>event!).key
       if (SKIP_EVENT_KEY.includes(eventKey) || !eventKey) return
 
-      // Submit
-      if (eventKey === 'Enter') {
-        stop()
-        exited.value = true
-        emit('submit', props.modelValue)
-        return
-      }
-
       // Move cursor
-      if (props.cursor && eventKey === 'ArrowLeft') {
-        updateCursorOffset('-')
-      } else if (props.cursor && eventKey === 'ArrowRight') {
-        updateCursorOffset('+')
+      if (eventKey === 'ArrowLeft') {
+        updateCursorOffset(-1)
+      } else if (eventKey === 'ArrowRight') {
+        updateCursorOffset(1)
       }
       // Delete Content
       else if (eventKey === 'Backspace' || eventKey === 'Delete') {
-        if (!props.cursor) {
-          updateValue(props.modelValue.slice(0, -1))
-        } else if (props.cursor && cursorOffset.value > 0) {
+        if (cursorOffset.value > 0) {
           updateValue(
             props.modelValue.slice(0, cursorOffset.value - 1) +
               props.modelValue.slice(cursorOffset.value)
           )
-          updateCursorOffset('-')
+          updateCursorOffset(-1)
         }
       }
       // Typing Content
       else {
         updateValue(
-          props.cursor
-            ? props.modelValue.slice(0, cursorOffset.value) +
-                data +
-                props.modelValue.slice(cursorOffset.value)
-            : props.modelValue + data
+          props.modelValue.slice(0, cursorOffset.value) +
+            data +
+            props.modelValue.slice(cursorOffset.value)
         )
-        updateCursorOffset('+')
-        if (props.cursor && cursorOffset.value === props.modelValue.length) {
-          updateCursorOffset('+')
+        updateCursorOffset(1)
+        if (cursorOffset.value === props.modelValue.length) {
+          updateCursorOffset(1)
         }
       }
     })
 
     return () =>
-      h(TuiText, () =>
-        props.placeholder && !props.modelValue
-          ? h(
-              TuiText,
-              {
-                dimmed: true,
-              },
-              () => props.placeholder
-            )
-          : h(TuiText, () => content.value)
-      )
+      props.placeholder && !props.modelValue
+        ? h(
+            TuiText,
+            {
+              dimmed: true,
+            },
+            () => props.placeholder
+          )
+        : h(TuiText, () => content.value)
   },
 })
