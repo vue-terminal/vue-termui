@@ -14,5 +14,5 @@ watch(value, (v: string) => {
 
 <template borderStyle="round">
   <Input v-model="value" :focus="isFocus" />
-  <Input v-model="value1" :focus="isFocus1" />
+  <Input v-model="value1" :focus="isFocus1" type="password" />
 </template>

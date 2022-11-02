@@ -1,4 +1,5 @@
 import { defineComponent, h, ref, computed, watch } from '@vue/runtime-core'
+import type { PropType } from '@vue/runtime-core'
 import chalk from 'chalk'
 import { TuiText } from './Text'
 import { onInputData } from '../composables/input'
@@ -6,17 +7,21 @@ import type { KeyDataEvent } from '../input/types'
 import { useFocus } from '../focus/Focusable'
 
 const SKIP_EVENT_KEY = ['ArrowUp', 'ArrowDown', 'Ctrl', 'Tab', 'Shift']
+const PWD_FIGURE = '*'
 
 export const TuiInput = defineComponent({
   props: {
     placeholder: {
       type: String,
-      required: false,
       default: '',
     },
     modelValue: {
       type: String,
       required: true,
+    },
+    type: {
+      type: String as PropType<'text' | 'password'>,
+      default: 'text',
     },
     focus: {
       type: Boolean,
@@ -36,19 +41,29 @@ export const TuiInput = defineComponent({
             props.modelValue &&
             props.modelValue.length <= cursorOffset.value
           ) {
-            return props.modelValue + chalk.inverse(' ')
+            return (
+              (props.type === 'text'
+                ? props.modelValue
+                : PWD_FIGURE.repeat(props.modelValue.length)) +
+              chalk.inverse(' ')
+            )
           }
 
           const l = props.modelValue.slice(0, cursorOffset.value)
           const m = chalk.inverse(props.modelValue[cursorOffset.value])
           const r = props.modelValue.slice(cursorOffset.value + 1)
 
-          return l + m + r
+          return props.type === 'text'
+            ? l + m + r
+            : PWD_FIGURE.repeat(l.length) +
+                chalk.inverse(PWD_FIGURE) +
+                PWD_FIGURE.repeat(r.length)
         } else {
           return props.placeholder ? '' : chalk.inverse(' ')
         }
       } else {
-        return props.modelValue
+        const value = props.modelValue
+        return props.type === 'text' ? value : PWD_FIGURE.repeat(value.length)
       }
     })
 
