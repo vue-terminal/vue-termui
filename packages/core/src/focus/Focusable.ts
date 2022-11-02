@@ -94,11 +94,7 @@ export function useFocus({
         return active.value
       },
       set(value) {
-        if (value) {
-          focus(unref(id))
-        } else {
-          focus(null)
-        }
+        focus(value ? unref(id) : null)
       },
     }),
   }
