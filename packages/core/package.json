@@ -61,7 +61,7 @@
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1",
     "@types/ws": "^8.5.3",
-    "ws": "^8.5.0"
+    "ws": "^8.10.0"
   },
   "engines": {
     "node": ">=14.0.0"
