@@ -4,7 +4,6 @@ import chalk from 'chalk'
 import { TuiText } from './Text'
 import { onInputData } from '../composables/input'
 import type { KeyDataEvent } from '../input/types'
-import { useFocus } from '../focus/Focusable'
 
 const SKIP_EVENT_KEY = ['ArrowUp', 'ArrowDown', 'Ctrl', 'Tab', 'Shift']
 const PWD_FIGURE = '*'
@@ -23,16 +22,11 @@ export const TuiInput = defineComponent({
       type: String as PropType<'text' | 'password'>,
       default: 'text',
     },
-    focus: {
-      type: Boolean,
-      required: true,
-    },
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-    const { active, isFocus } = useFocus({
-      active: props.focus,
-    })
+    // TODO: focus,blur support
+    const active = ref(true)
     const cursorOffset = ref(props.modelValue.length)
     const content = computed(() => {
       if (active.value) {
@@ -66,11 +60,6 @@ export const TuiInput = defineComponent({
         return props.type === 'text' ? value : PWD_FIGURE.repeat(value.length)
       }
     })
-
-    watch(
-      () => props.focus,
-      (value) => (isFocus.value = value)
-    )
 
     function updateCursorOffset(offset: number) {
       cursorOffset.value = Math.max(
