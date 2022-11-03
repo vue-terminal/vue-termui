@@ -7,6 +7,7 @@ export {
   TuiNewline,
   TuiLink,
   TuiTextTransform,
+  TuiProgressBar,
 } from './components'
 
 export { render } from './renderer'
