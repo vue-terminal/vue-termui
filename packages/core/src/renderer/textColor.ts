@@ -1,6 +1,9 @@
 import chalk from 'chalk'
-
+import type { ForegroundColor } from 'chalk'
 type ColorType = 'foreground' | 'background'
+import type { LiteralUnion } from '../utils'
+
+export type ForegroundColorProp = LiteralUnion<ForegroundColor, string>
 
 const RGB_LIKE_REGEX = /^(rgb|hsl|hsv|hwb)\(\s?(\d+),\s?(\d+),\s?(\d+)\s?\)$/
 const ANSI_REGEX = /^(ansi|ansi256)\(\s?(\d+)\s?\)$/

@@ -4,6 +4,7 @@ export { TuiNewline } from './Newline'
 export { TuiApp } from './App'
 export { TuiBox } from './Box'
 export { TuiInput } from './Input'
+export { TuiProgressBar } from './ProgressBar'
 
 export { TuiLink } from './Link'
 // export { default as TuiInput } from './Input.vue'

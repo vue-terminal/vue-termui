@@ -176,6 +176,8 @@ export const VueTuiComponents = new Map<string, ModuleExports>([
 
   ['transform', 'TuiTextTransform'],
   ['text-transform', 'TuiTextTransform'],
+
+  ['progressbar', 'TuiProgressBar'],
 ])
 
 // copied from auto import plugin source code
