@@ -49,7 +49,6 @@ export default defineConfig({
         'yoga-layout',
         'terminal-link',
         'yoga-layout-prebuilt',
-        'ws',
       ],
     },
   },
