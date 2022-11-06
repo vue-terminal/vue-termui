@@ -1,3 +1,11 @@
+## [0.0.11](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.9...vite-plugin-vue-termui@0.0.11) (2022-11-06)
+
+### Features
+
+- `ProgressBar` component ([#14](https://github.com/vue-terminal/vue-termui/issues/14)) ([42f6383](https://github.com/vue-terminal/vue-termui/commit/42f63830df75100d95bfa3b1fa67d9680d333c67))
+- allow passing auto import options ([7ab9a00](https://github.com/vue-terminal/vue-termui/commit/7ab9a001a61156264a480014ab8ccd734988b3b9))
+- improve debug log ([98a4e50](https://github.com/vue-terminal/vue-termui/commit/98a4e50dc7ed1d24f1537cb44dc582cb5e07b651))
+
 ## [0.0.10](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.9...vite-plugin-vue-termui@0.0.10) (2022-10-21)
 
 ### Features

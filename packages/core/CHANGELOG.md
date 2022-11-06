@@ -1,3 +1,18 @@
+## [0.0.14](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.12...vue-termui@0.0.14) (2022-11-06)
+
+### Bug Fixes
+
+- CI ([#3](https://github.com/vue-terminal/vue-termui/issues/3)) ([6e1d106](https://github.com/vue-terminal/vue-termui/commit/6e1d1065bb20e3828c907d70f77ac9d21f42d664))
+- **core:** should external `terminal-link` when build ([3810a9f](https://github.com/vue-terminal/vue-termui/commit/3810a9fd1cf2cade64ed5af829a401530fb24134))
+- **focus:** correct traversal order ([5ce6381](https://github.com/vue-terminal/vue-termui/commit/5ce6381b1eb773685c187456d1cdcc44f281910e))
+- should update when mount/unmount text component ([#8](https://github.com/vue-terminal/vue-termui/issues/8)) ([7fb8efc](https://github.com/vue-terminal/vue-termui/commit/7fb8efc566786375e58123b368bcdedf24534444))
+
+### Features
+
+- `ProgressBar` component ([#14](https://github.com/vue-terminal/vue-termui/issues/14)) ([42f6383](https://github.com/vue-terminal/vue-termui/commit/42f63830df75100d95bfa3b1fa67d9680d333c67))
+- allow passing auto import options ([7ab9a00](https://github.com/vue-terminal/vue-termui/commit/7ab9a001a61156264a480014ab8ccd734988b3b9))
+- improve debug log ([98a4e50](https://github.com/vue-terminal/vue-termui/commit/98a4e50dc7ed1d24f1537cb44dc582cb5e07b651))
+
 ## [0.0.13](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.12...vue-termui@0.0.13) (2022-10-21)
 
 ### Bug Fixes

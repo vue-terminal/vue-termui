@@ -1,3 +1,30 @@
+## [0.0.17](https://github.com/vue-terminal/vue-termui/compare/@vue-termui/cli@0.0.14...@vue-termui/cli@0.0.17) (2022-11-06)
+
+### Bug Fixes
+
+- ci ([#12](https://github.com/vue-terminal/vue-termui/issues/12)) ([3c1d009](https://github.com/vue-terminal/vue-termui/commit/3c1d009a929cac0c786b0e31fd103824971489d1))
+- clear screen when swapScreens is true ([5ef1f9e](https://github.com/vue-terminal/vue-termui/commit/5ef1f9eebced1b1bbda919639bec0d451fc96aa3))
+- **focus:** correct traversal order ([5ce6381](https://github.com/vue-terminal/vue-termui/commit/5ce6381b1eb773685c187456d1cdcc44f281910e))
+
+### Code Refactoring
+
+- rewrite useStdout() ([7cfba52](https://github.com/vue-terminal/vue-termui/commit/7cfba5296a7728e2a5920ed85a41504c14f9c14c))
+
+### Features
+
+- allow passing auto import options ([7ab9a00](https://github.com/vue-terminal/vue-termui/commit/7ab9a001a61156264a480014ab8ccd734988b3b9))
+- allow swapping screens for fullscreen apps ([71e0cdc](https://github.com/vue-terminal/vue-termui/commit/71e0cdcc161a7c5531e36da9b6441d2e26bff895))
+- **box:** add basic title ([e5b488d](https://github.com/vue-terminal/vue-termui/commit/e5b488d6e7e18853e4ff5f2e9fa96742c87fcfd3))
+- improve debug log ([98a4e50](https://github.com/vue-terminal/vue-termui/commit/98a4e50dc7ed1d24f1537cb44dc582cb5e07b651))
+- useTitle ([a8b14ce](https://github.com/vue-terminal/vue-termui/commit/a8b14ce0c8b7aa3e31f1f963a650d672de261ef1))
+
+### BREAKING CHANGES
+
+- now it returns an object with `stdout` and a `write`
+  method. `stdout` is just the stdout being used by the app while `write`
+  lets you write to the output without messing up with the current output.
+  Useful for debugging.
+
 ## [0.0.16](https://github.com/vue-terminal/vue-termui/compare/@vue-termui/cli@0.0.14...@vue-termui/cli@0.0.16) (2022-10-21)
 
 ### Bug Fixes

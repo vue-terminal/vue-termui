@@ -1,3 +1,9 @@
+## [0.0.12](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.0.10...create-vue-termui@0.0.12) (2022-11-06)
+
+### Bug Fixes
+
+- ci ([#12](https://github.com/vue-terminal/vue-termui/issues/12)) ([3c1d009](https://github.com/vue-terminal/vue-termui/commit/3c1d009a929cac0c786b0e31fd103824971489d1))
+
 ## [0.0.11](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.0.10...create-vue-termui@0.0.11) (2022-10-21)
 
 ### Bug Fixes
