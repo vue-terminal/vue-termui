@@ -47,6 +47,7 @@ export default defineConfig({
         'widest-line',
         'wrap-ansi',
         'yoga-layout',
+        'terminal-link',
         'yoga-layout-prebuilt',
         'ws',
       ],
