@@ -1,3 +1,9 @@
+## [0.0.15](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.14...vue-termui@0.0.15) (2022-11-06)
+
+### Bug Fixes
+
+- **core:** should not external `ws` ([fa7b432](https://github.com/vue-terminal/vue-termui/commit/fa7b43275d1b203cbf544f8f69ba124401da4805))
+
 ## [0.0.14](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.12...vue-termui@0.0.14) (2022-11-06)
 
 ### Bug Fixes
