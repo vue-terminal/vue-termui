@@ -1,3 +1,5 @@
+## [0.0.17](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.16...vue-termui@0.0.17) (2022-11-07)
+
 ## [0.0.16](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.15...vue-termui@0.0.16) (2022-11-07)
 
 ## [0.0.15](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.14...vue-termui@0.0.15) (2022-11-06)
