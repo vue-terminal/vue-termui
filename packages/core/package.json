@@ -52,7 +52,8 @@
     "type-fest": "^3.1.0",
     "widest-line": "^4.0.1",
     "wrap-ansi": "^8.0.1",
-    "yoga-layout-prebuilt": "^1.10.0"
+    "yoga-layout-prebuilt": "^1.10.0",
+    "ws": "^8.10.0"
   },
   "peerDependencies": {
     "@vue/runtime-core": "^3.2.33"
@@ -60,8 +61,7 @@
   "devDependencies": {
     "@types/slice-ansi": "^5.0.0",
     "@types/wrap-ansi": "^8.0.1",
-    "@types/ws": "^8.5.3",
-    "ws": "^8.10.0"
+    "@types/ws": "^8.5.3"
   },
   "engines": {
     "node": ">=14.0.0"
