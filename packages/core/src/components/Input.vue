@@ -1,18 +1,9 @@
 <script setup lang="ts">
-import {
-  computed,
-  getCurrentInstance,
-  isKeyDataEvent,
-  onInputData,
-  onKeyData,
-  onMounted,
-  ref,
-  toRef,
-  toRefs,
-  useFocus,
-  useInterval,
-  watch,
-} from 'vue-termui'
+import { computed, ref, toRef, watch } from '@vue/runtime-core'
+import { onInputData } from '../composables/input'
+import { isKeyDataEvent } from '../input/types'
+import { useInterval } from '../composables/utils'
+import { useFocus } from '../focus/Focusable'
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void
