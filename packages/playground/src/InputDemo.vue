@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onKeyData, ref } from 'vue-termui'
-import MyInput from './components/Input.vue'
+import { onKeyData, ref, TuiInput as MyInput } from 'vue-termui'
 
 const msg = ref('Hello World')
 
