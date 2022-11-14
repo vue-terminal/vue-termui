@@ -10,7 +10,7 @@ declare module '@vue/runtime-core' {
     Box: typeof import('vue-termui')['TuiBox']
     Br: typeof import('vue-termui')['TuiNewline']
     Div: typeof import('vue-termui')['TuiBox']
-    Input: typeof import('vue-termui')['TuiInput']
+    Input: typeof import('./src/components/Input.vue')['default']
     Link: typeof import('vue-termui')['TuiLink']
     Newline: typeof import('vue-termui')['TuiNewline']
     Progressbar: typeof import('vue-termui')['TuiProgressBar']

@@ -1,18 +1,17 @@
 <script setup lang="ts">
-const value = ref('')
-const isFocus = ref(true)
-const value1 = ref('')
-const isFocus1 = ref(false)
+import { onKeyData, ref } from 'vue-termui'
+import MyInput from './components/Input.vue'
 
-watch(value, (v: string) => {
-  if (v === 'hello') {
-    isFocus.value = false
-    isFocus1.value = true
-  }
+const msg = ref('Hello World')
+
+const disabled = ref(false)
+onKeyData(['d', 'D'], () => {
+  disabled.value = !disabled.value
 })
 </script>
 
 <template borderStyle="round">
-  <Input v-model="value" :focus="isFocus" />
-  <Input v-model="value1" :focus="isFocus1" type="password" />
+  <Text bold>{{ msg }}</Text>
+  <MyInput label="Enter a message: " v-model="msg" :disabled="disabled" />
+  <MyInput type="password" />
 </template>
