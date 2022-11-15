@@ -6,4 +6,4 @@ export { TuiBox } from './Box'
 export { TuiProgressBar } from './ProgressBar'
 
 export { TuiLink } from './Link'
-// export { default as TuiInput } from './Input.vue'
+export { default as TuiInput } from './Input.vue'
