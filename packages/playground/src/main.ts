@@ -7,7 +7,7 @@ import { createApp } from 'vue-termui'
 // import App from './App.vue'
 // import App from './Counter.vue'
 // import App from './Borders.vue'
-import App from './ProgressBarDemo.vue'
+import App from './InputDemo.vue'
 
 createApp(App, {
   // swapScreens: true,

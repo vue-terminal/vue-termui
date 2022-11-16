@@ -172,6 +172,8 @@ export const VueTuiComponents = new Map<string, ModuleExports>([
   ['div', 'TuiBox'],
   ['box', 'TuiBox'],
 
+  ['input', 'TuiInput'],
+
   ['transform', 'TuiTextTransform'],
   ['text-transform', 'TuiTextTransform'],
 
