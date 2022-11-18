@@ -49,11 +49,21 @@ export const sidebar = {
     {
       text: 'Built-in Components',
       items: [
-        // {
-        //   text: 'TuiBox',
-        //   link: '/guide/components/tui:box',
-        // },
+        {
+          text: 'TuiBox',
+          link: '/guide/components/tui-box',
+        },
         { text: 'TuiText', link: '/guide/components/tui-text' },
+        { text: 'TuiNewline', link: '/guide/components/tui-newline' },
+        { text: 'TuiLink', link: '/guide/components/tui-link' },
+        {
+          text: 'TuiProgressBar',
+          link: '/guide/components/tui-progress-bar',
+        },
+        {
+          text: 'TuiInput',
+          link: '/guide/components/tui-input',
+        },
       ],
     },
     // {
