@@ -113,12 +113,12 @@ importers:
       type-fest: 3.1.0
       widest-line: 4.0.1
       wrap-ansi: 8.0.1
+      ws: 8.10.0
       yoga-layout-prebuilt: 1.10.0
     devDependencies:
       '@types/slice-ansi': 5.0.0
       '@types/wrap-ansi': 8.0.1
       '@types/ws': 8.5.3
-      ws: 8.10.0
 
   packages/create-vue-termui:
     specifiers:
@@ -4870,6 +4870,7 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+    dev: false
 
   /xtend/4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
