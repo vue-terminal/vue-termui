@@ -4,8 +4,8 @@ Creates flexbox-based box.
 
 ```vue-html
 <Box
-  width="100"
-  height="20"
+  :width="30"
+  :height="20"
   borderStyle="double"
   justifyContent="center"
   flexDirection="column"
