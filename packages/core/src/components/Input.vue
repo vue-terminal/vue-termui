@@ -4,6 +4,8 @@ import { onInputData } from '../composables/input'
 import { isKeyDataEvent } from '../input/types'
 import { useInterval } from '../composables/utils'
 import { useFocus } from '../focus/Focusable'
+import { TuiBox as Box } from './Box'
+import { TuiText as Text } from './Text'
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void
