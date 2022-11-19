@@ -1,11 +1,4 @@
-import {
-  defineComponent,
-  onMounted,
-  onBeforeUnmount,
-  ref,
-  onActivated,
-  onDeactivated,
-} from 'vue'
+import { defineComponent, ref, onActivated, onDeactivated } from 'vue'
 import type { PropType, VNodeProps } from 'vue'
 import type { KeyDataEventRawHandlerFn } from 'vue-termui'
 import { onKeyData } from 'vue-termui'
@@ -95,8 +88,6 @@ export const GlobalEventsImpl = defineComponent({
               listener(event)
           }
         )
-
-        const options = extractEventOptions(modifiersRaw)
 
         handlers.forEach((handler) => {
           // TODO: filter based on eventName

@@ -1,4 +1,4 @@
-import chalk, { ForegroundColor } from 'chalk'
+import chalk from 'chalk'
 import { h, inject, FunctionalComponent } from '@vue/runtime-core'
 import { scheduleUpdateSymbol } from '../injectionSymbols'
 import type { OutputTransformer } from '../renderer/Output'

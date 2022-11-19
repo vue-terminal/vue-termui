@@ -1,5 +1,5 @@
 import Yoga from 'yoga-layout-prebuilt'
-import { DOMElement, DOMNode, getMaxWidth } from './dom'
+import { DOMNode, getMaxWidth } from './dom'
 import widestLine from 'widest-line'
 import indentString from 'indent-string'
 import { wrapText, squashTextNodes } from './text'

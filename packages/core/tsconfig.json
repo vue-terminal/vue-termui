@@ -16,7 +16,8 @@
     "lib": ["esnext"],
     "paths": {
       "~/*": ["src/*"]
-    }
+    },
+    "noUnusedLocals": true
   },
   "include": [
     "../../auto-imports.d.ts",

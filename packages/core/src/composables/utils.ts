@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, ref } from '@vue/runtime-core'
+import { onMounted, onUnmounted } from '@vue/runtime-core'
 
 export function useInterval(fn: () => void, interval?: number) {
   let handle: ReturnType<typeof setInterval>
@@ -25,19 +25,4 @@ export function useTimeout(fn: () => void, delay?: number) {
   onUnmounted(() => {
     clearTimeout(handle)
   })
-}
-
-function useTimeFunction<RT = any>(
-  fn: (cb: () => void, time?: number) => RT,
-  clear: (id?: RT) => void
-) {
-  return (cb: () => void, time?: number) => {
-    let handle: RT
-    onMounted(() => {
-      handle = fn(cb, time)
-    })
-    onUnmounted(() => {
-      clear(handle)
-    })
-  }
 }

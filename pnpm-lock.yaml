@@ -144,9 +144,11 @@ importers:
   packages/domino:
     specifiers:
       '@vue-termui/cli': workspace:*
+      mitt: ^3.0.0
       vite-plugin-vue-termui: workspace:*
       vue-termui: workspace:*
     dependencies:
+      mitt: 3.0.0
       vue-termui: link:../core
     devDependencies:
       '@vue-termui/cli': link:../cli
@@ -3389,6 +3391,10 @@ packages:
   /minimist/1.2.7:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: true
+
+  /mitt/3.0.0:
+    resolution: {integrity: sha512-7dX2/10ITVyqh4aOSVI9gdape+t9l2/8QxHrFmUXu4EEUpdlxl6RudZUPZoc+zuY2hk1j7XxVroIVIan/pD/SQ==}
+    dev: false
 
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
