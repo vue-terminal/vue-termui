@@ -9,8 +9,8 @@
   },
   "scripts": {
     "release": "node scripts/release.mjs",
-    "stub": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' stub",
-    "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' build",
+    "stub": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli,devtools}' stub",
+    "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli,devtools}' build",
     "play:dev": "pnpm run --filter  './packages/playground' dev",
     "lint": "prettier --check packages README.md",
     "lint:fix": "prettier --write packages README.md",

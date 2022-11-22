@@ -34,6 +34,7 @@ export default defineConfig({
     alias: {
       // Use development version instead of dist
       'vue-termui': resolve('../core/src/index.ts'),
+      '@vue-termui/devtools': resolve('../devtools/src/index.ts'),
     },
   },
 
