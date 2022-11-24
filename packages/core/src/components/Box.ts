@@ -1,6 +1,5 @@
 import { h, FunctionalComponent } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
-import { pickBy } from '../utils'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -52,13 +51,13 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
 }
 
 export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
-  const normalizedProps = pickBy(props, (value) => value !== undefined)
   return h(
     'tui:box',
     {
       style: {
-        ...normalizedProps,
+        ...props,
 
+        display: props.display ?? 'flex',
         flexDirection: props.flexDirection ?? 'row',
         flexGrow: props.flexGrow ?? 0,
         flexShrink: props.flexShrink ?? 1,
