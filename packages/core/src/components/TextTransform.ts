@@ -67,3 +67,15 @@ export const TuiTextTransform: FunctionalComponent<
 }
 
 TuiTextTransform.displayName = 'TuiTextTransform'
+TuiTextTransform.props = [
+  'color',
+  'bgColor',
+  'dimmend',
+  'bold',
+  'italic',
+  'underline',
+  'strikethrough',
+  'inverse',
+  'wrap',
+  'transform',
+]
