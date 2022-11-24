@@ -1,5 +1,6 @@
 import { h, FunctionalComponent } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
+import { pickBy } from '../utils'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -51,15 +52,16 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
 }
 
 export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
+  const normalizedProps = pickBy(props, (value) => value !== undefined)
   return h(
     'tui:box',
     {
       style: {
+        ...normalizedProps,
+
         flexDirection: props.flexDirection ?? 'row',
         flexGrow: props.flexGrow ?? 0,
         flexShrink: props.flexShrink ?? 1,
-
-        ...props,
 
         marginLeft: props.marginLeft ?? props.marginX ?? props.margin ?? 0,
         marginRight: props.marginRight ?? props.marginX ?? props.margin ?? 0,
@@ -79,3 +81,41 @@ export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
 }
 
 TuiBox.displayName = 'TuiBox'
+TuiBox.props = [
+  'title',
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'margin',
+  'marginX',
+  'marginY',
+  'marginTop',
+  'marginBottom',
+  'marginLeft',
+  'marginRight',
+  'padding',
+  'paddingX',
+  'paddingY',
+  'paddingTop',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingRight',
+  'flexGrow',
+  'flexShrink',
+  'flexDirection',
+  'flexBasis',
+  'alignItems',
+  'alignSelf',
+  'justifyContent',
+  'width',
+  'height',
+  'minWidth',
+  'minHeight',
+  'maxWidth',
+  'maxHeight',
+  'display',
+  'borderStyle',
+  'borderColor',
+]

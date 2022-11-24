@@ -72,5 +72,14 @@ export function getElementFromInstance(
   return (instance?.vnode as VNode<DOMNode, DOMElement> | undefined)?.el
 }
 
+export function pickBy<T extends object>(
+  object: T,
+  predicate: (value: any) => boolean
+) {
+  return Object.fromEntries(
+    Object.entries(object).filter(([, value]) => predicate(value))
+  )
+}
+
 export * from './indentHTML'
 export * from './fileLog'
