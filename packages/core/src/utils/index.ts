@@ -66,7 +66,7 @@ export function checkCurrentInstance(fnName: string) {
   return !!instance
 }
 
-export const noop = () => { }
+export const noop = () => {}
 
 export type MaybeRef<T> = Ref<T> | T
 
