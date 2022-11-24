@@ -1,5 +1,6 @@
 import { h, FunctionalComponent } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
+import { propsCamelize } from '../utils'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -51,6 +52,7 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
 }
 
 export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
+  props = propsCamelize(props)
   return h(
     'tui:box',
     {

@@ -4,6 +4,7 @@ import { scheduleUpdateSymbol } from '../injectionSymbols'
 import type { OutputTransformer } from '../renderer/Output'
 import { defaultStyle, TuiTextProps } from './Text'
 import { colorize } from '../renderer/textColor'
+import { propsCamelize } from '../utils'
 
 /**
  * A Text Transforms allows modifying the text before it is written to the stdout while accounting for line breaks and
@@ -14,6 +15,7 @@ export const TuiTextTransform: FunctionalComponent<
     transform?: OutputTransformer
   } & TuiTextProps
 > = (props, { slots }) => {
+  props = propsCamelize(props)
   const scheduleUpdate = inject(scheduleUpdateSymbol)!
   scheduleUpdate()
   // onUpdated(() => {

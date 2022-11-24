@@ -22,6 +22,14 @@ export const camelize = cacheStringFunction((str: string): string => {
   return str.replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))
 })
 
+export const propsCamelize = (props: Record<string, any>) => {
+  const res: Record<string, any> = {}
+  for (const key in props) {
+    res[camelize(key)] = props[key]
+  }
+  return res
+}
+
 const hyphenateRE = /\B([A-Z])/g
 /**
  * @private
@@ -58,7 +66,7 @@ export function checkCurrentInstance(fnName: string) {
   return !!instance
 }
 
-export const noop = () => {}
+export const noop = () => { }
 
 export type MaybeRef<T> = Ref<T> | T
 
