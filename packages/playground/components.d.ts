@@ -14,6 +14,7 @@ declare module '@vue/runtime-core' {
     Link: typeof import('vue-termui')['TuiLink']
     Newline: typeof import('vue-termui')['TuiNewline']
     Progressbar: typeof import('vue-termui')['TuiProgressBar']
+    Span: typeof import('vue-termui')['TuiText']
     Text: typeof import('vue-termui')['TuiText']
   }
 }

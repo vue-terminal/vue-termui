@@ -1,5 +1,6 @@
 import { h, FunctionalComponent } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
+import { transform } from '../style-shortcuts'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -48,9 +49,24 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
    * Optional title to display.
    */
   title?: string
+
+  /**
+   * Style shortcuts.
+   */
+  class?: string
 }
 
-export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
+export const TuiBox: FunctionalComponent<TuiBoxProps> = (
+  props,
+  { slots, attrs }
+) => {
+  ;(props.class || Object.keys(attrs).length) &&
+    (props = {
+      ...props,
+      ...(props.class && transform(props.class)),
+      ...(Object.keys(attrs).length && transform(Object.keys(attrs).join(' '))),
+    })
+
   return h(
     'tui:box',
     {
@@ -82,6 +98,7 @@ export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
 TuiBox.displayName = 'TuiBox'
 TuiBox.props = [
   'title',
+  'class',
   'position',
   'top',
   'right',

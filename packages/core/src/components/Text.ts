@@ -1,4 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
+import { transform as transformClass } from '../style-shortcuts'
 import {
   PropType,
   h,
@@ -44,9 +45,18 @@ export const TuiText = defineComponent({
     strikethrough: Boolean,
     inverse: Boolean,
     wrap: String as PropType<Styles['textWrap']>,
+    class: String,
   },
 
-  setup(props, { slots }) {
+  setup(props, { slots, attrs }) {
+    ;(props.class || Object.keys(attrs).length) &&
+      (props = {
+        ...props,
+        ...(props.class && transformClass(props.class)),
+        ...(Object.keys(attrs).length &&
+          transformClass(Object.keys(attrs).join(' '))),
+      })
+
     const scheduleUpdate = inject(scheduleUpdateSymbol)!
 
     onMounted(scheduleUpdate)
