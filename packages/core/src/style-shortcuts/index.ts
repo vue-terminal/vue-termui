@@ -1,13 +1,17 @@
-import { extractorAttributify, isInSafelist } from './extractor'
-import { aliases, specialAliases } from './alias'
+import { extractorAttributify } from './extractor'
+import {
+  aliases,
+  isInSafelist,
+  specialAliases,
+  isInSpecialAliases,
+} from './alias'
 
 function getAlias(key: string, value: string | boolean | number) {
-  const isSpecial = specialAliases[`${key}-${value}`]
   if (isInSafelist(key)) {
     return { [key]: value }
   }
-  if (isSpecial) {
-    return isSpecial
+  if (isInSpecialAliases(key)) {
+    return specialAliases[key]
   } else if (aliases[key]) {
     return { [aliases[key]]: value }
   }

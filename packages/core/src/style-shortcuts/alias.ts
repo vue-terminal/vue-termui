@@ -1,3 +1,12 @@
+export const safelist = [
+  'dimmed',
+  'bold',
+  'italic',
+  'underline',
+  'strikethrough',
+  'inverse',
+]
+
 export const specialAliases: Record<string, Record<string, string>> = {
   //  Box Component
   'flex-row': { flexDirection: 'row' },
@@ -69,4 +78,12 @@ export const aliases: Record<string, string> = {
   // Text Component
   bg: 'bgColor',
   text: 'color',
+}
+
+export function isInSafelist(selector = ''): boolean {
+  return safelist.includes(selector)
+}
+
+export function isInSpecialAliases(selector = ''): boolean {
+  return Object.keys(specialAliases).includes(selector)
 }
