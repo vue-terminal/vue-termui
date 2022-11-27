@@ -116,6 +116,7 @@ export default function VueTermui({
                 'wrap-ansi',
                 'yoga-layout',
                 'yoga-layout-prebuilt',
+                /^node:/,
               ],
 
               output: {
