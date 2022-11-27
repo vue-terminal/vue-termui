@@ -251,6 +251,7 @@ export const VueTuiExports: ImportsMap[string] = [
   'onInputData',
   'onKeyData',
   'onMouseData',
+  'onResize',
   'MouseEventType',
   'inputDataToString',
   // TODO: only keep most used functions
@@ -261,4 +262,9 @@ export const VueTuiExports: ImportsMap[string] = [
   // composables
   'useTimeout',
   'useInterval',
+  'useFocus',
+  'useTitle',
+  'useStdout',
+  'useStdoutDimensions',
+  'useFocusManager',
 ]
