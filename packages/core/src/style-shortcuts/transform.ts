@@ -16,7 +16,7 @@ function parseAttribute(attr: string) {
 }
 
 function normalizeValue(value: string | boolean | number) {
-  return !isNaN(value as unknown as number) && typeof value !== 'boolean'
+  return !isNaN(+value) && typeof value !== 'boolean'
     ? +value
     : value
 }
