@@ -1,29 +1,12 @@
-import { extractorAttributify } from './extractor'
-import {
-  aliases,
-  isInSafelist,
-  specialAliases,
-  isInSpecialAliases,
-} from './alias'
+import { transformClassToStyleProps } from './transform'
 
-function getAlias(key: string, value: string | boolean | number) {
-  if (isInSafelist(key)) {
-    return { [key]: value }
+// transforms a class string into an object of props
+export function transformClassIntoProps<T extends Record<string, any>>(
+  props: T
+): T {
+  if (!props.class) return props
+  return {
+    ...props,
+    ...transformClassToStyleProps(props.class),
   }
-  if (isInSpecialAliases(key)) {
-    return specialAliases[key]
-  } else if (aliases[key]) {
-    return { [aliases[key]]: value }
-  }
-}
-
-export function transform(str: string) {
-  const attrs = extractorAttributify(str)
-  const result = Object.entries(attrs).reduce((pre, [key, value]) => {
-    return {
-      ...pre,
-      ...getAlias(key, value),
-    }
-  }, {})
-  return result
 }

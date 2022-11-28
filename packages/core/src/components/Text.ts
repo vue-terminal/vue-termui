@@ -1,5 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
-import { transform as transformClass } from '../style-shortcuts'
+import { transformClassIntoProps } from '../style-shortcuts'
 import {
   PropType,
   h,
@@ -48,14 +48,8 @@ export const TuiText = defineComponent({
     class: String,
   },
 
-  setup(props, { slots, attrs }) {
-    ;(props.class || Object.keys(attrs).length) &&
-      (props = {
-        ...props,
-        ...(props.class && transformClass(props.class)),
-        ...(Object.keys(attrs).length &&
-          transformClass(Object.keys(attrs).join(' '))),
-      })
+  setup(props, { slots }) {
+    props = transformClassIntoProps(props)
 
     const scheduleUpdate = inject(scheduleUpdateSymbol)!
 

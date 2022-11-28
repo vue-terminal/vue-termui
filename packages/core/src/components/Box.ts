@@ -1,6 +1,6 @@
 import { h, FunctionalComponent } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
-import { transform } from '../style-shortcuts'
+import { transformClassIntoProps } from '../style-shortcuts'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -56,16 +56,8 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   class?: string
 }
 
-export const TuiBox: FunctionalComponent<TuiBoxProps> = (
-  props,
-  { slots, attrs }
-) => {
-  ;(props.class || Object.keys(attrs).length) &&
-    (props = {
-      ...props,
-      ...(props.class && transform(props.class)),
-      ...(Object.keys(attrs).length && transform(Object.keys(attrs).join(' '))),
-    })
+export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
+  props = transformClassIntoProps(props)
 
   return h(
     'tui:box',
