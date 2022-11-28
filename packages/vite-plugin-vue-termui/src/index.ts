@@ -262,9 +262,5 @@ export const VueTuiExports: ImportsMap[string] = [
   // composables
   'useTimeout',
   'useInterval',
-  'useFocus',
   'useTitle',
-  'useStdout',
-  'useStdoutDimensions',
-  'useFocusManager',
 ]
