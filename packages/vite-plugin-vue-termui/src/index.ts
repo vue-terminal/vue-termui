@@ -98,8 +98,6 @@ export default function VueTermui({
                 'vue-termui',
                 'events',
                 'assert',
-                'node:events',
-                'node:assert',
                 '@vue/runtime-core',
                 'vue', // withKeys and other helpers are only there
                 'ansi-escapes',
