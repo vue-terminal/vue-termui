@@ -16,9 +16,7 @@ function parseAttribute(attr: string) {
 }
 
 function normalizeValue(value: string | boolean | number) {
-  return !isNaN(+value) && typeof value !== 'boolean'
-    ? +value
-    : value
+  return !isNaN(+value) && typeof value !== 'boolean' ? +value : value
 }
 
 export function transformClassToStyleProps(classStr: string) {
