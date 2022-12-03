@@ -1,4 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
+import { transformClassToStyleProps } from '../style-syntax '
 import {
   PropType,
   h,
@@ -7,6 +8,7 @@ import {
   onMounted,
   onUpdated,
   onUnmounted,
+  computed,
 } from '@vue/runtime-core'
 import type { LiteralUnion } from '../utils'
 import type { Styles } from '../renderer/styles'
@@ -31,6 +33,41 @@ export interface TuiTextProps {
   wrap?: Styles['textWrap']
 }
 
+function transform(props: TuiTextProps, text: string): string {
+  if (props.dimmed) {
+    text = chalk.dim(text)
+  }
+  if (props.color) {
+    text = colorize(text, props.color, 'foreground')
+  }
+
+  if (props.bgColor) {
+    text = colorize(text, props.bgColor, 'background')
+  }
+
+  if (props.bold) {
+    text = chalk.bold(text)
+  }
+
+  if (props.italic) {
+    text = chalk.italic(text)
+  }
+
+  if (props.underline) {
+    text = chalk.underline(text)
+  }
+
+  if (props.strikethrough) {
+    text = chalk.strikethrough(text)
+  }
+
+  if (props.inverse) {
+    text = chalk.inverse(text)
+  }
+
+  return text
+}
+
 export const TuiText = defineComponent({
   name: 'TuiText',
 
@@ -44,9 +81,19 @@ export const TuiText = defineComponent({
     strikethrough: Boolean,
     inverse: Boolean,
     wrap: String as PropType<Styles['textWrap']>,
+    class: String,
   },
 
   setup(props, { slots }) {
+    const propsWithClasses = computed(() =>
+      props.class
+        ? {
+            ...props,
+            ...transformClassToStyleProps(props.class),
+          }
+        : props
+    )
+
     const scheduleUpdate = inject(scheduleUpdateSymbol)!
 
     onMounted(scheduleUpdate)
@@ -55,47 +102,14 @@ export const TuiText = defineComponent({
 
     onUnmounted(scheduleUpdate)
 
-    function transform(text: string): string {
-      if (props.dimmed) {
-        text = chalk.dim(text)
-      }
-      if (props.color) {
-        text = colorize(text, props.color, 'foreground')
-      }
-
-      if (props.bgColor) {
-        text = colorize(text, props.bgColor, 'background')
-      }
-
-      if (props.bold) {
-        text = chalk.bold(text)
-      }
-
-      if (props.italic) {
-        text = chalk.italic(text)
-      }
-
-      if (props.underline) {
-        text = chalk.underline(text)
-      }
-
-      if (props.strikethrough) {
-        text = chalk.strikethrough(text)
-      }
-
-      if (props.inverse) {
-        text = chalk.inverse(text)
-      }
-
-      return text
-    }
-
     return () => {
+      const propsWithClassesValue = propsWithClasses.value
       return h(
         'tui:text',
         {
-          style: { ...defaultStyle, textWrap: props.wrap },
-          internal_transform: transform,
+          style: { ...defaultStyle, textWrap: propsWithClassesValue.wrap },
+          internal_transform: (text: string) =>
+            transform(propsWithClassesValue, text),
         },
         slots.default?.()
       )

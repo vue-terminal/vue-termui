@@ -1,5 +1,6 @@
-import { h, FunctionalComponent } from '@vue/runtime-core'
+import { h, FunctionalComponent, computed } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
+import { transformClassToStyleProps } from '../style-syntax '
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -48,31 +49,70 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
    * Optional title to display.
    */
   title?: string
+
+  /**
+   * Style shortcuts.
+   */
+  class?: string
 }
 
 export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
+  const propsWithClasses = computed(() =>
+    props.class
+      ? {
+          ...props,
+          ...transformClassToStyleProps(props.class),
+        }
+      : props
+  )
+
+  const propsValue = propsWithClasses.value
+
   return h(
     'tui:box',
     {
       style: {
-        ...props,
+        ...propsValue,
+        display: propsValue.display ?? 'flex',
+        flexDirection: propsValue.flexDirection ?? 'row',
+        flexGrow: propsValue.flexGrow ?? 0,
+        flexShrink: propsValue.flexShrink ?? 1,
 
-        display: props.display ?? 'flex',
-        flexDirection: props.flexDirection ?? 'row',
-        flexGrow: props.flexGrow ?? 0,
-        flexShrink: props.flexShrink ?? 1,
+        marginLeft:
+          propsValue.marginLeft ?? propsValue.marginX ?? propsValue.margin ?? 0,
+        marginRight:
+          propsValue.marginRight ??
+          propsValue.marginX ??
+          propsValue.margin ??
+          0,
+        marginTop:
+          propsValue.marginTop ?? propsValue.marginY ?? propsValue.margin ?? 0,
+        marginBottom:
+          propsValue.marginBottom ??
+          propsValue.marginY ??
+          propsValue.margin ??
+          0,
 
-        marginLeft: props.marginLeft ?? props.marginX ?? props.margin ?? 0,
-        marginRight: props.marginRight ?? props.marginX ?? props.margin ?? 0,
-        marginTop: props.marginTop ?? props.marginY ?? props.margin ?? 0,
-        marginBottom: props.marginBottom ?? props.marginY ?? props.margin ?? 0,
-
-        paddingLeft: props.paddingLeft ?? props.paddingX ?? props.padding ?? 0,
+        paddingLeft:
+          propsValue.paddingLeft ??
+          propsValue.paddingX ??
+          propsValue.padding ??
+          0,
         paddingRight:
-          props.paddingRight ?? props.paddingX ?? props.padding ?? 0,
-        paddingTop: props.paddingTop ?? props.paddingY ?? props.padding ?? 0,
+          propsValue.paddingRight ??
+          propsValue.paddingX ??
+          propsValue.padding ??
+          0,
+        paddingTop:
+          propsValue.paddingTop ??
+          propsValue.paddingY ??
+          propsValue.padding ??
+          0,
         paddingBottom:
-          props.paddingBottom ?? props.paddingY ?? props.padding ?? 0,
+          propsValue.paddingBottom ??
+          propsValue.paddingY ??
+          propsValue.padding ??
+          0,
       },
     },
     { default: slots.default }
@@ -82,6 +122,7 @@ export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
 TuiBox.displayName = 'TuiBox'
 TuiBox.props = [
   'title',
+  'class',
   'position',
   'top',
   'right',
