@@ -1,3 +1,14 @@
+## [0.0.18](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.17...vue-termui@0.0.18) (2022-12-03)
+
+### Bug Fixes
+
+- add missing import for input component ([c00fe56](https://github.com/vue-terminal/vue-termui/commit/c00fe566672cbe7ba068391bb449e76a861769d1))
+- define props to make kebab props work normal ([#29](https://github.com/vue-terminal/vue-termui/issues/29)) ([9475b40](https://github.com/vue-terminal/vue-termui/commit/9475b407bddfa83bb53d41f8c8e57c33d6d24ef6))
+
+### Features
+
+- `Input` component ([#15](https://github.com/vue-terminal/vue-termui/issues/15)) ([b720d15](https://github.com/vue-terminal/vue-termui/commit/b720d1587683c59bc0226a980ab2c08b9c24a94d))
+
 ## [0.0.17](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.16...vue-termui@0.0.17) (2022-11-07)
 
 ## [0.0.16](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.15...vue-termui@0.0.16) (2022-11-07)

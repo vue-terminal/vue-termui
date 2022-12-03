@@ -1,3 +1,13 @@
+## [0.0.12](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.11...vite-plugin-vue-termui@0.0.12) (2022-12-03)
+
+### Bug Fixes
+
+- add missing exports for auto import ([#31](https://github.com/vue-terminal/vue-termui/issues/31)) ([a7ed72b](https://github.com/vue-terminal/vue-termui/commit/a7ed72b2a5fb12edd2ce67c881471119031bd235))
+
+### Features
+
+- `Input` component ([#15](https://github.com/vue-terminal/vue-termui/issues/15)) ([b720d15](https://github.com/vue-terminal/vue-termui/commit/b720d1587683c59bc0226a980ab2c08b9c24a94d))
+
 ## [0.0.11](https://github.com/vue-terminal/vue-termui/compare/vite-plugin-vue-termui@0.0.9...vite-plugin-vue-termui@0.0.11) (2022-11-06)
 
 ### Features
