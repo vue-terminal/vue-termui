@@ -71,6 +71,6 @@ export const aliases: Record<string, string> = {
   text: 'color',
 }
 
-export function isInSpecialAliases(selector = ''): boolean {
+export function isInSpecialAliases(selector: string): boolean {
   return selector in specialAliases
 }
