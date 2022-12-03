@@ -15,7 +15,6 @@
       "vue-termui": ["packages/core/src/index.ts"],
       "vite-plugin-vue-termui": ["packages/vite-plugin-vue-termui/src/index.ts"]
     },
-    "noUnusedLocals": true,
     "skipLibCheck": true
   },
   "include": [
