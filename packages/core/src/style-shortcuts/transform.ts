@@ -30,11 +30,7 @@ export function transformClassToStyleProps(classStr: string) {
 
     const [identifier, value] = parseAttribute(token)
 
-    if (aliases[identifier]) {
-      props[aliases[identifier]] = normalizeValue(value)
-    } else {
-      props[identifier] = normalizeValue(value)
-    }
+    props[aliases[identifier] || identifier] = normalizeValue(value)
   }
 
   return props

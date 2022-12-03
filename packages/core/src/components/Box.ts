@@ -1,6 +1,6 @@
-import { h, FunctionalComponent } from '@vue/runtime-core'
+import { h, FunctionalComponent, computed } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
-import { transformClassIntoProps } from '../style-shortcuts'
+import { transformClassToStyleProps } from '../style-shortcuts'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
@@ -57,30 +57,66 @@ export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
 }
 
 export const TuiBox: FunctionalComponent<TuiBoxProps> = (props, { slots }) => {
-  props = transformClassIntoProps(props)
+  const propsWithClasses = computed(() =>
+    props.class
+      ? {
+          ...props,
+          ...transformClassToStyleProps(props.class),
+        }
+      : props
+  )
 
   return h(
     'tui:box',
     {
       style: {
-        ...props,
+        ...propsWithClasses.value,
+        display: propsWithClasses.value.display ?? 'flex',
+        flexDirection: propsWithClasses.value.flexDirection ?? 'row',
+        flexGrow: propsWithClasses.value.flexGrow ?? 0,
+        flexShrink: propsWithClasses.value.flexShrink ?? 1,
 
-        display: props.display ?? 'flex',
-        flexDirection: props.flexDirection ?? 'row',
-        flexGrow: props.flexGrow ?? 0,
-        flexShrink: props.flexShrink ?? 1,
+        marginLeft:
+          propsWithClasses.value.marginLeft ??
+          propsWithClasses.value.marginX ??
+          propsWithClasses.value.margin ??
+          0,
+        marginRight:
+          propsWithClasses.value.marginRight ??
+          propsWithClasses.value.marginX ??
+          propsWithClasses.value.margin ??
+          0,
+        marginTop:
+          propsWithClasses.value.marginTop ??
+          propsWithClasses.value.marginY ??
+          propsWithClasses.value.margin ??
+          0,
+        marginBottom:
+          propsWithClasses.value.marginBottom ??
+          propsWithClasses.value.marginY ??
+          propsWithClasses.value.margin ??
+          0,
 
-        marginLeft: props.marginLeft ?? props.marginX ?? props.margin ?? 0,
-        marginRight: props.marginRight ?? props.marginX ?? props.margin ?? 0,
-        marginTop: props.marginTop ?? props.marginY ?? props.margin ?? 0,
-        marginBottom: props.marginBottom ?? props.marginY ?? props.margin ?? 0,
-
-        paddingLeft: props.paddingLeft ?? props.paddingX ?? props.padding ?? 0,
+        paddingLeft:
+          propsWithClasses.value.paddingLeft ??
+          propsWithClasses.value.paddingX ??
+          propsWithClasses.value.padding ??
+          0,
         paddingRight:
-          props.paddingRight ?? props.paddingX ?? props.padding ?? 0,
-        paddingTop: props.paddingTop ?? props.paddingY ?? props.padding ?? 0,
+          propsWithClasses.value.paddingRight ??
+          propsWithClasses.value.paddingX ??
+          propsWithClasses.value.padding ??
+          0,
+        paddingTop:
+          propsWithClasses.value.paddingTop ??
+          propsWithClasses.value.paddingY ??
+          propsWithClasses.value.padding ??
+          0,
         paddingBottom:
-          props.paddingBottom ?? props.paddingY ?? props.padding ?? 0,
+          propsWithClasses.value.paddingBottom ??
+          propsWithClasses.value.paddingY ??
+          propsWithClasses.value.padding ??
+          0,
       },
     },
     { default: slots.default }

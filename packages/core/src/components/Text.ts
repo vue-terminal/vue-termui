@@ -1,5 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
-import { transformClassIntoProps } from '../style-shortcuts'
+import { transformClassToStyleProps } from '../style-shortcuts'
 import {
   PropType,
   h,
@@ -8,6 +8,7 @@ import {
   onMounted,
   onUpdated,
   onUnmounted,
+  computed,
 } from '@vue/runtime-core'
 import type { LiteralUnion } from '../utils'
 import type { Styles } from '../renderer/styles'
@@ -49,7 +50,14 @@ export const TuiText = defineComponent({
   },
 
   setup(props, { slots }) {
-    props = transformClassIntoProps(props)
+    const propsWithClasses = computed(() =>
+      props.class
+        ? {
+            ...props,
+            ...transformClassToStyleProps(props.class),
+          }
+        : props
+    )
 
     const scheduleUpdate = inject(scheduleUpdateSymbol)!
 
@@ -60,34 +68,34 @@ export const TuiText = defineComponent({
     onUnmounted(scheduleUpdate)
 
     function transform(text: string): string {
-      if (props.dimmed) {
+      if (propsWithClasses.value.dimmed) {
         text = chalk.dim(text)
       }
-      if (props.color) {
-        text = colorize(text, props.color, 'foreground')
+      if (propsWithClasses.value.color) {
+        text = colorize(text, propsWithClasses.value.color, 'foreground')
       }
 
-      if (props.bgColor) {
-        text = colorize(text, props.bgColor, 'background')
+      if (propsWithClasses.value.bgColor) {
+        text = colorize(text, propsWithClasses.value.bgColor, 'background')
       }
 
-      if (props.bold) {
+      if (propsWithClasses.value.bold) {
         text = chalk.bold(text)
       }
 
-      if (props.italic) {
+      if (propsWithClasses.value.italic) {
         text = chalk.italic(text)
       }
 
-      if (props.underline) {
+      if (propsWithClasses.value.underline) {
         text = chalk.underline(text)
       }
 
-      if (props.strikethrough) {
+      if (propsWithClasses.value.strikethrough) {
         text = chalk.strikethrough(text)
       }
 
-      if (props.inverse) {
+      if (propsWithClasses.value.inverse) {
         text = chalk.inverse(text)
       }
 
@@ -98,7 +106,7 @@ export const TuiText = defineComponent({
       return h(
         'tui:text',
         {
-          style: { ...defaultStyle, textWrap: props.wrap },
+          style: { ...defaultStyle, textWrap: propsWithClasses.value.wrap },
           internal_transform: transform,
         },
         slots.default?.()
