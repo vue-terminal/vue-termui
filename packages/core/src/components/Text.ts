@@ -33,6 +33,41 @@ export interface TuiTextProps {
   wrap?: Styles['textWrap']
 }
 
+function transform(props: TuiTextProps, text: string): string {
+  if (props.dimmed) {
+    text = chalk.dim(text)
+  }
+  if (props.color) {
+    text = colorize(text, props.color, 'foreground')
+  }
+
+  if (props.bgColor) {
+    text = colorize(text, props.bgColor, 'background')
+  }
+
+  if (props.bold) {
+    text = chalk.bold(text)
+  }
+
+  if (props.italic) {
+    text = chalk.italic(text)
+  }
+
+  if (props.underline) {
+    text = chalk.underline(text)
+  }
+
+  if (props.strikethrough) {
+    text = chalk.strikethrough(text)
+  }
+
+  if (props.inverse) {
+    text = chalk.inverse(text)
+  }
+
+  return text
+}
+
 export const TuiText = defineComponent({
   name: 'TuiText',
 
@@ -67,47 +102,14 @@ export const TuiText = defineComponent({
 
     onUnmounted(scheduleUpdate)
 
-    function transform(text: string): string {
-      if (propsWithClasses.value.dimmed) {
-        text = chalk.dim(text)
-      }
-      if (propsWithClasses.value.color) {
-        text = colorize(text, propsWithClasses.value.color, 'foreground')
-      }
-
-      if (propsWithClasses.value.bgColor) {
-        text = colorize(text, propsWithClasses.value.bgColor, 'background')
-      }
-
-      if (propsWithClasses.value.bold) {
-        text = chalk.bold(text)
-      }
-
-      if (propsWithClasses.value.italic) {
-        text = chalk.italic(text)
-      }
-
-      if (propsWithClasses.value.underline) {
-        text = chalk.underline(text)
-      }
-
-      if (propsWithClasses.value.strikethrough) {
-        text = chalk.strikethrough(text)
-      }
-
-      if (propsWithClasses.value.inverse) {
-        text = chalk.inverse(text)
-      }
-
-      return text
-    }
-
     return () => {
+      const propsWithClassesValue = propsWithClasses.value
       return h(
         'tui:text',
         {
-          style: { ...defaultStyle, textWrap: propsWithClasses.value.wrap },
-          internal_transform: transform,
+          style: { ...defaultStyle, textWrap: propsWithClassesValue.wrap },
+          internal_transform: (text: string) =>
+            transform(propsWithClassesValue, text),
         },
         slots.default?.()
       )
