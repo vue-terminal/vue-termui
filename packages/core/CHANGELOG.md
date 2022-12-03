@@ -1,3 +1,9 @@
+## [0.0.19](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.18...vue-termui@0.0.19) (2022-12-03)
+
+### Features
+
+- style syntax ([#30](https://github.com/vue-terminal/vue-termui/issues/30)) ([dbd65b5](https://github.com/vue-terminal/vue-termui/commit/dbd65b5b800a2394cb1fb01e28c71e5da56c785f))
+
 ## [0.0.18](https://github.com/vue-terminal/vue-termui/compare/vue-termui@0.0.17...vue-termui@0.0.18) (2022-12-03)
 
 ### Bug Fixes
