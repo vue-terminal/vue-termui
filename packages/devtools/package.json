@@ -1,0 +1,71 @@
+{
+  "name": "@vue-termui/devtools",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "stub": "unbuild --stub",
+    "build": "tsup",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s --commit-path . -l @vue-termui/devtools -r 1"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./*"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "vtui-devtools": "./node_modules/.bin/vue-devtools"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "dist/**/*.cjs",
+    "dist/**/*.d.ts",
+    "vtui.mjs"
+  ],
+  "keywords": [
+    "devtools",
+    "@vue/devtools"
+  ],
+  "funding": "https://github.com/vue-terminal/vue-termui?sponsor=1",
+  "license": "MIT",
+  "author": "webfansplz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vue-terminal/vue-termui.git",
+    "directory": "packages/devtools"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/vue-terminal/vue-termui/issues"
+  },
+  "homepage": "https://github.com/vue-terminal/vue-termui#readme",
+  "dependencies": {
+    "@vue/devtools": "^6.4.5",
+    "express": "^4.18.2",
+    "launch-editor-middleware": "^2.6.0"
+  },
+  "unbuild": {
+    "entries": [
+      "src/index"
+    ],
+    "rollup": {
+      "emitCJS": true
+    },
+    "clean": true
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.14"
+  }
+}

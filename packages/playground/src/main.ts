@@ -1,5 +1,8 @@
-// import devtools from '@vue/devtools'
-// import devtools from '@vue/devtools/node'
+if (process.env.NODE_ENV === 'development') {
+  import('@vue-termui/devtools').then(({ createDevtools }) => {
+    createDevtools().connect()
+  })
+}
 import { createApp } from 'vue-termui'
 // import App from './Focusables.vue'
 // import App from './Fragments.vue'
