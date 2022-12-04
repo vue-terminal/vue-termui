@@ -57,6 +57,12 @@ pnpm create vue-termui my-vue-tui-app
 
 TODO:
 
+## Contributors
+
+<a href="https://github.com/vue-terminal/vue-termui/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=vue-terminal/vue-termui" />
+</a>
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
