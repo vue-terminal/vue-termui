@@ -1,5 +1,5 @@
 import chalk, { ForegroundColor } from 'chalk'
-import { transformClassToStyleProps } from '../style-syntax '
+import { transformClassToStyleProps } from '../style-syntax'
 import {
   PropType,
   h,

@@ -1,6 +1,6 @@
 import { h, FunctionalComponent, computed } from '@vue/runtime-core'
 import { Styles } from '../renderer/styles'
-import { transformClassToStyleProps } from '../style-syntax '
+import { transformClassToStyleProps } from '../style-syntax'
 
 export interface TuiBoxProps extends Omit<Styles, 'textWrap'> {
   /**
