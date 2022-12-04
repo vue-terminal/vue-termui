@@ -53,10 +53,6 @@ pnpm create vue-termui my-vue-tui-app
 - [Become a Sponsor on GitHub](https://github.com/sponsors/posva)
 - [One-time donation via PayPal](https://paypal.me/posva)
 
-## Documentation
-
-TODO:
-
 ## Contributors
 
 <a href="https://github.com/vue-terminal/vue-termui/graphs/contributors">
