@@ -5,7 +5,6 @@ import {
   EventType,
   Handler,
   WildCardEventHandlerList,
-  // WildcardHandler,
 } from 'mitt'
 
 type GenericEventHandler<Events extends Record<EventType, unknown>> =
@@ -26,9 +25,6 @@ type WW<T extends Record<string, unknown>> = <K extends keyof T>(
 // <K extends keyof T>(type: K, event: T[K]) => void;
 
 type E = { a: { isA: boolean }; b: { isB: boolean } }
-type A = WildcardHandler<E>
-type B = WildcardHandler<E>
-type C = WW<E>
 
 function on<E extends Record<string, unknown>>(handler: WW<E>) {}
 on<E>((type, event) => {
@@ -124,21 +120,4 @@ export class EventEmitter<Events extends Record<EventType, unknown>> {
       })
     }
   }
-}
-
-function test() {
-  // const emitter = mitt<{ a: string, b: number }>()
-  const emitter = new EventEmitter<{
-    a: { isA: boolean }
-    b: { isB: boolean }
-  }>()
-
-  emitter.on('a', (event) => {})
-
-  emitter.on('*', (type, event) => {
-    if (type === 'a') {
-      type
-      event
-    }
-  })
 }

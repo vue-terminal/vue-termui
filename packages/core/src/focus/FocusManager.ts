@@ -1,5 +1,4 @@
 import {
-  ComponentInternalInstance,
   inject,
   InjectionKey,
   ShallowRef,
@@ -11,10 +10,9 @@ import {
   previousDeepSibling,
   nextDeepSibling,
 } from '../renderer/nodeOpts'
-import { DOMElement, DOMNode, isDOMElement } from '../renderer/dom'
+import { DOMElement, DOMNode } from '../renderer/dom'
 import { checkCurrentInstance, getElementFromInstance, noop } from '../utils'
 import { Focusable, FocusId } from './types'
-import { indentHTML } from '../utils/indentHTML'
 
 export interface FocusManager {
   activeElement: ShallowRef<Focusable | null | undefined>

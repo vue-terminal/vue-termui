@@ -6,7 +6,7 @@ import {
   KeyDataEventKey,
   KeyDataEventRawHandlerFn,
 } from '../input/types'
-import { checkCurrentInstance, LiteralUnion, noop } from '../utils'
+import { checkCurrentInstance, noop } from '../utils'
 
 export type RemoveListener = () => void
 

@@ -1,4 +1,3 @@
-import { inputDataToString } from './debug'
 import { defineKeypressEvent, defineMouseEvent } from './keyEvents'
 import {
   KeyDataEventKeyCode,
@@ -51,13 +50,6 @@ const INPUT_SEQ_START = '\x1b[' // CSI escape sequences
 const MOUSE_SEQ_START = '\x1b[M' // Mouse click
 const MOUSE_ENCODE_OFFSET = 32 // mouse values are encoded as numeric values + 040 (32 in octal)
 const MOUSE_EXTENDED_SEQ_START = '\x1b[<' // Ends with M/m
-
-const enum InputSequenceParserState {
-  xterm,
-  vt_keycode_and_modifier,
-  vt_keycode_drop,
-  vt_modifier_end_letter,
-}
 
 type CSISeqParsed = Array<string | number>
 

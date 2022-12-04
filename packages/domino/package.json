@@ -13,6 +13,7 @@
     "test:dev": "vitest"
   },
   "dependencies": {
+    "mitt": "^3.0.0",
     "vue-termui": "workspace:*"
   },
   "devDependencies": {

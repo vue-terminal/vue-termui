@@ -19,7 +19,6 @@ import {
   useRootNode,
 } from '../injectionSymbols'
 import { stdoutSymbol } from '../composables/writeStreams'
-import { onResize } from '../composables/screen'
 // TODO: useSettings()
 
 export const TuiApp = defineComponent({

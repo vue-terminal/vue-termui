@@ -1,11 +1,10 @@
 import { createFocusManager } from './FocusManager'
-import { DOMElement, DOMNode, TextNode, CommentNode } from '../renderer/dom'
+import { DOMElement, DOMNode, TextNode } from '../renderer/dom'
 import {
   ComponentInternalInstance,
   VNode,
   ref,
   ComputedRef,
-  h,
 } from '@vue/runtime-core'
 import { Focusable } from './types'
 

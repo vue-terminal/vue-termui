@@ -158,20 +158,6 @@ export type KeyDataEventKeyCode =
  */
 export type KeyDataEventKey = LiteralUnion<KeyDataEventKeyCode, string>
 
-function defineKeypressEvent(
-  key: KeyDataEventKeyCode,
-  modifiers?: Partial<_InputDataEventModifiers>
-): KeyDataEvent {
-  return {
-    key,
-    altKey: false,
-    shiftKey: false,
-    ctrlKey: false,
-    metaKey: false,
-    ...modifiers,
-  }
-}
-
 export const enum MouseEventButton {
   /**
    * Also known as `main`.

@@ -1,5 +1,3 @@
-import cliTruncate from 'cli-truncate'
-import sliceAnsi from 'slice-ansi'
 import {
   createApp,
   defineComponent,

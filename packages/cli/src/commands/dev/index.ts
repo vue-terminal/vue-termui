@@ -4,8 +4,6 @@ import { createServer } from 'vite'
 import { resolve } from 'path'
 import { startHMRServer } from './websocket'
 
-const WSS_FALLBACK_PORT = Number(process.env.PORT) || 3000
-
 export async function runDevServer(entryFile: string = 'src/main.ts') {
   const server = await createServer({
     logLevel: 'error',
@@ -49,14 +47,8 @@ export async function runDevServer(entryFile: string = 'src/main.ts') {
   }
 
   const hotModulesMap = new Map<string, HotModule>()
-  const disposeMap = new Map<string, (data: any) => void | Promise<void>>()
   const pruneMap = new Map<string, (data: any) => void | Promise<void>>()
   const dataMap = new Map<string, any>()
-  const customListenersMap = new Map<string, ((data: any) => void)[]>()
-  const ctxToListenersMap = new Map<
-    string,
-    Map<string, ((data: any) => void)[]>
-  >()
 
   function createHotContext(ownerPath: string) {
     const fullPath = resolve('.' + ownerPath)
