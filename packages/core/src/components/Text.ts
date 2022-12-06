@@ -1,4 +1,4 @@
-import chalk, { ForegroundColor } from 'chalk'
+import chalk, { ForegroundColorName } from 'chalk'
 import { transformClassToStyleProps } from '../style-syntax'
 import {
   PropType,
@@ -22,8 +22,8 @@ export const defaultStyle: Styles = {
 }
 
 export interface TuiTextProps {
-  color?: LiteralUnion<ForegroundColor, string>
-  bgColor?: LiteralUnion<ForegroundColor, string>
+  color?: LiteralUnion<ForegroundColorName, string>
+  bgColor?: LiteralUnion<ForegroundColorName, string>
   dimmed?: boolean
   bold?: boolean
   italic?: boolean
@@ -72,8 +72,8 @@ export const TuiText = defineComponent({
   name: 'TuiText',
 
   props: {
-    color: String as PropType<LiteralUnion<ForegroundColor, string>>,
-    bgColor: String as PropType<LiteralUnion<ForegroundColor, string>>,
+    color: String as PropType<LiteralUnion<ForegroundColorName, string>>,
+    bgColor: String as PropType<LiteralUnion<ForegroundColorName, string>>,
     dimmed: Boolean,
     bold: Boolean,
     italic: Boolean,
