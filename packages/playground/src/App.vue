@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Boxes } from 'cli-boxes'
-import type { ForegroundColor } from 'chalk'
+import type { ForegroundColorName } from 'chalk'
 import { TuiBox as Box, ref, onMounted } from 'vue-termui'
 import Counter from './Counter.vue'
 
@@ -15,7 +15,7 @@ const styles: Array<keyof Boxes> = [
   'singleDouble',
 ]
 
-const colors: Array<ForegroundColor> = [
+const colors: Array<ForegroundColorName> = [
   'black',
   'red',
   'green',

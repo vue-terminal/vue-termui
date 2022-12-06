@@ -2,7 +2,7 @@
 import Yoga, { YogaNode } from 'yoga-layout-prebuilt'
 import type { Boxes } from 'cli-boxes'
 import type { LiteralUnion } from 'type-fest'
-import type { ForegroundColor } from 'chalk'
+import type { ForegroundColorName } from 'chalk'
 
 export type TextWrap =
   | 'wrap'
@@ -175,7 +175,7 @@ export interface Styles {
    * Change border color.
    * Accepts the same values as `color` in <Text> component.
    */
-  readonly borderColor?: LiteralUnion<ForegroundColor, string>
+  readonly borderColor?: LiteralUnion<ForegroundColorName, string>
 }
 
 // Passing NaN reset values that cannot be set to "auto"
