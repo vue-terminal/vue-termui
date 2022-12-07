@@ -77,8 +77,9 @@ function restartBlinking() {
   showCursorBlock.value = true
 }
 
-onInputData(({ event }) => {
+onInputData((evt) => {
   if (active.value && !disabled.value) {
+    const event = evt.event
     if (isKeyDataEvent(event)) {
       switch (event.key) {
         // cursor moving
@@ -145,7 +146,7 @@ onInputData(({ event }) => {
           ) {
             text.value =
               text.value.slice(0, cursorPosition.value) +
-              event.key +
+              evt.data +
               text.value.slice(cursorPosition.value)
             cursorPosition.value++
           }
