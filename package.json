@@ -9,15 +9,15 @@
   },
   "scripts": {
     "release": "node scripts/release.mjs",
-    "stub": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' stub",
-    "build": "pnpm run -r --filter './packages/{core,vite-plugin-vue-termui,cli}' build",
-    "play:dev": "pnpm run --filter  './packages/playground' dev",
+    "stub": "pnpm run -r --filter=./packages/{core,vite-plugin-vue-termui,cli} stub",
+    "build": "pnpm run -r --filter=./packages/{core,vite-plugin-vue-termui,cli} build",
+    "play:dev": "pnpm run --filter=./packages/playground dev",
     "lint": "prettier --check packages README.md",
     "lint:fix": "prettier --write packages README.md",
     "types": "pnpm run -r types",
     "test": "pnpm run --parallel -r test --coverage",
-    "docs": "pnpm run -r dev --filter ./packages/docs",
-    "docs:build": "pnpm -r --filter ./packages/docs run build"
+    "docs": "pnpm run -r dev --filter=./packages/docs",
+    "docs:build": "pnpm -r --filter=./packages/docs run build"
   },
   "engines": {
     "node": ">=16.0.0"
