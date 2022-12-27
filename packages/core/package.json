@@ -49,7 +49,7 @@
     "slice-ansi": "^5.0.0",
     "string-width": "^5.1.0",
     "terminal-link": "^3.0.0",
-    "type-fest": "^3.3.0",
+    "type-fest": "^3.5.0",
     "widest-line": "^4.0.1",
     "wrap-ansi": "^8.0.1",
     "ws": "^8.11.0",
