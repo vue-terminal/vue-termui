@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref } from 'vue-termui'
+import { Box, computed, onUnmounted, reactive, ref, Text } from 'vue-termui'
 
 // Terminal size (reactive, updates on resize).
 const cols = ref(process.stdout.columns ?? 80)
@@ -62,7 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <box
+  <Box
     position="absolute"
     :left="left"
     :top="top"
@@ -73,8 +73,8 @@ onUnmounted(() => {
     flexDirection="column"
     :gap="1"
   >
-    <text fg="#42b883">vue-termui 4 👋</text>
-    <text fg="#888888">Uptime: {{ seconds }}s</text>
-    <text fg="#888888">Ctrl+C to exit</text>
-  </box>
+    <Text fg="#42b883" bold>vue-termui 👋</Text>
+    <Text fg="#888888">Uptime: {{ seconds }}s</Text>
+    <Text fg="#888888">Ctrl+C to exit</Text>
+  </Box>
 </template>

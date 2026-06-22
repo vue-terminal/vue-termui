@@ -8,5 +8,20 @@ export * from '@vue/runtime-core'
 
 export { useHello } from './useHello'
 
+export { Box, Newline, Text } from './components/index'
+export type {
+  Align,
+  BorderStyle,
+  BoxProps,
+  ColorInput,
+  Dimension,
+  FlexDirection,
+  Justify,
+  NewlineProps,
+  Overflow,
+  Position,
+  TextProps,
+} from './components/index'
+
 export { createApp, createNodeOps, rendererInjectionKey, useRenderer } from './renderer/index'
 export type { TuiElementTag } from './renderer/index'
