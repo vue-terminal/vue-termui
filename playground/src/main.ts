@@ -1,13 +1,17 @@
+// Imported first: mirrors console output + uncaught errors into
+// playground/logs/*.log before any other module runs (see ./logging).
+import './logging'
 import { createApp } from 'vue-termui'
 import App from './App.vue'
 import { router } from './router'
 
-// Memory history begins at "/" — the home page (src/pages/index.vue).
 const app = await createApp(App, null, { exitOnCtrlC: true })
 app.use(router)
 
-// Wait for the initial navigation to resolve so the first frame already has
-// the matched component.
+// Memory history performs NO initial navigation on its own, so `isReady()` would
+// never resolve (and `mount()` never run → blank screen) without an explicit
+// first navigation. Start on the home page (src/pages/index.vue).
+await router.replace('/')
 await router.isReady()
 
 app.mount()
