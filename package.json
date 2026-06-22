@@ -59,6 +59,9 @@
     "prepublishOnly": "pnpm run build",
     "size": "size-limit"
   },
+  "dependencies": {
+    "@opentui/core": "^0.4.1"
+  },
   "devDependencies": {
     "@posva/prompts": "^2.4.4",
     "@size-limit/esbuild-why": "^12.0.1",

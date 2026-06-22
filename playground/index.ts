@@ -1,4 +1,4 @@
-import { createCliRenderer, Box, Text } from '@opentui/core'
+import { createCliRenderer, Box, Text } from 'vue-termui'
 
 const renderer = await createCliRenderer({
   exitOnCtrlC: true,
