@@ -50,9 +50,19 @@ Always keep this file up to date when project commands, structure, or tooling ch
   mutations; `index.ts` exposes `createApp` (async — it awaits `createCliRenderer`,
   then mounts the Vue root into `renderer.root`).
 - Host element tags are lowercase and internal: `box` → `BoxRenderable`,
-  `text` → `TextRenderable`. A lone string child of `<text>` goes through the
+  `text` → `TextRenderable`, `input` → `InputRenderable`, `select` →
+  `SelectRenderable`. A lone string child of `<text>` goes through the
   `setElementText` fast path (`.content =`); array/interpolated text uses
   `TextNodeRenderable`. Comments are invisible `BoxRenderable` anchors.
+- **Text nodes only belong inside `<text>`.** OpenTUI's `Box.add` requires a
+  layout node (`getLayoutNode`), which `TextNodeRenderable` lacks. But Vue creates
+  Fragment boundary anchors as empty text nodes and inserts them into the
+  container — so `v-for`, multi-root components and `<RouterView>` put text nodes
+  inside a `<box>`. `nodeOps` therefore substitutes an invisible, out-of-flow
+  `BoxRenderable` anchor for any text node placed in a non-`<text>` parent, and
+  maps between the text node and its stand-in (per-app `WeakMap`s) for
+  `insert`/`remove`/`parentNode`/`nextSibling`. Without this, any `v-for` throws
+  `getLayoutNode is not a function`.
 - `@opentui/core` is a private dependency — never re-exported.
 - `vue-termui` **re-exports `@vue/runtime-core`** so apps get `h`,
   `defineComponent`, `ref`, etc. from the _same_ runtime-core instance the
