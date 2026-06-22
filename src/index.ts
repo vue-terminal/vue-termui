@@ -12,12 +12,21 @@ export {
   onKeyDown,
   onKeyUp,
   onResize,
+  useFocus,
+  useFocusManager,
   useInterval,
   useTerminalSize,
   useTimeout,
   useTitle,
 } from './composables/index'
-export type { KeyEvent, RemoveListener, TerminalSize } from './composables/index'
+export type {
+  KeyEvent,
+  RemoveListener,
+  TerminalSize,
+  UseFocusManagerReturn,
+  UseFocusOptions,
+  UseFocusReturn,
+} from './composables/index'
 
 export { Box, Newline, Text } from './components/index'
 export type {
