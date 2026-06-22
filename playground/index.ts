@@ -1,6 +1,19 @@
-import { useHello, version } from 'vue-termui'
+import { createCliRenderer, Box, Text } from '@opentui/core'
 
-const greeting = useHello('vue-termui')
+const renderer = await createCliRenderer({
+  exitOnCtrlC: true,
+})
 
-console.log(greeting.value)
-console.log(`vue-termui v${version}`)
+renderer.root.add(
+  Box(
+    {
+      borderStyle: 'rounded',
+      padding: 1,
+      flexDirection: 'column',
+      gap: 1,
+    },
+    Text({ content: 'Hello, vue-termui 👋', fg: '#42b883' }),
+    Text({ content: 'Rendered with @opentui/core', fg: '#35495e' }),
+    Text({ content: 'Press Ctrl+C to exit', fg: '#888888' }),
+  ),
+)

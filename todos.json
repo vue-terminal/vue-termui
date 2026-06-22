@@ -28,12 +28,17 @@
     },
     {
       "id": 6,
-      "title": "Integrate OpenTUI as the renderer",
-      "status": "todo"
+      "title": "Render hello world via @opentui/core in playground (Node 26.3 + --experimental-ffi)",
+      "status": "done"
     },
     {
       "id": 7,
-      "title": "Progressively port features from old/ (no CLI planned)",
+      "title": "Build the Vue custom renderer on top of @opentui/core (map nodeOps -> Renderables, reuse old createApp/nodeOps pattern)",
+      "status": "todo"
+    },
+    {
+      "id": 8,
+      "title": "Progressively port components/composables from old/ (no CLI planned)",
       "status": "todo"
     }
   ]

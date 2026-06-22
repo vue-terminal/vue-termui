@@ -15,8 +15,15 @@ pnpm exec vitest run src/useHello.spec.ts  # single test file
 pnpm lint                                  # oxlint
 pnpm lint:fix                              # oxlint with auto-fix
 pnpm test:types                            # tsc type checking
-pnpm --filter playground dev               # run the playground
+pnpm --filter playground dev               # run the playground (OpenTUI)
 ```
+
+## Runtime
+
+OpenTUI's native renderer is loaded over FFI. Creating a renderer
+(`createCliRenderer`) requires **Node.js >= 26.3.0** with `--experimental-ffi`.
+Plain imports of `@opentui/core` do not need FFI. The playground `dev` script
+already passes `--experimental-ffi`.
 
 ## Important
 
