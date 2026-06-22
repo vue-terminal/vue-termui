@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "start": "node --experimental-ffi dist/main.mjs",
+    "start": "node --experimental-ffi dist/main.js",
     "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
