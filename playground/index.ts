@@ -1,4 +1,7 @@
-import { createCliRenderer, Box, Text } from 'vue-termui'
+// NOTE: temporary. The playground talks to @opentui/core directly until
+// vue-termui exposes its own Vue-renderer API (see todos.json). OpenTUI is an
+// implementation detail of vue-termui and is intentionally not re-exported.
+import { createCliRenderer, Box, Text } from '@opentui/core'
 
 const renderer = await createCliRenderer({
   exitOnCtrlC: true,

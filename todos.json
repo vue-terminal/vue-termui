@@ -1,45 +1,297 @@
 {
-  "goal": "Rewrite vue-termui from scratch on top of OpenTUI (https://opentui.com/), replacing the old custom renderer + yoga. Progressively strip code out of old/.",
-  "tasks": [
+  "project": "vue-termui",
+  "summary": "Ground-up rewrite of vue-termui: build terminal apps with Vue 3, rendered by @opentui/core (Zig native renderer over Node FFI). The previous implementation (custom renderer + yoga + hand-rolled ANSI) lives in old/ and is mined/dropped progressively.",
+  "goal": "Re-create a Vue 3 custom renderer on top of @opentui/core, then migrate the old component/composable API (or drop pieces OpenTUI now handles). Keep @opentui/core a hidden implementation detail of vue-termui (never re-export it from the public API).",
+
+  "architecture": {
+    "decision": "vue-termui = a Vue custom renderer (Vue's createRenderer + custom nodeOps) whose host elements map to OpenTUI Renderables, mounted into the OpenTUI renderer's `root`. This mirrors the OLD design but swaps the DOMElement+yoga+manual-ANSI backend for OpenTUI's Renderable tree (OpenTUI does layout, ANSI, input, focus, mouse, resize, screen modes natively).",
+    "publicApiBoundary": "Apps depend ONLY on vue-termui. @opentui/core is a normal dependency of the vue-termui package (root package.json) and must NOT be re-exported. Wrap what users need behind vue-termui's own API.",
+    "vueRuntime": "@vue/runtime-core (NOT @vue/runtime-dom). The old core re-exported * from @vue/runtime-core; decide whether to keep that convenience or curate exports."
+  },
+
+  "runtime": {
+    "node": ">=26.3.0 with --experimental-ffi (creating an OpenTUI renderer loads native code via FFI; plain imports of @opentui/core do not need FFI)",
+    "packageManager": "pnpm 11 (corepack). Settings live in pnpm-workspace.yaml (allowBuilds, etc.), NOT package.json#pnpm.",
+    "knownGotcha": "On dev machines using volta, the corepack tool can be pinned to an old node (e.g. 24), so pnpm-run scripts get the wrong node. Fix is on the machine (re-pin corepack to node 26), not the repo. The repo pins via engines + volta.node + CI node-version-file: package.json.",
+    "buildGotchas": "tsdown uses isolatedDeclarations (explicit types on all exports). @opentui/core and vue stay EXTERNAL (deps/peerDeps are auto-externalized; vue is in tsdown neverBundle). Run scripts non-interactively in CI/agents with CI=true (pnpm purges modules / confirms without a TTY otherwise)."
+  },
+
+  "conventions": [
+    "Conventional Commits (feat|fix|refactor|build|ci|chore|docs|style|perf|test). Commit in small steps.",
+    "TDD when it fits: write failing tests BEFORE implementation. Tests co-located as *.spec.ts; type tests as *.test-d.ts.",
+    "Testing: prefer OpenTUI's test renderer from `@opentui/core/testing` (see opentui skill /docs/core-concepts/testing) + vitest. The old mocks/stdmock.ts is obsolete.",
+    "oxc toolchain: `pnpm lint` (oxlint), `pnpm fmt` (oxfmt). `pnpm test` = build + coverage + typecheck. `pnpm build` = tsdown. `pnpm play` / `nr play` runs the playground.",
+    "Keep AGENTS.md updated when commands/structure/tooling change.",
+    "Use `node` to run TS directly (node 26 strips types); never tsx. ESM only.",
+    "Reuse code from old/ by reading it for intent, not copy-paste — most backend code is replaced by OpenTUI."
+  ],
+
+  "openTui": {
+    "skill": "Use the `opentui` skill. Entry docs: /docs/getting-started, /docs/core-concepts/renderer, /docs/core-concepts/layout, /docs/core-concepts/keyboard, /docs/core-concepts/testing, /docs/components/text, /docs/components/input.",
+    "providesNatively_dropOldEquivalents": [
+      "Rendering + ANSI + render loop (createCliRenderer) -> drop old renderer/Output, LogUpdate, render, renderNodeToOutput, renderBorders, text, textColor",
+      "Flexbox layout (yoga internal) -> drop old renderer/styles + yoga-layout-prebuilt; map style props to OpenTUI props",
+      "Keyboard (incl. kitty protocol) + mouse parsing -> drop old input/inputSequences, keyEvents, handling, debug",
+      "Focus management (autoFocus, currentFocusedRenderable, focused_renderable event) -> drop old focus/FocusManager + Focusable internals; keep a thin composable",
+      "Exit/signals (exitOnCtrlC, exitSignals) -> drop old deps/signal-exit",
+      "Screen modes, resize event, terminal title, cursor, clipboard, theme detection, console/debug overlays"
+    ],
+    "keyExports": {
+      "renderer": "createCliRenderer(config) -> renderer with `root` (RootRenderable), events (resize, frame, focused_renderable, ...), keyInput (KeyHandler), width/height, idle(), destroy()",
+      "renderableClasses": "BoxRenderable, TextRenderable, TextNodeRenderable, RootTextNodeRenderable, InputRenderable, SelectRenderable, ScrollBoxRenderable, etc. Plus isRenderable, maybeMakeRenderable, isTextNodeRenderable.",
+      "factories": "Box(props, ...children), Text(props), Input(props), Select(props) — convenience wrappers over the classes.",
+      "color": "RGBA, parseColor"
+    },
+    "investigateFirst": "Exact Renderable constructor signature (they take a renderContext from the renderer) and how to add/remove/reorder children + set props imperatively — this is what the Vue nodeOps must call. Check @opentui/core types and the testing docs."
+  },
+
+  "oldReferences": {
+    "note": "All paths under old/packages/. Read for API shape and intent.",
+    "corePublicApi": "old/packages/core/src/index.ts (full list of exported components, composables, types)",
+    "vueCustomRendererPattern": "old/packages/core/src/renderer/index.ts (createRenderer wiring) + renderer/nodeOpts.ts (insert/remove/createElement/createText/patchProp/setText/parentNode/nextSibling)",
+    "appLifecycle": "old/packages/core/src/app/createApp.ts + app/types.ts (mount({renderOnce, exitOnCtrlC}), waitUntilExit, unmount, exitApp)",
+    "components": "old/packages/core/src/components/* (TuiBox, TuiText, TuiNewline, TuiLink, TuiTextTransform, TuiInput (Input.vue), TuiProgressBar, TuiApp). Box/Text show the props surface.",
+    "styleSyntax": "old/packages/core/src/style-syntax/* (class string -> style props, with aliases) — nice DX, optional port",
+    "composables": "old/packages/core/src/composables/* (keyboard onKeyData, mouse onMouseData, input onInputData, screen onResize/useStdoutDimensions/useTitle, utils useInterval/useTimeout, writeStreams useStdout)",
+    "inputTypes": "old/packages/core/src/input/types.ts (KeyDataEvent/MouseDataEvent shapes & type guards) — keep the public event types worth preserving",
+    "focus": "old/packages/core/src/focus/* (useFocus, useFocusManager API surface)",
+    "vitePlugin": "old/packages/vite-plugin-vue-termui/src/index.ts (SFC via @vitejs/plugin-vue, auto-import of vue-termui, component auto-resolver, externals)"
+  },
+
+  "completed": [
+    "Branch rewrite-opentui created; old project moved into old/.",
+    "Core scaffolded from template-lib-ts (tsdown + oxc + vitest + isolatedDeclarations), renamed to vue-termui.",
+    "playground/ workspace package added; OpenTUI hello world renders over Node FFI (Box+Text, Ctrl+C to exit).",
+    "Migrated tooling to pnpm 11 via official codemod; engines.node >=26.3.0 set; CI reads node-version-file: package.json.",
+    "@opentui/core moved to vue-termui's dependencies; opentui re-exports REMOVED from public API (kept as implementation detail). Playground temporarily imports @opentui/core directly until the renderer API exists."
+  ],
+
+  "phases": [
     {
       "id": 1,
-      "title": "Create rewrite branch from main",
-      "status": "done"
+      "title": "Vue custom renderer foundation (box + text only)",
+      "status": "todo",
+      "goal": "Stand up a Vue createRenderer with custom nodeOps that map host elements to OpenTUI Renderables, mounted into an OpenTUI renderer's root. Support just two host elements to start.",
+      "steps": [
+        "Investigate OpenTUI Renderable construction (renderContext, add/remove/insertBefore child ops, prop setters, text nodes via TextNodeRenderable).",
+        "Create src/renderer/nodeOps.ts: createElement(tag) -> new BoxRenderable/TextRenderable; createText/createComment -> text node; insert(child, parent, anchor); remove; patchProp(el, key, prev, next) -> set renderable prop; parentNode; nextSibling; setElementText/setText.",
+        "Create src/renderer/index.ts: const { createApp: baseCreateApp, render } = createRenderer(nodeOps) from @vue/runtime-core.",
+        "Decide host element tag names (e.g. 'box', 'text') and how text content maps to TextNodeRenderable.",
+        "Write a minimal createApp wiring (full lifecycle is phase 3) that creates the OpenTUI renderer and mounts the Vue root into renderer.root."
+      ],
+      "oldRefs": [
+        "renderer/index.ts",
+        "renderer/nodeOpts.ts",
+        "renderer/dom.ts (for the tree-ops mental model only)"
+      ],
+      "openTuiApis": [
+        "createCliRenderer",
+        "renderer.root",
+        "BoxRenderable",
+        "TextRenderable",
+        "TextNodeRenderable",
+        "RootRenderable"
+      ],
+      "newFiles": ["src/renderer/nodeOps.ts", "src/renderer/index.ts"],
+      "acceptance": [
+        "A Vue render-function component using the host tags renders a box with text in the playground.",
+        "Reactive update (changing a ref) re-renders correctly.",
+        "Unit test with @opentui/core/testing asserts the rendered frame/tree (test written first)."
+      ],
+      "notes": "Drop DOMElement + yoga entirely; OpenTUI owns layout. The nodeOps just translate Vue tree mutations into Renderable tree mutations."
     },
     {
       "id": 2,
-      "title": "Move existing project into old/",
-      "status": "done"
+      "title": "Core components: Box, Text, Newline",
+      "status": "todo",
+      "goal": "Ship Vue components that render the host elements with a clean prop surface mapped to OpenTUI props.",
+      "steps": [
+        "Implement Box (flex container: layout, padding/margin, border, gap, bg) and Text (fg/bg + bold/italic/underline/dim/strikethrough/inverse) and Newline.",
+        "Map old props (which used chalk + yoga style names) to OpenTUI prop names/colors (RGBA/parseColor). Drop chalk.",
+        "Decide export naming: keep Tui-prefixed (TuiBox) or rename to Box/Text now that there's no DOM clash. Pick one and document in AGENTS.md.",
+        "Optionally port style-syntax (class string -> props) as a later sub-step."
+      ],
+      "oldRefs": [
+        "components/Box.ts",
+        "components/Text.ts",
+        "components/Newline.ts",
+        "components/index.ts",
+        "style-syntax/*"
+      ],
+      "openTuiApis": ["Box props", "Text props", "RGBA", "parseColor"],
+      "acceptance": [
+        "Components render with reactive props; spec tests first; playground demo updated to use the components via createApp."
+      ],
+      "notes": "TextTransform/Link/ProgressBar/Input come later (phase 7)."
     },
     {
       "id": 3,
-      "title": "Lay down template-lib-ts as the core package at the root",
-      "status": "done"
+      "title": "App lifecycle & exit",
+      "status": "todo",
+      "goal": "Full createApp API backed by the OpenTUI renderer.",
+      "steps": [
+        "createApp(rootComponent, options): create renderer, provide injection symbols, mount({ renderOnce, exitOnCtrlC }).",
+        "Implement waitUntilExit(), unmount() (destroy renderer, restore terminal), and exitApp().",
+        "Use OpenTUI's exitOnCtrlC/exitSignals + renderer.destroy(); drop old deps/signal-exit and manual raw-mode/screen-buffer code.",
+        "Port the injection symbols the components need (logSymbol, rootNodeSymbol, scheduleUpdate, etc.) — keep only what's still relevant."
+      ],
+      "oldRefs": ["app/createApp.ts", "app/types.ts", "injectionSymbols.ts", "errors/TuiError.ts"],
+      "openTuiApis": [
+        "createCliRenderer({exitOnCtrlC, exitSignals})",
+        "renderer.destroy()",
+        "renderer.on('destroy')",
+        "renderer screen modes"
+      ],
+      "acceptance": [
+        "App mounts, Ctrl+C exits cleanly restoring the terminal, waitUntilExit resolves; tested."
+      ],
+      "notes": "renderOnce mode maps to rendering a frame then destroying (see renderer.idle())."
     },
     {
       "id": 4,
-      "title": "Add playground workspace package with hello world",
-      "status": "done"
+      "title": "Input composables (keyboard / mouse)",
+      "status": "todo",
+      "goal": "onKeyData / onMouseData / onInputData composables backed by OpenTUI input.",
+      "steps": [
+        "Wire onKeyData/onMouseData onto renderer.keyInput (KeyHandler) and renderer input events; expose RemoveListener cleanup tied to component scope.",
+        "Drop hand-rolled parsing (input/inputSequences, keyEvents, handling, debug). Keep/port only the public event TYPES worth preserving (input/types.ts).",
+        "Reconcile the event shape with OpenTUI's parsed key events (modifiers, key codes)."
+      ],
+      "oldRefs": [
+        "composables/keyboard.ts",
+        "composables/mouse.ts",
+        "composables/input.ts",
+        "input/types.ts",
+        "input/debug.ts"
+      ],
+      "openTuiApis": [
+        "renderer.keyInput / KeyHandler",
+        "addInputHandler / prependInputHandler",
+        "useKittyKeyboard config"
+      ],
+      "acceptance": [
+        "A playground key handler reacts to keypresses; mouse optional; tested with simulated input via the test renderer."
+      ],
+      "notes": "See opentui skill /docs/core-concepts/keyboard."
     },
     {
       "id": 5,
-      "title": "Install, build core, run playground, run tests",
-      "status": "done"
+      "title": "Screen & timing composables",
+      "status": "todo",
+      "goal": "onResize, useStdoutDimensions, useTitle, useInterval, useTimeout.",
+      "steps": [
+        "onResize -> renderer.on('resize'); useStdoutDimensions -> renderer.width/height (reactive, updated on resize); useTitle -> renderer.setTerminalTitle.",
+        "Port useInterval/useTimeout (framework-agnostic; consider tying animations to renderer.requestLive/dropLive).",
+        "Decide fate of useStdout/writeStreams: OpenTUI owns stdout. Either drop, or adapt to writeToScrollback (split-footer)."
+      ],
+      "oldRefs": ["composables/screen.ts", "composables/utils.ts", "composables/writeStreams.ts"],
+      "openTuiApis": [
+        "renderer.on('resize')",
+        "renderer.width/height",
+        "renderer.setTerminalTitle",
+        "requestLive/dropLive",
+        "writeToScrollback"
+      ],
+      "acceptance": [
+        "Resize updates dimensions reactively; title sets; interval/timeout cleaned up on unmount; tested."
+      ]
     },
     {
       "id": 6,
-      "title": "Render hello world via @opentui/core in playground (Node 26.3 + --experimental-ffi)",
-      "status": "done"
+      "title": "Focus",
+      "status": "todo",
+      "goal": "useFocus / useFocusManager over OpenTUI focus.",
+      "steps": [
+        "Expose composables that read/drive OpenTUI focus (currentFocusedRenderable, focused_renderable event, autoFocus, Tab/Shift-Tab navigation).",
+        "Drop the hand-rolled FocusManager/Focusable internals; keep a compatible public API where sensible."
+      ],
+      "oldRefs": [
+        "focus/Focusable.ts",
+        "focus/FocusManager.ts",
+        "focus/types.ts",
+        "focus/FocusManager.spec.ts"
+      ],
+      "openTuiApis": [
+        "renderer.currentFocusedRenderable",
+        "renderer.on('focused_renderable')",
+        "autoFocus",
+        "focusable renderables"
+      ],
+      "acceptance": [
+        "Tab cycles focus across focusable components; useFocus reports focused state; tested."
+      ]
     },
     {
       "id": 7,
-      "title": "Build the Vue custom renderer on top of @opentui/core (map nodeOps -> Renderables, reuse old createApp/nodeOps pattern)",
-      "status": "todo"
+      "title": "Interactive & rich components",
+      "status": "todo",
+      "goal": "Input, Select, ProgressBar, Link, TextTransform.",
+      "steps": [
+        "Map Input/Select onto InputRenderable/SelectRenderable. Port ProgressBar, Link (OSC 8 hyperlinks), TextTransform.",
+        "v-model integration for Input/Select."
+      ],
+      "oldRefs": [
+        "components/Input.vue",
+        "components/ProgressBar.ts",
+        "components/Link.ts",
+        "components/TextTransform.ts"
+      ],
+      "openTuiApis": ["Input/InputRenderable", "Select/SelectRenderable", "ScrollBoxRenderable"],
+      "acceptance": ["Text input editing + select navigation work with v-model; tested."]
     },
     {
       "id": 8,
-      "title": "Progressively port components/composables from old/ (no CLI planned)",
-      "status": "todo"
+      "title": "SFC + DX tooling (RECONSIDER / DEFER)",
+      "status": "todo",
+      "goal": "Decide how .vue SFCs and auto-import are supported, if at all.",
+      "steps": [
+        "Node can't run .vue directly. Options: (a) author components as .ts with h()/defineComponent (no build) — simplest, default for now; (b) a vite/tsdown plugin using @vue/compiler-sfc for SFCs; (c) an OpenTUI runtime-plugin.",
+        "If keeping a vite plugin, modernize old vite-plugin-vue-termui (SFC + auto-import of vue-termui exports + component resolver). Drop node14 target/externals cruft.",
+        "Decide whether auto-import/component-resolver DX is worth maintaining."
+      ],
+      "oldRefs": [
+        "vite-plugin-vue-termui/src/index.ts",
+        "playground SFC usage in old/packages/playground"
+      ],
+      "acceptance": [
+        "A documented, working way to author components (render fns at minimum); SFC support only if chosen."
+      ],
+      "notes": "Keep simple: ship render-function components first; SFC tooling is optional and later."
+    },
+    {
+      "id": 9,
+      "title": "Docs (DEFER)",
+      "status": "todo",
+      "goal": "Refresh/migrate docs once the public API stabilizes.",
+      "oldRefs": ["old/packages/docs (vitepress)"],
+      "acceptance": ["Docs reflect the OpenTUI-based API."],
+      "notes": "Do not start until phases 1-7 settle the API."
     }
+  ],
+
+  "drop": {
+    "packages": [
+      "cli / @vue-termui/cli — user decided NO CLI",
+      "create-vue-termui — scaffolder; drop for now, maybe revisit",
+      "domino — experimental DOM-ish app/example; drop",
+      "xterm-playground — drop",
+      "vite-plugin-vue-termui — only if SFC/auto-import DX is abandoned (see phase 8)"
+    ],
+    "coreModules": [
+      "renderer/Output.ts, LogUpdate.ts, render.ts, renderNodeToOutput.ts, renderBorders.ts, text.ts, textColor.ts, styles.ts, dom.ts — replaced by OpenTUI",
+      "input/inputSequences.ts, keyEvents.ts, handling.ts, debug.ts — OpenTUI parses input",
+      "deps/signal-exit/* — OpenTUI handles exit signals",
+      "hmr/* — drop custom WS HMR; rely on vite/runtime-plugin later if needed",
+      "mocks/stdmock.ts — replaced by @opentui/core/testing",
+      "yoga-layout-prebuilt + chalk + ansi-* deps — no longer needed",
+      "globals.d.ts (__DEV__ etc.) / shims-vue.d.ts — revisit only if SFC tooling returns"
+    ]
+  },
+
+  "openQuestions": [
+    "Public component naming: keep Tui-prefix (TuiBox) or use Box/Text now that there's no DOM-tag clash?",
+    "Keep `export * from '@vue/runtime-core'` for convenience, or curate the re-exported Vue API?",
+    "Author components as render functions (.ts) only, or invest in SFC tooling (phase 8)?",
+    "Keep the placeholder src/useHello.ts + tests until real composables exist, or remove early?"
   ]
 }

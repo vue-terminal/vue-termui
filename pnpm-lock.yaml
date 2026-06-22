@@ -84,6 +84,9 @@ importers:
 
   playground:
     dependencies:
+      '@opentui/core':
+        specifier: ^0.4.1
+        version: 0.4.1(typescript@6.0.2)(web-tree-sitter@0.25.10)
       vue:
         specifier: ^3.5.32
         version: 3.5.32(typescript@6.0.2)

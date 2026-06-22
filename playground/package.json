@@ -8,6 +8,7 @@
     "dev": "node --experimental-ffi index.ts"
   },
   "dependencies": {
+    "@opentui/core": "^0.4.1",
     "vue": "^3.5.32",
     "vue-termui": "workspace:*"
   },
