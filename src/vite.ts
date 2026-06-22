@@ -216,6 +216,12 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
       configureServer(server) {
         bridgeHmrEventsToRunner(server)
 
+        // Tell the in-process app (the module runner shares this process) it is
+        // running under the dev server, so `createTuiApp` opens the console
+        // overlay on errors — including compilation errors the runner logs via
+        // `console.error`. Unset in production builds.
+        ;(globalThis as { __VUE_TERMUI_DEV__?: boolean }).__VUE_TERMUI_DEV__ = true
+
         if (!autoLaunch) {
           return
         }

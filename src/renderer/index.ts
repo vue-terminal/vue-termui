@@ -71,6 +71,39 @@ export function createTuiApp(
   const app = baseCreateApp(rootComponent, rootProps ?? null)
   app.provide(rendererInjectionKey, renderer)
 
+  // Surface errors in OpenTUI's console overlay instead of crashing the terminal
+  // app. `createCliRenderer` defaults to `consoleMode: 'console-overlay'`, so
+  // `console.*` output is captured and viewable (toggle with the console
+  // keybinding); we also open the overlay automatically so failures are visible:
+  //
+  // Component (runtime) errors — a throw in render/setup/a lifecycle hook/an
+  // event handler — are routed to the overlay and swallowed, so one bad
+  // component can't tear down the whole app. This is a *default*: apps may
+  // reassign `app.config.errorHandler` (e.g. to report elsewhere) and theirs wins.
+  app.config.errorHandler = (err, _instance, info) => {
+    console.error(`[vue-termui] Unhandled error while ${info}:`, err)
+    renderer.console.show()
+  }
+
+  // In dev, Vite's module runner logs compilation errors (e.g. a template syntax
+  // error caught during HMR) via `console.error`. OpenTUI already captures it;
+  // wrapping `console.error` also pops the overlay open so compile failures are
+  // as visible as runtime ones. Restored on renderer destroy (see below). The
+  // `__VUE_TERMUI_DEV__` flag is set by `vue-termui/vite`, so this is a no-op in
+  // production and tests, where popping a debug overlay on every error log would
+  // be surprising.
+  let restoreConsoleError: (() => void) | undefined
+  if ((globalThis as { __VUE_TERMUI_DEV__?: boolean }).__VUE_TERMUI_DEV__) {
+    const original = console.error
+    console.error = (...args: unknown[]) => {
+      ;(original as (...a: unknown[]) => void)(...args)
+      renderer.console.show()
+    }
+    restoreConsoleError = () => {
+      console.error = original
+    }
+  }
+
   // Mount into the renderer root by default so `app.mount()` needs no argument,
   // and tie the app's lifetime to the renderer's.
   const { mount } = app
@@ -78,6 +111,7 @@ export function createTuiApp(
     const instance = mount(rootContainer)
     renderer.once(CliRenderEvents.DESTROY, () => {
       app.unmount()
+      restoreConsoleError?.()
       // In dev, `vue-termui/vite` registers a teardown so the first Ctrl+C also
       // stops the Vite dev server and exits the process; without it Vite's open
       // handles keep the process alive and a second Ctrl+C would be needed. The
