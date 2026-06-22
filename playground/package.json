@@ -4,11 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "e": "node -v",
-    "dev": "node --experimental-ffi index.ts"
+    "build": "vite build",
+    "start": "node --experimental-ffi dist/main.mjs",
+    "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
     "vue-termui": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.7",
+    "vite": "^8.0.16",
+    "vue": "^3.5.32"
   },
   "engines": {
     "node": ">=26.3.0"
