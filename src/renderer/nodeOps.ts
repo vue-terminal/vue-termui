@@ -25,6 +25,40 @@ export type TuiElementTag = 'box' | 'text' | 'input' | 'select'
  * @param ctx - the OpenTUI render context (a `CliRenderer` instance)
  */
 export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderable, Renderable> {
+  // An invisible, out-of-flow placeholder used for comment nodes and as a
+  // stand-in for text nodes that land in a layout container (see below).
+  const makeAnchor = (): BoxRenderable => {
+    const anchor = new BoxRenderable(ctx, { position: 'absolute' })
+    anchor.visible = false
+    return anchor
+  }
+
+  // Text nodes (`TextNodeRenderable`) are only valid inside a `<text>`. Vue,
+  // however, creates Fragment boundary anchors as empty text nodes and inserts
+  // them into whatever container holds the fragment — so `v-for`, multi-root
+  // components and `<RouterView>` routinely place text nodes inside a `<box>`,
+  // where `Box.add` rejects them (they have no layout node). For those, we keep
+  // an invisible layout anchor as a stand-in and map between the two so all tree
+  // operations stay consistent. Per-app maps (this closure) avoid cross-app leaks.
+  const anchorForText = new WeakMap<object, BoxRenderable>()
+  const textForAnchor = new WeakMap<object, TextNodeRenderable>()
+
+  // The renderable actually present in the OpenTUI tree for a given Vue node.
+  const treeNode = (node: BaseRenderable): BaseRenderable => anchorForText.get(node) ?? node
+  // The Vue node corresponding to a renderable in the tree (inverse of above).
+  const vueNode = (node: BaseRenderable): BaseRenderable => textForAnchor.get(node) ?? node
+
+  // Realize (once) the layout anchor standing in for a text node in a layout parent.
+  const layoutStandIn = (text: TextNodeRenderable): BoxRenderable => {
+    let anchor = anchorForText.get(text)
+    if (!anchor) {
+      anchor = makeAnchor()
+      anchorForText.set(text, anchor)
+      textForAnchor.set(anchor, text)
+    }
+    return anchor
+  }
+
   return {
     createElement(tag) {
       switch (tag) {
@@ -41,17 +75,15 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
       }
     },
 
-    // Inline text node (only used for array/interpolated text children; a lone
-    // string child goes through the `setElementText` fast path instead).
+    // Inline text node (only used for array/interpolated text children and
+    // Fragment anchors; a lone string child goes through `setElementText`).
     createText(text) {
       return TextNodeRenderable.fromString(text)
     },
 
     // Comments act as invisible anchors for `v-if`/`v-for` placeholders.
     createComment() {
-      const anchor = new BoxRenderable(ctx, {})
-      anchor.visible = false
-      return anchor
+      return makeAnchor()
     },
 
     setText(node, text) {
@@ -68,28 +100,38 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     },
 
     insert(child, parent, anchor) {
-      if (anchor) {
-        parent.insertBefore(child, anchor)
+      // A text node inside a `<text>` is real content; anywhere else it needs a
+      // layout stand-in so OpenTUI can place it in the layout tree.
+      const node =
+        child instanceof TextNodeRenderable && !(parent instanceof TextRenderable)
+          ? layoutStandIn(child)
+          : child
+      const before = anchor ? treeNode(anchor) : null
+      if (before) {
+        parent.insertBefore(node, before)
       } else {
-        parent.add(child)
+        parent.add(node)
       }
     },
 
     remove(child) {
-      child.parent?.remove(child.id)
+      const node = treeNode(child)
+      node.parent?.remove(node.id)
     },
 
     parentNode(node) {
-      return (node.parent as Renderable | null) ?? null
+      return (treeNode(node).parent as Renderable | null) ?? null
     },
 
     nextSibling(node) {
-      const parent = node.parent
+      const current = treeNode(node)
+      const parent = current.parent
       if (!parent) return null
       const children = parent.getChildren()
-      const index = children.indexOf(node)
+      const index = children.indexOf(current as Renderable)
       if (index < 0) return null
-      return children[index + 1] ?? null
+      const next = children[index + 1]
+      return next ? (vueNode(next) as Renderable) : null
     },
 
     // Layout, ANSI and rendering are owned by OpenTUI; real prop mapping
