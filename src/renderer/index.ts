@@ -78,6 +78,11 @@ export function createTuiApp(
     const instance = mount(rootContainer)
     renderer.once(CliRenderEvents.DESTROY, () => {
       app.unmount()
+      // In dev, `vue-termui/vite` registers a teardown so the first Ctrl+C also
+      // stops the Vite dev server and exits the process; without it Vite's open
+      // handles keep the process alive and a second Ctrl+C would be needed. The
+      // global is unset in production/tests, so this is a no-op there.
+      ;(globalThis as { __VUE_TERMUI_TEARDOWN__?: () => void }).__VUE_TERMUI_TEARDOWN__?.()
     })
     return instance
   }

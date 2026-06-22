@@ -176,7 +176,18 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
         }
       },
       configureServer(server) {
-        if (!autoLaunch) return
+        if (!autoLaunch) {
+          return
+        }
+        // The first Ctrl+C destroys the OpenTUI renderer (see `createApp`), which
+        // calls this teardown. Closing the dev server lets the process exit on
+        // that first Ctrl+C — otherwise Vite's open handles (http server, file
+        // watcher) keep it alive and a second Ctrl+C would be needed.
+        ;(globalThis as { __VUE_TERMUI_TEARDOWN__?: () => void }).__VUE_TERMUI_TEARDOWN__ = () => {
+          void server.close().finally(() => {
+            process.exit(0)
+          })
+        }
         // Run after the internal middlewares are wired so the module graph is
         // ready, then drive the app from the runnable `ssr` environment.
         return () => {
