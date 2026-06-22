@@ -1,22 +1,21 @@
-// NOTE: temporary. The playground talks to @opentui/core directly until
-// vue-termui exposes its own Vue-renderer API (see todos.json). OpenTUI is an
-// implementation detail of vue-termui and is intentionally not re-exported.
-import { createCliRenderer, Box, Text } from '@opentui/core'
+import { createApp, defineComponent, h, onUnmounted, ref, shallowRef } from 'vue-termui'
 
-const renderer = await createCliRenderer({
-  exitOnCtrlC: true,
+const App = defineComponent({
+  setup() {
+    const seconds = ref(0)
+    const timer = setInterval(() => {
+      seconds.value++
+    }, 1000)
+    onUnmounted(() => clearInterval(timer))
+
+    return () =>
+      h('box', { borderStyle: 'rounded', padding: 1, flexDirection: 'column', gap: 1 }, [
+        h('text', { fg: '#42b883' }, 'Hello, vue-termui 👋'),
+        h('text', { fg: '#35495e' }, 'Rendered with a Vue custom renderer'),
+        h('text', { fg: '#888888' }, `Uptime: ${seconds.value}s`),
+        h('text', { fg: '#888888' }, 'Press Ctrl+C to exit'),
+      ])
+  },
 })
 
-renderer.root.add(
-  Box(
-    {
-      borderStyle: 'rounded',
-      padding: 1,
-      flexDirection: 'column',
-      gap: 1,
-    },
-    Text({ content: 'Hello, vue-termui 👋', fg: '#42b883' }),
-    Text({ content: 'Rendered with @opentui/core', fg: '#35495e' }),
-    Text({ content: 'Press Ctrl+C to exit', fg: '#888888' }),
-  ),
-)
+await createApp(App, null, { exitOnCtrlC: true })

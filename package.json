@@ -46,10 +46,10 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "vitest --ui",
+    "dev": "NODE_OPTIONS=--experimental-ffi vitest --ui",
     "play": "pnpm --filter playground dev",
     "test": "pnpm run build && pnpm run test:cov && pnpm run test:types",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "NODE_OPTIONS=--experimental-ffi vitest run --coverage",
     "test:types": "tsc --build ./tsconfig.json",
     "lint": "oxlint ${CI:+--deny-warnings} .",
     "lint:fix": "oxlint --fix .",
@@ -60,7 +60,8 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.1"
+    "@opentui/core": "^0.4.1",
+    "@vue/runtime-core": "^3.5.32"
   },
   "devDependencies": {
     "@posva/prompts": "^2.4.4",
