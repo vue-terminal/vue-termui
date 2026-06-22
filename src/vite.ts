@@ -6,7 +6,7 @@ import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevSer
  * SFC compiler must leave them as plain element vnodes (`createElementVNode('box', …)`)
  * instead of trying to resolve them as components.
  */
-const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text'])
+const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text', 'input', 'select'])
 
 /** Default app entry, resolved from the project root. */
 const DEFAULT_ENTRY = '/src/main.ts'

@@ -1,8 +1,10 @@
 import {
   type BaseRenderable,
   BoxRenderable,
+  InputRenderable,
   type Renderable,
   type RenderContext,
+  SelectRenderable,
   TextNodeRenderable,
   TextRenderable,
 } from '@opentui/core'
@@ -12,7 +14,7 @@ import type { RendererOptions } from '@vue/runtime-core'
  * Host element tags understood by the renderer. These are intentionally
  * lowercase and internal; public component names are layered on top.
  */
-export type TuiElementTag = 'box' | 'text'
+export type TuiElementTag = 'box' | 'text' | 'input' | 'select'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -30,6 +32,10 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new BoxRenderable(ctx, {})
         case 'text':
           return new TextRenderable(ctx, {})
+        case 'input':
+          return new InputRenderable(ctx, {})
+        case 'select':
+          return new SelectRenderable(ctx, {})
         default:
           throw new Error(`[vue-termui] Unknown element type: <${tag}>`)
       }

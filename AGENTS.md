@@ -59,5 +59,20 @@ Always keep this file up to date when project commands, structure, or tooling ch
   renderer is built on. Import these from `vue-termui`, never from `vue`
   (a second runtime-core copy breaks vnode/instance interop).
 
+### Components (`src/components/`)
+
+- Public components are **unprefixed**: `Box`, `Text`, `Newline` (the old
+  `Tui`-prefix is dropped — no DOM clash in a terminal). They are thin wrappers
+  over the `box`/`text` host tags. The lowercase host tags still work directly
+  in templates (the vite plugin registers them as custom elements).
+- `Box` is a passthrough functional component: OpenTUI's `BoxRenderable` owns
+  layout/border/padding/margin natively, so {@link BoxProps} forward unchanged.
+- `Text` folds its boolean style props (`bold`, `italic`, `underline`, `dim`,
+  `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
+  bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
+- Components are authored as explicitly-typed `FunctionalComponent`s (not
+  `defineComponent`) so `isolatedDeclarations` is satisfied without hand-writing
+  the `DefineComponent` return type; runtime `.props` give Boolean coercion.
+
 Built with tsdown (`tsdown.config.ts`), outputs ESM to `dist/`. oxc toolchain:
 oxlint for linting, oxfmt for formatting.

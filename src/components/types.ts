@@ -97,6 +97,16 @@ export interface BoxProps {
   focusable?: boolean
 }
 
+/** A single choice in a {@link Select}. */
+export interface SelectOption {
+  /** Label shown for the option. */
+  name: string
+  /** Secondary text shown alongside the name. */
+  description?: string
+  /** Arbitrary value associated with the option. */
+  value?: unknown
+}
+
 /**
  * Props accepted by {@link Text}. Text content is provided through the default
  * slot. Boolean style props are folded into OpenTUI's `attributes` bitmask.
