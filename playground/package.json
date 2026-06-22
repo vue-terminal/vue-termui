@@ -9,6 +9,7 @@
     "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
+    "vue-router": "^5.1.0",
     "vue-termui": "workspace:*"
   },
   "devDependencies": {
