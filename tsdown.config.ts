@@ -26,7 +26,7 @@ export default defineConfig([
   {
     ...commonOptions,
     clean: true,
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/vite.ts'],
     globalName: 'VueTermui',
   },
 ])

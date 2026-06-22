@@ -7,7 +7,7 @@ const rows = ref(process.stdout.rows ?? 24)
 
 // Box size proportional to the terminal, kept small.
 const boxWidth = computed(() => Math.max(16, Math.round(cols.value * 0.3)))
-const boxHeight = computed(() => Math.max(5, Math.round(rows.value * 0.3)))
+const boxHeight = computed(() => Math.max(9, Math.round(rows.value * 0.3)))
 
 // Position + velocity in terminal cells (floats for smooth motion).
 const pos = reactive({ x: 2, y: 1 })
@@ -15,6 +15,12 @@ const vel = { x: 0.7, y: 0.4 }
 
 const left = computed(() => Math.round(pos.x))
 const top = computed(() => Math.round(pos.y))
+
+// Uptime in seconds.
+const seconds = ref(0)
+const uptime = setInterval(() => {
+  seconds.value++
+}, 1000)
 
 function onResize() {
   cols.value = process.stdout.columns ?? cols.value
@@ -50,6 +56,7 @@ const timer = setInterval(() => {
 
 onUnmounted(() => {
   clearInterval(timer)
+  clearInterval(uptime)
   process.stdout.off('resize', onResize)
 })
 </script>
@@ -67,6 +74,7 @@ onUnmounted(() => {
     :gap="1"
   >
     <text fg="#42b883">vue-termui 👋</text>
+    <text fg="#888888">Uptime: {{ seconds }}s</text>
     <text fg="#888888">Ctrl+C to exit</text>
   </box>
 </template>

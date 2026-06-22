@@ -11,6 +11,9 @@ importers:
       '@opentui/core':
         specifier: ^0.4.1
         version: 0.4.1(typescript@6.0.2)(web-tree-sitter@0.25.10)
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.7
+        version: 6.0.7(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))(vue@3.5.32(typescript@6.0.2))
       '@vue/runtime-core':
         specifier: ^3.5.32
         version: 3.5.32
@@ -30,9 +33,6 @@ importers:
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.5
-        version: 6.0.5(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))(vue@3.5.32(typescript@6.0.2))
       '@vitest/coverage-v8':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
@@ -78,6 +78,9 @@ importers:
       typescript:
         specifier: ~6.0.2
         version: 6.0.2
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.4
         version: 4.1.4(@types/node@24.12.0)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(happy-dom@20.8.9)(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))
@@ -91,9 +94,6 @@ importers:
         specifier: workspace:*
         version: link:..
     devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.7
-        version: 6.0.7(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))(vue@3.5.32(typescript@6.0.2))
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2)
@@ -862,9 +862,6 @@ packages:
   '@rolldown/pluginutils@1.0.0-rc.12':
     resolution: {integrity: sha512-HHMwmarRKvoFsJorqYlFeFRzXZqCt2ETQlEDOb9aqssrnVBB1/+xgTGtuTrIk5vzLNX1MjMtTf7W9z3tsSbrxw==}
 
-  '@rolldown/pluginutils@1.0.0-rc.2':
-    resolution: {integrity: sha512-izyXV/v+cHiRfozX62W9htOAvwMo4/bXKDrQ+vom1L1qRuexPock/7VZDAhnpHCLNejd3NJ6hiab+tO0D44Rgw==}
-
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
@@ -938,13 +935,6 @@ packages:
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
-
-  '@vitejs/plugin-vue@6.0.5':
-    resolution: {integrity: sha512-bL3AxKuQySfk1iGcBsQnoRVexTPJq0Z/ixFVM8OhVJAP6ZXXXLtM7NFKWhLl30Kg7uTBqIaPXbh+nuQCuBDedg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    peerDependencies:
-      vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
-      vue: ^3.2.25
 
   '@vitejs/plugin-vue@6.0.7':
     resolution: {integrity: sha512-km+p+XdSz9Sxm5rqUbqcSfZYaAniKxWBj1KURl+Jr7UaPvvX7BmaWMdP69I5rrFDeQGyxAG7NXdc57vz+snhWg==}
@@ -1554,11 +1544,6 @@ packages:
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
     engines: {node: '>=10'}
-
-  nanoid@3.3.11:
-    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
 
   nanoid@3.3.14:
     resolution: {integrity: sha512-U9kYi5bpVMEI31yC8iw4bJJp0avcHXA0W8/wNfLfnvJYzihQo2ZRPYPvpAAd570HAcCBjCTN7vnr+v4StKl1IQ==}
@@ -2535,8 +2520,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.0-rc.12': {}
 
-  '@rolldown/pluginutils@1.0.0-rc.2': {}
-
   '@rolldown/pluginutils@1.0.1': {}
 
   '@simple-libs/child-process-utils@1.0.2':
@@ -2605,12 +2588,6 @@ snapshots:
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 24.12.0
-
-  '@vitejs/plugin-vue@6.0.5(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))(vue@3.5.32(typescript@6.0.2))':
-    dependencies:
-      '@rolldown/pluginutils': 1.0.0-rc.2
-      vite: 8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2)
-      vue: 3.5.32(typescript@6.0.2)
 
   '@vitejs/plugin-vue@6.0.7(vite@8.0.16(@types/node@24.12.0)(esbuild@0.27.4)(yaml@2.8.2))(vue@3.5.32(typescript@6.0.2))':
     dependencies:
@@ -3218,8 +3195,6 @@ snapshots:
 
   mrmime@2.0.1: {}
 
-  nanoid@3.3.11: {}
-
   nanoid@3.3.14: {}
 
   nanoid@5.1.7: {}
@@ -3334,7 +3309,7 @@ snapshots:
 
   postcss@8.5.9:
     dependencies:
-      nanoid: 3.3.11
+      nanoid: 3.3.14
       picocolors: 1.1.1
       source-map-js: 1.2.1
 

@@ -12,7 +12,6 @@
     "vue-termui": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.7",
     "vite": "^8.0.16",
     "vue": "^3.5.32"
   },
