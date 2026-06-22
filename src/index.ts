@@ -23,5 +23,12 @@ export type {
   TextProps,
 } from './components/index'
 
-export { createApp, createNodeOps, rendererInjectionKey, useRenderer } from './renderer/index'
-export type { TuiElementTag } from './renderer/index'
+export {
+  createApp,
+  createNodeOps,
+  exitInjectionKey,
+  rendererInjectionKey,
+  useExit,
+  useRenderer,
+} from './renderer/index'
+export type { App, TuiElementTag } from './renderer/index'

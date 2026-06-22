@@ -14,3 +14,7 @@ app.use(router)
 await router.isReady()
 
 app.mount()
+
+// Keep the launcher process alive until the user quits (Ctrl+C), then fall
+// through so any post-exit cleanup could run here.
+await app.waitUntilExit()

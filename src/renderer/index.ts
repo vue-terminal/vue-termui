@@ -38,12 +38,59 @@ export function useRenderer(): CliRenderer {
 }
 
 /**
+ * Injection key for the app's exit function. Provided by {@link createTuiApp};
+ * read it with {@link useExit}.
+ */
+export const exitInjectionKey: InjectionKey<() => void> = Symbol('vue-termui:exit')
+
+/**
+ * Returns a function that exits the app — tears down the OpenTUI renderer,
+ * restoring the terminal (cursor, screen buffer, raw mode). Equivalent to
+ * `app.exit()`, but callable from inside a component.
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * import { onKeyDown, useExit } from 'vue-termui'
+ * const exit = useExit()
+ * onKeyDown((key) => key.name === 'q' && exit())
+ * </script>
+ * ```
+ */
+export function useExit(): () => void {
+  const exit = inject(exitInjectionKey)
+  if (!exit) {
+    throw new Error('[vue-termui] useExit() must be called within a vue-termui app.')
+  }
+  return exit
+}
+
+/**
  * The app returned by {@link createApp} and {@link createTuiApp}. It extends
  * Vue's {@link BaseApp} with a `mount` method that defaults to the renderer root
  * and unmounts the app when the renderer is destroyed.
  */
 export interface App<T> extends Omit<BaseApp<T>, 'mount'> {
   mount(rootContainer?: Renderable): ReturnType<BaseApp<T>['mount']>
+
+  /**
+   * Resolves when the app exits — i.e. when the OpenTUI renderer is destroyed
+   * (Ctrl+C, an exit signal, {@link App.exit} or `renderer.destroy()`). Useful
+   * to keep a launcher process alive until the user quits:
+   *
+   * ```ts
+   * const app = await createApp(App)
+   * app.mount()
+   * await app.waitUntilExit()
+   * ```
+   */
+  waitUntilExit(): Promise<void>
+
+  /**
+   * Exits the app: destroys the renderer (restoring the terminal) and resolves
+   * {@link App.waitUntilExit}. Idempotent.
+   */
+  exit(): void
 }
 
 /**
@@ -70,6 +117,22 @@ export function createTuiApp(
   )
   const app = baseCreateApp(rootComponent, rootProps ?? null)
   app.provide(rendererInjectionKey, renderer)
+
+  // `waitUntilExit()` resolves when the renderer is destroyed (Ctrl+C, an exit
+  // signal, `exit()` or a direct `renderer.destroy()`). The promise is created
+  // eagerly so it can be awaited before `mount()`; `once` guarantees a single
+  // resolution even if `destroy` somehow fired twice.
+  let resolveExit: () => void
+  const exitPromise = new Promise<void>((resolve) => {
+    resolveExit = resolve
+  })
+  renderer.once(CliRenderEvents.DESTROY, () => resolveExit())
+
+  // Exiting is just tearing down the renderer; OpenTUI restores the terminal and
+  // emits `destroy`, which resolves `exitPromise` and unmounts the Vue app
+  // (see `mount` below). `destroy()` is itself idempotent.
+  const exit = (): void => renderer.destroy()
+  app.provide(exitInjectionKey, exit)
 
   // Surface errors in OpenTUI's console overlay instead of crashing the terminal
   // app. `createCliRenderer` defaults to `consoleMode: 'console-overlay'`, so
@@ -121,7 +184,10 @@ export function createTuiApp(
     return instance
   }
 
-  return app as App<Renderable>
+  const tuiApp = app as App<Renderable>
+  tuiApp.waitUntilExit = () => exitPromise
+  tuiApp.exit = exit
+  return tuiApp
 }
 
 /**
