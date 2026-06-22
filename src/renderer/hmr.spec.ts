@@ -44,8 +44,8 @@ describe('renderer HMR rerender', () => {
 
     // Simulate user interaction mutating component state.
     const instance = (
-      app._instance!.subTree.children as { component: { setupState: { n: number } } }[]
-    )[0].component
+      app._instance!.subTree.children as unknown as { component: { setupState: { n: number } } }[]
+    )[0]!.component
     instance.setupState.n = 7
     await nextTick()
     await test.renderOnce()
@@ -63,7 +63,8 @@ describe('renderer HMR rerender', () => {
     expect(frame, 'state preserved across rerender').toContain('7')
 
     const sameInstance =
-      (app._instance!.subTree.children as { component: unknown }[])[0].component === instance
+      (app._instance!.subTree.children as unknown as { component: unknown }[])[0]!.component ===
+      instance
     expect(sameInstance, 'instance reused, not recreated').toBe(true)
 
     test.renderer.destroy()
