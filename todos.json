@@ -104,7 +104,7 @@
     {
       "id": 2,
       "title": "Core components: Box, Text, Newline",
-      "status": "todo",
+      "status": "done",
       "goal": "Ship Vue components that render the host elements with a clean prop surface mapped to OpenTUI props.",
       "steps": [
         "Implement Box (flex container: layout, padding/margin, border, gap, bg) and Text (fg/bg + bold/italic/underline/dim/strikethrough/inverse) and Newline.",
@@ -128,7 +128,8 @@
     {
       "id": 3,
       "title": "App lifecycle & exit",
-      "status": "todo",
+      "status": "done",
+      "notesDone": "waitUntilExit()/exit()/useExit() landed on rewrite-opentui. exitOnCtrlC/exitSignals stay native CliRendererConfig (passed via createApp's rendererConfig). renderOnce is EXPERIMENTAL and parked on branch explore/render-once (real-terminal persistence unverified).",
       "goal": "Full createApp API backed by the OpenTUI renderer.",
       "steps": [
         "createApp(rootComponent, options): create renderer, provide injection symbols, mount({ renderOnce, exitOnCtrlC }).",
@@ -151,7 +152,8 @@
     {
       "id": 4,
       "title": "Input composables (keyboard / mouse)",
-      "status": "todo",
+      "status": "done",
+      "notesDone": "onKeyDown/onKeyUp over renderer.keyInput (keypress/keyrelease); public KeyEvent type defined locally (OpenTUI's KeyEvent is NOT exported from the package root). Cleanup via onScopeDispose. Mouse has NO global stream — per-element onMouse*/onMouseDown props are forwarded natively by Box, so no onMouseData composable. onInputData (raw stdin) dropped (OpenTUI parses input).",
       "goal": "onKeyData / onMouseData / onInputData composables backed by OpenTUI input.",
       "steps": [
         "Wire onKeyData/onMouseData onto renderer.keyInput (KeyHandler) and renderer input events; expose RemoveListener cleanup tied to component scope.",
@@ -178,7 +180,8 @@
     {
       "id": 5,
       "title": "Screen & timing composables",
-      "status": "todo",
+      "status": "done",
+      "notesDone": "onResize/useTerminalSize over renderer RESIZE (dims read live off renderer.width/height). useTitle via renderer.setTerminalTitle (resets on unmount). useInterval/useTimeout are pure timers with onScopeDispose cleanup. writeStreams/useStdout dropped (OpenTUI owns stdout).",
       "goal": "onResize, useStdoutDimensions, useTitle, useInterval, useTimeout.",
       "steps": [
         "onResize -> renderer.on('resize'); useStdoutDimensions -> renderer.width/height (reactive, updated on resize); useTitle -> renderer.setTerminalTitle.",
@@ -200,7 +203,8 @@
     {
       "id": 6,
       "title": "Focus",
-      "status": "todo",
+      "status": "done",
+      "notesDone": "useFocus({autoFocus}) -> {ref, focused, focus, blur}: bind ref to a host element; sets focusable=true and tracks renderer.currentFocusedRenderable via FOCUSED_RENDERABLE. useFocusManager() -> {focused (reactive), focus(renderable), blur()}. OpenTUI has NO global Tab cycling/ordering — apps manage their own list (per OpenTUI docs).",
       "goal": "useFocus / useFocusManager over OpenTUI focus.",
       "steps": [
         "Expose composables that read/drive OpenTUI focus (currentFocusedRenderable, focused_renderable event, autoFocus, Tab/Shift-Tab navigation).",
@@ -225,7 +229,8 @@
     {
       "id": 7,
       "title": "Interactive & rich components",
-      "status": "todo",
+      "status": "partial",
+      "notesDone": "DONE: Input (host 'input'->InputRenderable) + Select (host 'select'->SelectRenderable) with v-model; ProgressBar as a Box+Text composite (OpenTUI has no native progress renderable). Host tags 'input'/'select' added to nodeOps + vite HOST_TAGS. GOTCHA: never forward `undefined` host props — they clobber renderable defaults (Input maxLength defaults to 1000; undefined -> substring(0,NaN) swallows all typed text). DEFERRED: Link (OSC8 hyperlink) and TextTransform need TextNode-with-link/transform support threaded through the renderer (nodeOps text-node children don't carry per-node link/style yet) — a separate effort; low priority, not required by acceptance.",
       "goal": "Input, Select, ProgressBar, Link, TextTransform.",
       "steps": [
         "Map Input/Select onto InputRenderable/SelectRenderable. Port ProgressBar, Link (OSC 8 hyperlinks), TextTransform.",
@@ -243,7 +248,8 @@
     {
       "id": 8,
       "title": "SFC + DX tooling (RECONSIDER / DEFER)",
-      "status": "todo",
+      "status": "done",
+      "notesDone": "REVIEW COMPLETE. SFC authoring works via vue-termui/vite (src/vite.ts: plugin-vue client-compile + host-tag custom elements + module-runner HMR rerender/reload + autoLaunch). Render-function (.ts h()) authoring needs no build. DECISION: NO auto-import / component resolver — explicit imports from 'vue-termui' are clearer, fully typed, and avoid maintaining unplugin against the runnable-ssr module runner. New host tags must be added in BOTH nodeOps.createElement and vite HOST_TAGS (done for input/select).",
       "goal": "Decide how .vue SFCs and auto-import are supported, if at all.",
       "steps": [
         "Node can't run .vue directly. Options: (a) author components as .ts with h()/defineComponent (no build) — simplest, default for now; (b) a vite/tsdown plugin using @vue/compiler-sfc for SFCs; (c) an OpenTUI runtime-plugin.",
@@ -290,9 +296,9 @@
   },
 
   "openQuestions": [
-    "Public component naming: keep Tui-prefix (TuiBox) or use Box/Text now that there's no DOM-tag clash? (host tags are internal 'box'/'text'; public component names still open — Phase 2.)",
+    "RESOLVED (Phase 2): public components are UNPREFIXED (Box/Text/Newline). Host tags stay internal lowercase 'box'/'text' and still work in templates. Components authored as explicitly-typed FunctionalComponents (not defineComponent) to satisfy isolatedDeclarations; runtime .props give Boolean coercion. Text folds bold/italic/etc into OpenTUI's `attributes` bitmask.",
     "RESOLVED (Phase 1): keep `export * from '@vue/runtime-core'`. Required, not just convenience — apps must get h/defineComponent/ref from the same runtime-core instance the renderer uses, else vnode/instance interop breaks. Revisit curation later if surface is too broad.",
-    "Author components as render functions (.ts) only, or invest in SFC tooling (phase 8)?",
+    "RESOLVED (Phase 8): both supported — SFCs via vue-termui/vite, render fns (.ts) with no build. No auto-import/component-resolver (explicit imports).",
     "Keep the placeholder src/useHello.ts + tests until real composables exist, or remove early? (kept for now.)"
   ]
 }

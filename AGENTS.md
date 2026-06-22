@@ -70,9 +70,48 @@ Always keep this file up to date when project commands, structure, or tooling ch
 - `Text` folds its boolean style props (`bold`, `italic`, `underline`, `dim`,
   `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
   bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
-- Components are authored as explicitly-typed `FunctionalComponent`s (not
-  `defineComponent`) so `isolatedDeclarations` is satisfied without hand-writing
-  the `DefineComponent` return type; runtime `.props` give Boolean coercion.
+- Simple components (`Box`, `Text`, `Newline`, `ProgressBar`) are explicitly-typed
+  `FunctionalComponent`s so `isolatedDeclarations` is satisfied without
+  hand-writing a `DefineComponent` return type; runtime `.props` give Boolean
+  coercion. Interactive ones (`Input`, `Select`) need lifecycle/refs so they use
+  `defineComponent({...}) as DefineComponent<Props>` — the `as` cast supplies the
+  explicit export type isolatedDeclarations requires.
+- `Input`/`Select` map to the `input`/`select` host tags (→ `InputRenderable` /
+  `SelectRenderable`) and support `v-model` (`Input` on the string value, `Select`
+  on the highlighted index). They wire OpenTUI's emitter events via a template
+  ref in `onMounted`. **Never forward `undefined` host props** — it overwrites
+  renderable defaults (e.g. `Input` `maxLength` defaults to 1000; `undefined`
+  makes it silently drop all typed input). Build the host props object
+  conditionally.
+- `ProgressBar` is a `Box`+`Text` composite (OpenTUI has no native progress bar).
+- `Link` / `TextTransform` are NOT ported yet — they need TextNode-with-link/
+  transform support threaded through `nodeOps` (text-node children don't carry
+  per-node link/style). Tracked in `todos.json` (phase 7).
+
+### Composables (`src/composables/`)
+
+Thin reactive wrappers over the renderer; all clean up via `onScopeDispose`.
+
+- `onKeyDown`/`onKeyUp` over `renderer.keyInput` (`keypress`/`keyrelease`). The
+  public `KeyEvent` type is defined locally — OpenTUI's `KeyEvent` is **not**
+  exported from the package root. Mouse has no global stream: use per-element
+  `onMouse*` props (forwarded natively by `Box`).
+- `onResize`/`useTerminalSize` (dims read live off `renderer.width/height`),
+  `useTitle` (`setTerminalTitle`, reset on unmount).
+- `useInterval`/`useTimeout` — pure timers with scope cleanup.
+- `useFocus` (template-ref based) / `useFocusManager`. OpenTUI has **no** global
+  Tab cycling — apps manage their own ordered list and call `focus()`.
+
+### Authoring & DX tooling
+
+- SFCs (`.vue`) are compiled by `vue-termui/vite` (`src/vite.ts`); render-function
+  components (`.ts` with `h()`) work with no build at all.
+- **No auto-import / component resolver.** Import components and composables
+  explicitly from `vue-termui` — clearer, fully typed, and avoids maintaining
+  unplugin magic against the dev server's runnable-`ssr` module runner. (Decision
+  for phase 8; revisit only if the explicit-import friction becomes real.)
+- New host tags must be added in BOTH `nodeOps.createElement` and the vite
+  plugin's `HOST_TAGS` set.
 
 Built with tsdown (`tsdown.config.ts`), outputs ESM to `dist/`. oxc toolchain:
 oxlint for linting, oxfmt for formatting.
