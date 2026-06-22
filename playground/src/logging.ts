@@ -35,11 +35,14 @@ function writeLine(fd: number, label: string, args: unknown[]): void {
 }
 
 /**
- * Patches `console.*` to also append to the log files and routes uncaught
- * errors/rejections to `err.log`. Runs once on import (see bottom of file).
+ * (Re)wraps `console.*` so every call also appends to the log files, chaining to
+ * whatever `console` method is currently installed. Safe to call repeatedly —
+ * OpenTUI replaces `console` with its overlay capture when the renderer is
+ * created, so this must be called again *after* `createApp` to re-own it (while
+ * still forwarding to OpenTUI's overlay).
  */
-export function setupFileLogging(): void {
-  const original = {
+export function patchConsole(): void {
+  const current = {
     log: console.log.bind(console),
     info: console.info.bind(console),
     debug: console.debug.bind(console),
@@ -47,18 +50,16 @@ export function setupFileLogging(): void {
     error: console.error.bind(console),
   }
 
-  console.log = (...args: unknown[]) => (writeLine(outFd, 'LOG', args), original.log(...args))
-  console.info = (...args: unknown[]) => (writeLine(outFd, 'INFO', args), original.info(...args))
-  console.debug = (...args: unknown[]) => (writeLine(outFd, 'DEBUG', args), original.debug(...args))
-  console.warn = (...args: unknown[]) => (writeLine(errFd, 'WARN', args), original.warn(...args))
-  console.error = (...args: unknown[]) => (writeLine(errFd, 'ERROR', args), original.error(...args))
-
-  process.on('uncaughtException', (err) => writeLine(errFd, 'uncaughtException', [err]))
-  process.on('unhandledRejection', (reason) => writeLine(errFd, 'unhandledRejection', [reason]))
-
-  writeLine(outFd, 'BOOT', [`logging to ${LOG_DIR}`])
+  console.log = (...args: unknown[]) => (writeLine(outFd, 'LOG', args), current.log(...args))
+  console.info = (...args: unknown[]) => (writeLine(outFd, 'INFO', args), current.info(...args))
+  console.debug = (...args: unknown[]) => (writeLine(outFd, 'DEBUG', args), current.debug(...args))
+  console.warn = (...args: unknown[]) => (writeLine(errFd, 'WARN', args), current.warn(...args))
+  console.error = (...args: unknown[]) => (writeLine(errFd, 'ERROR', args), current.error(...args))
 }
 
-// Initialize on import so this is active before any other module's top-level
-// code runs (this module is imported first in main.ts).
-setupFileLogging()
+// Initialize on import so console + crash handlers are active before any other
+// module's top-level code runs (this module is imported first in main.ts).
+patchConsole()
+process.on('uncaughtException', (err) => writeLine(errFd, 'uncaughtException', [err]))
+process.on('unhandledRejection', (reason) => writeLine(errFd, 'unhandledRejection', [reason]))
+writeLine(outFd, 'BOOT', [`logging to ${LOG_DIR}`])

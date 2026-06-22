@@ -1,11 +1,14 @@
 // Imported first: mirrors console output + uncaught errors into
 // playground/logs/*.log before any other module runs (see ./logging).
-import './logging'
+import { patchConsole } from './logging'
 import { createApp } from 'vue-termui'
 import App from './App.vue'
 import { router } from './router'
 
 const app = await createApp(App, null, { exitOnCtrlC: true })
+// OpenTUI replaces `console` with its overlay capture during renderer creation,
+// so re-own it here to keep mirroring component logs to the files.
+patchConsole()
 app.use(router)
 
 // Memory history performs NO initial navigation on its own, so `isReady()` would
