@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { Box, computed, onKeyDown, onUnmounted, reactive, ref, Text, useExit } from 'vue-termui'
+import {
+  Box,
+  computed,
+  onKeyDown,
+  reactive,
+  ref,
+  Text,
+  useExit,
+  useInterval,
+  useTerminalSize,
+} from 'vue-termui'
 
 // Quit on `q` (in addition to Ctrl+C, handled natively by the renderer).
 const exit = useExit()
@@ -7,9 +17,8 @@ onKeyDown((key) => {
   if (key.name === 'q') exit()
 })
 
-// Terminal size (reactive, updates on resize).
-const cols = ref(process.stdout.columns ?? 80)
-const rows = ref(process.stdout.rows ?? 24)
+// Terminal size (reactive, updates on resize — and cleaned up on unmount).
+const { width: cols, height: rows } = useTerminalSize()
 
 // Box size proportional to the terminal, kept small.
 const boxWidth = computed(() => Math.max(16, Math.round(cols.value * 0.3)))
@@ -24,18 +33,12 @@ const top = computed(() => Math.round(pos.y))
 
 // Uptime in seconds.
 const seconds = ref(0)
-const uptime = setInterval(() => {
+useInterval(() => {
   seconds.value++
 }, 1000)
 
-function onResize() {
-  cols.value = process.stdout.columns ?? cols.value
-  rows.value = process.stdout.rows ?? rows.value
-}
-process.stdout.on('resize', onResize)
-
 // Animation loop: move + bounce off the walls.
-const timer = setInterval(() => {
+useInterval(() => {
   const maxX = Math.max(0, cols.value - boxWidth.value)
   const maxY = Math.max(0, rows.value - boxHeight.value)
 
@@ -59,12 +62,6 @@ const timer = setInterval(() => {
     vel.y = -Math.abs(vel.y)
   }
 }, 1000 / 30)
-
-onUnmounted(() => {
-  clearInterval(timer)
-  clearInterval(uptime)
-  process.stdout.off('resize', onResize)
-})
 </script>
 
 <template>

@@ -1,2 +1,5 @@
 export { onKeyDown, onKeyUp } from './keyboard'
 export type { KeyEvent, RemoveListener } from './keyboard'
+export { onResize, useTerminalSize, useTitle } from './screen'
+export type { TerminalSize } from './screen'
+export { useInterval, useTimeout } from './timing'
