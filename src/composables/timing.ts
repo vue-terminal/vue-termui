@@ -1,4 +1,4 @@
-import { getCurrentScope, onScopeDispose } from '@vue/runtime-core'
+import { onScopeDispose } from '@vue/runtime-core'
 
 /**
  * Runs `fn` every `ms` milliseconds, starting immediately. The interval is
@@ -14,9 +14,7 @@ import { getCurrentScope, onScopeDispose } from '@vue/runtime-core'
 export function useInterval(fn: () => void, ms: number): () => void {
   const handle = setInterval(fn, ms)
   const stop = (): void => clearInterval(handle)
-  if (getCurrentScope()) {
-    onScopeDispose(stop)
-  }
+  onScopeDispose(stop, true)
   return stop
 }
 
@@ -28,8 +26,6 @@ export function useInterval(fn: () => void, ms: number): () => void {
 export function useTimeout(fn: () => void, ms: number): () => void {
   const handle = setTimeout(fn, ms)
   const stop = (): void => clearTimeout(handle)
-  if (getCurrentScope()) {
-    onScopeDispose(stop)
-  }
+  onScopeDispose(stop, true)
   return stop
 }
