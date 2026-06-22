@@ -1,11 +1,5 @@
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
-import {
-  createServer,
-  type InlineConfig,
-  isRunnableDevEnvironment,
-  type Plugin,
-  type ViteDevServer,
-} from 'vite'
+import { isRunnableDevEnvironment, type Plugin } from 'vite'
 
 /**
  * Renderer host tags. They are neither DOM/SVG elements nor components, so the
@@ -13,6 +7,9 @@ import {
  * instead of trying to resolve them as components.
  */
 const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text'])
+
+/** Default app entry, resolved from the project root. */
+const DEFAULT_ENTRY = '/src/main.ts'
 
 /**
  * Forces `@vitejs/plugin-vue` to compile **client** render functions (with HMR)
@@ -58,15 +55,35 @@ export interface VueTermuiOptions {
    * merged on top (it can recognise additional tags).
    */
   vue?: VuePluginOptions
+
+  /**
+   * App entry imported when the dev server starts, resolved from the project
+   * root. Defaults to `/src/main.ts`.
+   */
+  entry?: string
+
+  /**
+   * Launch the app automatically when the Vite dev server starts, so plain
+   * `vite` runs the terminal app (no launcher script). Defaults to `true`.
+   */
+  autoLaunch?: boolean
 }
 
 /**
- * Vite plugin that turns a project into a vue-termui terminal app: it runs
- * `@vitejs/plugin-vue` with the renderer host tags registered and provides the
- * build defaults for a single self-contained Node entry (bundle local sources
- * only; resolve every bare import — `vue`, `vue-termui`, the native
- * `@opentui/core`, `node:` builtins — from `node_modules` at runtime so there
- * is one shared `@vue/runtime-core` and the FFI module is never bundled).
+ * Vite plugin that turns a project into a vue-termui terminal app.
+ *
+ * - Runs `@vitejs/plugin-vue` with the `box`/`text` host tags registered and
+ *   forced to compile client render functions (so HMR works in the dev server's
+ *   runnable `ssr` environment instead of emitting `ssrRender`).
+ * - In dev (`vite`), launches the app in-process with HMR: the entry runs in the
+ *   `ssr` environment (bare imports externalize to native Node — FFI works,
+ *   single `@vue/runtime-core` — and the module runner rewrites imports so the
+ *   code runs in this process). Vue's renderer-agnostic HMR runtime hot-updates
+ *   components live. The browser WebSocket is off; HMR flows through the runner.
+ *   Run with `node --experimental-ffi` (e.g. `NODE_OPTIONS=--experimental-ffi vite`).
+ * - In build (`vite build`), bundles a single self-contained Node entry: bundle
+ *   local sources only and resolve every bare import from `node_modules` at
+ *   runtime; the native `@opentui/core` is never bundled.
  *
  * @example
  * ```ts
@@ -76,11 +93,20 @@ export interface VueTermuiOptions {
  *
  * export default defineConfig({ plugins: [vueTermui()] })
  * ```
+ * ```jsonc
+ * // package.json
+ * "scripts": {
+ *   "dev": "NODE_OPTIONS=--experimental-ffi vite",
+ *   "build": "vite build"
+ * }
+ * ```
  *
  * @param options - {@link VueTermuiOptions}
  */
 export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
   const userIsCustomElement = options.vue?.template?.compilerOptions?.isCustomElement
+  const entry = options.entry ?? DEFAULT_ENTRY
+  const autoLaunch = options.autoLaunch ?? true
 
   const vuePlugin = vue({
     ...options.vue,
@@ -136,66 +162,39 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
       },
     },
 
+    {
+      name: 'vue-termui:dev',
+      apply: 'serve',
+      config() {
+        return {
+          // The terminal renderer owns the screen; keep Vite's own output from
+          // fighting the alt-screen and skip the browser HMR socket (HMR flows
+          // through the module runner's in-process channel instead).
+          clearScreen: false,
+          logLevel: 'error',
+          server: { ws: false },
+        }
+      },
+      configureServer(server) {
+        if (!autoLaunch) return
+        // Run after the internal middlewares are wired so the module graph is
+        // ready, then drive the app from the runnable `ssr` environment.
+        return () => {
+          const environment = server.environments.ssr
+          if (!isRunnableDevEnvironment(environment)) {
+            server.config.logger.error('[vue-termui] the "ssr" environment is not runnable')
+            return
+          }
+          void environment.runner.import(entry).catch((error: unknown) => {
+            server.config.logger.error(`[vue-termui] failed to launch ${entry}`)
+            console.error(error)
+          })
+        }
+      },
+    },
+
     vuePlugin,
   ]
-}
-
-/**
- * Options for {@link dev}.
- */
-export interface DevServerOptions {
-  /** Project root. Defaults to the current working directory. */
-  root?: string
-  /** App entry, resolved from the root. Defaults to `/src/main.ts`. */
-  entry?: string
-  /** Extra Vite config merged on top of the defaults (e.g. `configFile`). */
-  inlineConfig?: InlineConfig
-}
-
-/**
- * Starts a Vite dev server and runs the terminal app in-process with HMR.
- *
- * The app executes inside Vite's runnable `ssr` environment: bare imports
- * externalize to native Node (FFI works, single `@vue/runtime-core`) and the
- * module runner rewrites imports so the code runs in this process. {@link
- * vueTermui} forces client render functions so component edits hot-update live
- * via Vue's renderer-agnostic HMR runtime. The browser WebSocket is disabled
- * (`server.ws: false`) — HMR flows through the runner's in-process channel.
- *
- * Run the launcher with `node --experimental-ffi` (creating the OpenTUI
- * renderer loads native code via FFI).
- *
- * @example
- * ```ts
- * // dev.ts — run with: node --experimental-ffi dev.ts
- * import { dev } from 'vue-termui/vite'
- * await dev()
- * ```
- *
- * @param options - {@link DevServerOptions}
- * @returns the running {@link ViteDevServer}
- */
-export async function dev(options: DevServerOptions = {}): Promise<ViteDevServer> {
-  const { root, entry = '/src/main.ts', inlineConfig } = options
-
-  const server = await createServer({
-    root,
-    appType: 'custom',
-    clearScreen: false,
-    logLevel: 'error',
-    server: { middlewareMode: true, ws: false },
-    ...inlineConfig,
-  })
-
-  const environment = server.environments.ssr
-  if (!isRunnableDevEnvironment(environment)) {
-    await server.close()
-    throw new Error('[vue-termui] the "ssr" environment is not runnable')
-  }
-
-  await environment.runner.import(entry)
-
-  return server
 }
 
 export default vueTermui

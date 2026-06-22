@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --experimental-ffi dev.ts",
+    "dev": "NODE_OPTIONS=--experimental-ffi vite",
     "build": "vite build",
     "start": "node --experimental-ffi dist/main.js",
     "play": "pnpm run build && pnpm run start"
