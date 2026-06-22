@@ -19,12 +19,12 @@
     {
       "id": 4,
       "title": "Add playground workspace package with hello world",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": 5,
       "title": "Install, build core, run playground, run tests",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": 6,

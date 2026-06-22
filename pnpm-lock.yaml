@@ -78,6 +78,15 @@ importers:
         specifier: ^3.5.32
         version: 3.5.32(typescript@6.0.2)
 
+  playground:
+    dependencies:
+      vue:
+        specifier: ^3.5.32
+        version: 3.5.32(typescript@6.0.2)
+      vue-termui:
+        specifier: workspace:*
+        version: link:..
+
 packages:
 
   '@babel/generator@8.0.0-rc.3':
