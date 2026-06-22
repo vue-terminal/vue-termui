@@ -1,0 +1,40 @@
+{
+  "goal": "Rewrite vue-termui from scratch on top of OpenTUI (https://opentui.com/), replacing the old custom renderer + yoga. Progressively strip code out of old/.",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Create rewrite branch from main",
+      "status": "done"
+    },
+    {
+      "id": 2,
+      "title": "Move existing project into old/",
+      "status": "done"
+    },
+    {
+      "id": 3,
+      "title": "Lay down template-lib-ts as the core package at the root",
+      "status": "done"
+    },
+    {
+      "id": 4,
+      "title": "Add playground workspace package with hello world",
+      "status": "todo"
+    },
+    {
+      "id": 5,
+      "title": "Install, build core, run playground, run tests",
+      "status": "todo"
+    },
+    {
+      "id": 6,
+      "title": "Integrate OpenTUI as the renderer",
+      "status": "todo"
+    },
+    {
+      "id": 7,
+      "title": "Progressively port features from old/ (no CLI planned)",
+      "status": "todo"
+    }
+  ]
+}

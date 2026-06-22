@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "module": "Preserve",
+    "moduleResolution": "Bundler"
+  },
+  "references": [
+    {
+      "path": "./tsconfig.build.json"
+    }
+  ],
+  "files": []
+}

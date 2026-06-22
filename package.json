@@ -1,0 +1,122 @@
+{
+  "name": "vue-termui",
+  "version": "0.0.0",
+  "description": "Build terminal apps with Vue 3",
+  "keywords": [
+    "vue",
+    "terminal",
+    "tui",
+    "renderer",
+    "cli",
+    "opentui"
+  ],
+  "homepage": "https://github.com/vue-terminal/vue-termui",
+  "bugs": {
+    "url": "https://github.com/vue-terminal/vue-termui/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Eduardo San Martin Morote",
+    "email": "posva13@gmail.com"
+  },
+  "repository": "vue-terminal/vue-termui",
+  "funding": "https://github.com/sponsors/posva",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "vitest --ui",
+    "test": "pnpm run build && pnpm run test:cov && pnpm run test:types",
+    "test:cov": "vitest run --coverage",
+    "test:types": "tsc --build ./tsconfig.json",
+    "lint": "oxlint ${CI:+--deny-warnings} .",
+    "lint:fix": "oxlint --fix .",
+    "fmt": "oxfmt",
+    "prepare": "simple-git-hooks",
+    "release": "node scripts/release.ts",
+    "prepublishOnly": "pnpm run build",
+    "size": "size-limit"
+  },
+  "devDependencies": {
+    "@posva/prompts": "^2.4.4",
+    "@size-limit/esbuild-why": "^12.0.1",
+    "@size-limit/preset-small-lib": "^12.0.1",
+    "@types/node": "^24.12.0",
+    "@types/semver": "^7.7.1",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vitest/coverage-v8": "^4.1.4",
+    "@vitest/ui": "^4.1.4",
+    "@vue/test-utils": "^2.4.6",
+    "conventional-changelog": "^7.2.0",
+    "conventional-changelog-angular": "^8.3.1",
+    "happy-dom": "^20.8.9",
+    "lint-staged": "^16.4.0",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
+    "oxlint-plugin-posva": "^0.0.1",
+    "semver": "^7.7.4",
+    "simple-git-hooks": "^2.13.1",
+    "size-limit": "^12.0.1",
+    "tsdown": "^0.21.7",
+    "typescript": "~6.0.2",
+    "vitest": "^4.1.4",
+    "vue": "^3.5.32"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.17"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "oxlint --fix"
+  },
+  "size-limit": [
+    {
+      "name": "everything from source",
+      "path": "src/index.ts",
+      "import": "*",
+      "ignore": [
+        "vue"
+      ]
+    },
+    {
+      "name": "everything from dist",
+      "path": "dist/index.mjs",
+      "import": "*",
+      "ignore": [
+        "vue"
+      ]
+    }
+  ],
+  "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "simple-git-hooks"
+    ]
+  }
+}
