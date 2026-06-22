@@ -7,7 +7,7 @@ import {
   type Renderable,
 } from '@opentui/core'
 import {
-  type App,
+  type App as BaseApp,
   type Component,
   createRenderer,
   inject,
@@ -35,6 +35,15 @@ export function useRenderer(): CliRenderer {
     throw new Error('[vue-termui] useRenderer() must be called within a vue-termui app.')
   }
   return renderer
+}
+
+/**
+ * The app returned by {@link createApp} and {@link createTuiApp}. It extends
+ * Vue's {@link BaseApp} with a `mount` method that defaults to the renderer root
+ * and unmounts the app when the renderer is destroyed.
+ */
+export interface App<T> extends Omit<BaseApp<T>, 'mount'> {
+  mount(rootContainer?: Renderable): ReturnType<BaseApp<T>['mount']>
 }
 
 /**
@@ -73,12 +82,12 @@ export function createTuiApp(
     return instance
   }
 
-  return app
+  return app as App<Renderable>
 }
 
 /**
  * Creates an OpenTUI renderer and wires a Vue custom renderer onto it, mirroring
- * Vue's own `createApp`: it returns the {@link App} **without mounting it**, so
+ * Vue's own `createApp`: it returns the {@link BaseApp} **without mounting it**, so
  * callers can install plugins (`app.use(...)`) and `await` async readiness
  * (e.g. `router.isReady()`) before calling `app.mount()`.
  *
