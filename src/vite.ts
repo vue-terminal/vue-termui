@@ -51,7 +51,7 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             // Node runs the output directly; no syntax down-leveling, and
             // top-level `await` in the entry must survive.
             target: 'esnext',
-            rollupOptions: {
+            rolldownOptions: {
               input: 'src/main.ts',
               external: (id: string) => !/^[./]/.test(id),
               output: { entryFileNames: '[name].js' },
