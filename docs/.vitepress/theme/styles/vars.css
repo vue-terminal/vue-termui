@@ -1,0 +1,145 @@
+/**
+ * Vue TermUI palette
+ * Purple brand + Vue green accent, carried over from the original docs.
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vt-c-purple: #de41e0;
+  --vt-c-purple-light: #e936eb;
+  --vt-c-purple-lighter: #f072f2;
+  --vt-c-purple-dark: #823c83;
+  --vt-c-purple-darker: #602960;
+  --vt-c-purple-readable: #b021b2;
+
+  --vt-c-green: #42b883;
+  --vt-c-green-light: #42d392;
+  --vt-c-green-lighter: #35eb9a;
+  --vt-c-green-dark: #33a06f;
+  --vt-c-green-darker: #155f3e;
+
+  --vt-c-cyan: #41d1ff;
+}
+
+/**
+ * Colors: brand (light theme)
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-c-brand-1: var(--vt-c-purple-readable);
+  --vp-c-brand-2: var(--vt-c-purple);
+  --vp-c-brand-3: var(--vt-c-purple);
+  --vp-c-brand-soft: rgba(222, 65, 224, 0.14);
+
+  --vp-c-brand-1-darker: var(--vt-c-purple-darker);
+
+  /* keep legacy aliases working */
+  --vp-c-brand: var(--vp-c-brand-1);
+  --vp-c-brand-light: var(--vt-c-purple-light);
+  --vp-c-brand-lighter: var(--vt-c-purple-lighter);
+  --vp-c-brand-dark: var(--vt-c-purple-dark);
+  --vp-c-brand-darker: var(--vt-c-purple-darker);
+}
+
+/**
+ * Colors: brand (dark theme)
+ * Lighter purple for links so they stay legible against dark backgrounds.
+ * -------------------------------------------------------------------------- */
+
+.dark {
+  --vp-c-brand-1: var(--vt-c-purple-lighter);
+  --vp-c-brand-2: var(--vt-c-purple-light);
+  --vp-c-brand-3: var(--vt-c-purple-dark);
+  --vp-c-brand-soft: rgba(222, 65, 224, 0.18);
+}
+
+/**
+ * Component: Button
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-bg: var(--vt-c-purple);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-hover-bg: var(--vt-c-purple-light);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-button-brand-active-bg: var(--vt-c-purple-dark);
+}
+
+/**
+ * Component: Home Hero
+ * Purple → cyan, the gradient from the original landing page.
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    var(--vt-c-purple) 30%,
+    var(--vt-c-cyan)
+  );
+
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    var(--vt-c-purple) 50%,
+    var(--vt-c-cyan) 50%
+  );
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(72px);
+  }
+}
+
+/**
+ * Component: Custom Block
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text: var(--vt-c-green-darker);
+  --vp-custom-block-tip-bg: rgba(66, 184, 131, 0.12);
+  --vp-custom-block-tip-code-bg: rgba(66, 184, 131, 0.16);
+}
+
+.dark {
+  --vp-custom-block-tip-text: var(--vt-c-green-lighter);
+  --vp-custom-block-tip-bg: rgba(66, 184, 131, 0.16);
+  --vp-custom-block-tip-code-bg: rgba(66, 184, 131, 0.22);
+}
+
+/**
+ * Component: Algolia / local search
+ * -------------------------------------------------------------------------- */
+
+.DocSearch {
+  --docsearch-primary-color: var(--vt-c-purple) !important;
+}
+
+/**
+ * Inline keyboard keys, handy for the input/keyboard guides.
+ * -------------------------------------------------------------------------- */
+
+kbd {
+  display: inline-block;
+  padding: 3px 6px;
+  font-size: 0.75em;
+  font-family: var(--vp-font-family-mono);
+  line-height: 1;
+  color: var(--vp-c-text-1);
+  vertical-align: middle;
+  background-color: var(--vp-c-bg-soft);
+  border: solid 1px var(--vp-c-divider);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 var(--vp-c-divider);
+}
