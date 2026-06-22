@@ -2,10 +2,7 @@ import { createApp } from 'vue-termui'
 import App from './App.vue'
 import { router } from './router'
 
-// Start on a specific demo. Memory history begins at "/", so push the demo we
-// want to render first.
-router.push('/demos/bouncing-box')
-
+// Memory history begins at "/" — the home page (src/pages/index.vue).
 const app = await createApp(App, null, { exitOnCtrlC: true })
 app.use(router)
 

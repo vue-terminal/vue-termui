@@ -1,11 +1,18 @@
 <script setup lang="ts">
-// RouterView is imported locally instead of relying on the global components
-// registered by `app.use(router)` — RouterLink is never used here since it
-// would render a DOM <a>, which the terminal renderer can't mount.
+// App shell: a fixed sidebar on the left and the routed page on the right.
+// RouterView is imported locally; RouterLink is never used (it renders a DOM
+// <a>, which the terminal renderer can't mount) — the sidebar pushes routes
+// imperatively instead.
+import { Box } from 'vue-termui'
 import { RouterView } from 'vue-router'
-const n = Math.random().toString(16).slice(2, 6)
+import Sidebar from './components/Sidebar.vue'
 </script>
 
 <template>
-  <RouterView />
+  <Box flexDirection="row" :padding="1" :gap="1">
+    <Sidebar />
+    <Box :flexGrow="1">
+      <RouterView />
+    </Box>
+  </Box>
 </template>
