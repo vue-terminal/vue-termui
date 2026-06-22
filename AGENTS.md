@@ -109,8 +109,13 @@ Thin reactive wrappers over the renderer; all clean up via `onScopeDispose`.
 - `onResize`/`useTerminalSize` (dims read live off `renderer.width/height`),
   `useTitle` (`setTerminalTitle`, reset on unmount).
 - `useInterval`/`useTimeout` — pure timers with scope cleanup.
-- `useFocus` (template-ref based) / `useFocusManager`. OpenTUI has **no** global
-  Tab cycling — apps manage their own ordered list and call `focus()`.
+- `useFocus` / `useFocusManager`. OpenTUI has **no** global Tab cycling — apps
+  manage their own ordered list and call `focus()`. `useFocus().ref` is a
+  **function ref**, not a ref object: `<script setup>` unwraps a destructured
+  composable ref used in `:ref="x"` (compiles to `ref: x.value` → `null`), so a
+  plain ref never binds. A function passes through untouched and forwards through
+  component wrappers (`<Box :ref>`) in both SFCs and render fns. Read the element
+  via the separate `element` ref if needed.
 
 ### Authoring & DX tooling
 
