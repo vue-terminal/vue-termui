@@ -1,5 +1,5 @@
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
-import { isRunnableDevEnvironment, type Plugin } from 'vite'
+import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
 
 /**
  * Renderer host tags. They are neither DOM/SVG elements nor components, so the
@@ -42,6 +42,44 @@ function forceClientCompile(plugin: Plugin): void {
     } else if (hook && typeof hook.handler === 'function') {
       hook.handler = wrap(hook.handler)
     }
+  }
+}
+
+/**
+ * Routes `@vitejs/plugin-vue`'s HMR custom events to the module runner so
+ * template-only edits hot-swap the render function **without resetting state**
+ * (Vue's `rerender`), exactly like a browser app — instead of a full `reload`.
+ *
+ * How plugin-vue's rerender-vs-reload split works on the web: on every change it
+ * broadcasts a `file-changed` custom event carrying the edited file; the
+ * recompiled SFC sets `__VUE_HMR_RUNTIME__.CHANGED_FILE` from it and exports
+ * `_rerender_only = CHANGED_FILE === <thisFile>` (only emitted when the edit
+ * touched the template alone). Its `import.meta.hot.accept` then calls
+ * `rerender` (keep state) when that flag is true, else `reload` (reset state).
+ *
+ * plugin-vue broadcasts that event through `server.ws`, but this dev server runs
+ * the app in the runnable `ssr` environment with the browser socket off
+ * (`server.ws === false` → a no-op `send`). The module runner instead listens on
+ * the `ssr` environment's own hot channel (`environment.hot`, the runner's
+ * transport). So the event never arrives, `CHANGED_FILE` stays unset,
+ * `_rerender_only` is always false, and every edit falls through to `reload`.
+ *
+ * Forwarding plugin-vue's `custom` payloads onto the `ssr` hot channel restores
+ * web parity. The forward runs synchronously inside plugin-vue's hot-update
+ * handler, before Vite dispatches the module update on the same channel, so the
+ * runner sets `CHANGED_FILE` before the recompiled module evaluates.
+ */
+function bridgeHmrEventsToRunner(server: ViteDevServer): void {
+  const ssr = server.environments.ssr
+  if (!ssr) return
+
+  const ws = server.ws as { send: (...args: [HotPayload] | [string, unknown?]) => void }
+  const originalSend = ws.send.bind(ws)
+  ws.send = (...args: [HotPayload] | [string, unknown?]): void => {
+    const payload: HotPayload =
+      typeof args[0] === 'string' ? { type: 'custom', event: args[0], data: args[1] } : args[0]
+    if (payload.type === 'custom') ssr.hot.send(payload)
+    originalSend(...args)
   }
 }
 
@@ -176,6 +214,8 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
         }
       },
       configureServer(server) {
+        bridgeHmrEventsToRunner(server)
+
         if (!autoLaunch) {
           return
         }
