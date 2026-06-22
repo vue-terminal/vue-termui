@@ -2,10 +2,10 @@
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
-import { mountApp } from './index'
+import { createTuiApp } from './index'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
-describe('mountApp', () => {
+describe('createTuiApp', () => {
   it('stops updating the tree once the renderer is destroyed', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 5 })
     const label = ref('alive')
@@ -15,7 +15,8 @@ describe('mountApp', () => {
       },
     })
 
-    const app = mountApp(test.renderer, App)
+    const app = createTuiApp(test.renderer, App)
+    app.mount()
     const errors: unknown[] = []
     app.config.errorHandler = (err) => {
       errors.push(err)

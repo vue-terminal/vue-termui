@@ -8,5 +8,5 @@ export * from '@vue/runtime-core'
 
 export { useHello } from './useHello'
 
-export { createApp, createNodeOps } from './renderer/index'
-export type { CreateAppResult, TuiElementTag } from './renderer/index'
+export { createApp, createNodeOps, rendererInjectionKey, useRenderer } from './renderer/index'
+export type { TuiElementTag } from './renderer/index'

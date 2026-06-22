@@ -14,9 +14,11 @@ const router = createRouter({
 // want to render first.
 router.push('/demos/bouncing-box')
 
-await createApp(App, null, { exitOnCtrlC: true }, async (app) => {
-  app.use(router)
-  // Wait for the initial navigation to resolve so the first frame already has
-  // the matched component.
-  await router.isReady()
-})
+const app = await createApp(App, null, { exitOnCtrlC: true })
+app.use(router)
+
+// Wait for the initial navigation to resolve so the first frame already has
+// the matched component.
+await router.isReady()
+
+app.mount()

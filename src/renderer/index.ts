@@ -6,35 +6,52 @@ import {
   createCliRenderer,
   type Renderable,
 } from '@opentui/core'
-import { type App, type Component, createRenderer } from '@vue/runtime-core'
+import {
+  type App,
+  type Component,
+  createRenderer,
+  inject,
+  type InjectionKey,
+} from '@vue/runtime-core'
 import { createNodeOps } from './nodeOps'
 
 export { createNodeOps } from './nodeOps'
 export type { TuiElementTag } from './nodeOps'
 
 /**
- * Result of {@link createApp}: the mounted Vue {@link App} plus the underlying
- * OpenTUI {@link CliRenderer}.
+ * Injection key for the OpenTUI {@link CliRenderer} the app is mounted onto.
+ * {@link createTuiApp} provides it on the app so components can reach the
+ * renderer via {@link useRenderer}.
  */
-export interface CreateAppResult {
-  app: App<Renderable>
-  renderer: CliRenderer
+export const rendererInjectionKey: InjectionKey<CliRenderer> = Symbol('vue-termui:renderer')
+
+/**
+ * Returns the OpenTUI {@link CliRenderer} the current component tree is mounted
+ * onto. Must be called from within a component set up by a vue-termui app.
+ */
+export function useRenderer(): CliRenderer {
+  const renderer = inject(rendererInjectionKey)
+  if (!renderer) {
+    throw new Error('[vue-termui] useRenderer() must be called within a vue-termui app.')
+  }
+  return renderer
 }
 
 /**
  * Wires a Vue custom renderer onto an existing OpenTUI {@link CliRenderer} and
- * mounts `rootComponent` into its root.
+ * provides the renderer on the app. The returned app is **not** mounted yet —
+ * call `app.mount()` (defaults to the renderer root) once plugins are installed.
  *
- * The app is unmounted when the renderer is destroyed: OpenTUI emits `destroy`
- * before it tears down its native text buffers, so unmounting here stops Vue's
- * reactivity (and runs `onUnmounted`, e.g. to clear timers) before a pending
- * component update could patch an already-destroyed buffer.
+ * `app.mount()` also unmounts the app when the renderer is destroyed: OpenTUI
+ * emits `destroy` before it tears down its native text buffers, so unmounting
+ * here stops Vue's reactivity (and runs `onUnmounted`, e.g. to clear timers)
+ * before a pending component update could patch an already-destroyed buffer.
  *
  * @param renderer - the OpenTUI renderer to mount into
  * @param rootComponent - the Vue root component to mount
  * @param rootProps - props passed to the root component
  */
-export function mountApp(
+export function createTuiApp(
   renderer: CliRenderer,
   rootComponent: Component,
   rootProps?: Record<string, unknown> | null,
@@ -43,21 +60,31 @@ export function mountApp(
     createNodeOps(renderer),
   )
   const app = baseCreateApp(rootComponent, rootProps ?? null)
-  app.mount(renderer.root)
+  app.provide(rendererInjectionKey, renderer)
 
-  renderer.once(CliRenderEvents.DESTROY, () => {
-    app.unmount()
-  })
+  // Mount into the renderer root by default so `app.mount()` needs no argument,
+  // and tie the app's lifetime to the renderer's.
+  const { mount } = app
+  app.mount = (rootContainer = renderer.root) => {
+    const instance = mount(rootContainer)
+    renderer.once(CliRenderEvents.DESTROY, () => {
+      app.unmount()
+    })
+    return instance
+  }
 
   return app
 }
 
 /**
- * Creates an OpenTUI renderer, wires a Vue custom renderer onto it, and mounts
- * `rootComponent` into the renderer's root.
+ * Creates an OpenTUI renderer and wires a Vue custom renderer onto it, mirroring
+ * Vue's own `createApp`: it returns the {@link App} **without mounting it**, so
+ * callers can install plugins (`app.use(...)`) and `await` async readiness
+ * (e.g. `router.isReady()`) before calling `app.mount()`.
  *
- * This is the minimal Phase 1 wiring; the full lifecycle (`waitUntilExit`,
- * `unmount`, mount options) is layered on later.
+ * The renderer is provided on the app internally — reach it from components with
+ * {@link useRenderer}. `app.mount()` defaults to the renderer root, so it needs
+ * no argument.
  *
  * @param rootComponent - the Vue root component to mount
  * @param rootProps - props passed to the root component
@@ -67,8 +94,7 @@ export async function createApp(
   rootComponent: Component,
   rootProps?: Record<string, unknown> | null,
   rendererConfig?: CliRendererConfig,
-): Promise<CreateAppResult> {
+): Promise<App<Renderable>> {
   const renderer = await createCliRenderer(rendererConfig)
-  const app = mountApp(renderer, rootComponent, rootProps)
-  return { app, renderer }
+  return createTuiApp(renderer, rootComponent, rootProps)
 }
