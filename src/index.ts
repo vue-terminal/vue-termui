@@ -20,6 +20,7 @@ export {
   useTitle,
 } from './composables/index'
 export type {
+  ElementRef,
   KeyEvent,
   RemoveListener,
   TerminalSize,

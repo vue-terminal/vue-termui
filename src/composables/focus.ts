@@ -17,13 +17,27 @@ export interface UseFocusOptions {
   autoFocus?: boolean
 }
 
+/**
+ * A function template ref — bind it with `:ref` / `ref:`. The parameter is
+ * `unknown` (rather than `Renderable`) so it stays assignable to Vue's
+ * DOM-oriented `VNodeRef` type when used in render functions.
+ */
+export type ElementRef = (el: unknown) => void
+
 /** Return value of {@link useFocus}. */
 export interface UseFocusReturn {
   /**
    * Template ref to bind to the element you want focusable:
    * `<Box :ref="focusRef" />`. Once mounted the element is marked focusable.
+   *
+   * It's a **function ref** on purpose: `<script setup>` unwraps a destructured
+   * `ref` object in `:ref="..."` (compiling to `ref: theRef.value`, i.e. `null`),
+   * so a plain ref returned from a composable never binds. A function is passed
+   * through untouched and works in both SFC templates and render functions.
    */
-  ref: ShallowRef<Renderable | null>
+  ref: ElementRef
+  /** The focusable element once mounted (read-only; for advanced use). */
+  element: ShallowRef<Renderable | null>
   /** Whether this element currently holds focus. */
   focused: Ref<boolean>
   /** Give this element focus. */
@@ -71,7 +85,10 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
   }
 
   return {
-    ref: element,
+    ref: (el) => {
+      element.value = (el as Renderable | null) ?? null
+    },
+    element,
     focused,
     focus: () => element.value?.focus(),
     blur: () => element.value?.blur(),

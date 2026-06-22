@@ -3,11 +3,39 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
 import { createTuiApp } from '../renderer/index'
+import { Box } from '../components/Box'
 import { useFocus, useFocusManager } from './focus'
+import { BoxRenderable } from '@opentui/core'
 import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 describe('focus composables', () => {
+  it('binds its ref through the Box component (function ref forwards)', async () => {
+    // Guards the SidebarLink pattern: `useFocus().ref` must work when bound to
+    // the <Box> component, not just a host <box>. The ref is a function so it
+    // survives `<script setup>` unwrapping and forwards through the component.
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          const { ref: boxRef } = useFocus({ autoFocus: true })
+          return () => h(Box, { ref: boxRef }, () => h('text', null, 'link'))
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    const box = test.renderer.root.getChildren()[0] as Renderable
+    expect(box).toBeInstanceOf(BoxRenderable)
+    expect(box.focusable).toBe(true)
+    expect(test.renderer.currentFocusedRenderable).toBe(box)
+
+    test.renderer.destroy()
+  })
+
   it('useFocus marks the element focusable and autoFocuses it', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     let focusedFlag = false
@@ -66,15 +94,15 @@ describe('focus composables', () => {
   it('useFocusManager exposes the current focus and can move it', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     let manager: ReturnType<typeof useFocusManager> | undefined
-    let firstRef: ReturnType<typeof useFocus>['ref'] | undefined
+    let element: ReturnType<typeof useFocus>['element'] | undefined
     const app = createTuiApp(
       test.renderer,
       defineComponent({
         setup() {
           manager = useFocusManager()
-          const { ref } = useFocus()
-          firstRef = ref
-          return () => h('box', { ref })
+          const focus = useFocus()
+          element = focus.element
+          return () => h('box', { ref: focus.ref })
         },
       }),
     )
@@ -83,7 +111,7 @@ describe('focus composables', () => {
     await nextTick()
 
     expect(manager!.focused.value).toBe(null)
-    const box = firstRef!.value!
+    const box = element!.value!
     manager!.focus(box)
     await nextTick()
     expect(manager!.focused.value).toBe(box)

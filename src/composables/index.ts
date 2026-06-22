@@ -1,5 +1,5 @@
 export { useFocus, useFocusManager } from './focus'
-export type { UseFocusManagerReturn, UseFocusOptions, UseFocusReturn } from './focus'
+export type { ElementRef, UseFocusManagerReturn, UseFocusOptions, UseFocusReturn } from './focus'
 export { onKeyDown, onKeyUp } from './keyboard'
 export type { KeyEvent, RemoveListener } from './keyboard'
 export { onResize, useTerminalSize, useTitle } from './screen'
