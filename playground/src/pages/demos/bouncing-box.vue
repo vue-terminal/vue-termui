@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { Box, computed, onUnmounted, reactive, ref, Text } from 'vue-termui'
+import { Box, computed, onKeyDown, onUnmounted, reactive, ref, Text, useExit } from 'vue-termui'
+
+// Quit on `q` (in addition to Ctrl+C, handled natively by the renderer).
+const exit = useExit()
+onKeyDown((key) => {
+  if (key.name === 'q') exit()
+})
 
 // Terminal size (reactive, updates on resize).
 const cols = ref(process.stdout.columns ?? 80)
@@ -75,6 +81,6 @@ onUnmounted(() => {
   >
     <Text fg="#42b883" bold>vue-termui 👋</Text>
     <Text fg="#888888">Uptime: {{ seconds }}s</Text>
-    <Text fg="#888888">Ctrl+C to exit</Text>
+    <Text fg="#888888">Press q or Ctrl+C to exit</Text>
   </Box>
 </template>

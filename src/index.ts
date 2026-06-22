@@ -8,6 +8,9 @@ export * from '@vue/runtime-core'
 
 export { useHello } from './useHello'
 
+export { onKeyDown, onKeyUp } from './composables/index'
+export type { KeyEvent, RemoveListener } from './composables/index'
+
 export { Box, Newline, Text } from './components/index'
 export type {
   Align,
