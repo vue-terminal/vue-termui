@@ -73,7 +73,7 @@ onUnmounted(() => {
     flexDirection="column"
     :gap="1"
   >
-    <text fg="#42b883">vue-termui 👋</text>
+    <text fg="#42b883">vue-termui 4 👋</text>
     <text fg="#888888">Uptime: {{ seconds }}s</text>
     <text fg="#888888">Ctrl+C to exit</text>
   </box>
