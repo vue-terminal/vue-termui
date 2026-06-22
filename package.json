@@ -47,6 +47,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "vitest --ui",
+    "play": "pnpm --filter playground dev",
     "test": "pnpm run build && pnpm run test:cov && pnpm run test:types",
     "test:cov": "vitest run --coverage",
     "test:types": "tsc --build ./tsconfig.json",
@@ -112,11 +113,11 @@
       ]
     }
   ],
-  "packageManager": "pnpm@10.32.1",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "simple-git-hooks"
-    ]
+  "engines": {
+    "node": ">=26.3.0"
+  },
+  "packageManager": "pnpm@11.8.0+sha512.c1f5e7c4cb241c8f174b743851d82f42b802324afc8b0f116b96adb15aa06664948dde36960a3ba1079ba5b4b29dd0140135b94b5b5f5263592249d68e555f26",
+  "volta": {
+    "node": "26.3.1"
   }
 }
