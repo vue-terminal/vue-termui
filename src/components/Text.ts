@@ -1,6 +1,62 @@
 import { TextAttributes } from '@opentui/core'
 import { type FunctionalComponent, h, type PropType } from '@vue/runtime-core'
-import type { ColorInput, TextProps } from './types'
+import type { ColorInput } from './types'
+
+/**
+ * Props accepted by {@link Text}. Text content is provided through the default
+ * slot. Boolean style props are folded into OpenTUI's `attributes` bitmask.
+ */
+export interface TextProps {
+  /**
+   * Foreground (text) color.
+   */
+  fg?: ColorInput
+
+  /**
+   * Background color.
+   */
+  bg?: ColorInput
+
+  /**
+   * Render the text in a bold/bright weight.
+   */
+  bold?: boolean
+
+  /**
+   * Render the text dimmed (reduced intensity).
+   */
+  dim?: boolean
+
+  /**
+   * Render the text in italics.
+   */
+  italic?: boolean
+
+  /**
+   * Underline the text.
+   */
+  underline?: boolean
+
+  /**
+   * Make the text blink. Terminal support varies.
+   */
+  blink?: boolean
+
+  /**
+   * Swap the foreground and background colors.
+   */
+  inverse?: boolean
+
+  /**
+   * Draw a line through the text.
+   */
+  strikethrough?: boolean
+
+  /**
+   * How text wraps when it overflows its line.
+   */
+  wrap?: 'none' | 'char' | 'word'
+}
 
 /**
  * Folds the boolean style props into OpenTUI's single `attributes` bitmask.

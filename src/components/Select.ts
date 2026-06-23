@@ -8,7 +8,15 @@ import {
   shallowRef,
   watch,
 } from '@vue/runtime-core'
-import type { SelectOption } from './types'
+/** A single choice in a {@link Select}. */
+export interface SelectOption {
+  /** Label shown for the option. */
+  name: string
+  /** Secondary text shown alongside the name. */
+  description?: string
+  /** Arbitrary value associated with the option. */
+  value?: unknown
+}
 
 /** Props accepted by {@link Select}. */
 export interface SelectProps {
