@@ -112,24 +112,6 @@
       "oxlint --no-error-on-unmatched-pattern --fix"
     ]
   },
-  "size-limit": [
-    {
-      "name": "everything from source",
-      "path": "src/index.ts",
-      "import": "*",
-      "ignore": [
-        "vue"
-      ]
-    },
-    {
-      "name": "everything from dist",
-      "path": "dist/index.mjs",
-      "import": "*",
-      "ignore": [
-        "vue"
-      ]
-    }
-  ],
   "engines": {
     "node": ">=26.3.0"
   },
