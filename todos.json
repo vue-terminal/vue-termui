@@ -300,5 +300,195 @@
     "RESOLVED (Phase 1): keep `export * from '@vue/runtime-core'`. Required, not just convenience — apps must get h/defineComponent/ref from the same runtime-core instance the renderer uses, else vnode/instance interop breaks. Revisit curation later if surface is too broad.",
     "RESOLVED (Phase 8): both supported — SFCs via vue-termui/vite, render fns (.ts) with no build. No auto-import/component-resolver (explicit imports).",
     "RESOLVED: placeholder src/useHello.ts + tests removed now that real composables exist."
-  ]
+  ],
+
+  "backlog": {
+    "note": "Post-phase-7 refinement + investigation items (from review 2026-06-23). Not sequential phases; grouped by theme. `challenge:` records pushback on the original ask where the repo already does it or a different approach is better.",
+
+    "apiErgonomics": [
+      {
+        "id": "be1",
+        "title": "useRendererEvent(name, handler) generic composable",
+        "status": "todo",
+        "detail": "Create a single composable that wraps `renderer.on/off` with scope-tied cleanup (onScopeDispose) and returns a RemoveListener. Accept a plain string union of event names instead of forcing users to import the CliRenderEvents enum. DRY: onResize, useFocus, useFocusManager all hand-roll this exact on/off+dispose dance today.",
+        "challenge": "It does NOT exist yet — the original ask said 'rename', but nothing defines useRendererEvent. This is a create, and it should be the shared primitive the other renderer composables are refactored onto.",
+        "location": "src/composables/renderer.ts (new) — also a natural home for useRenderer re-export.",
+        "openTuiRefs": ["CliRenderEvents", "renderer.on/off"]
+      },
+      {
+        "id": "be2",
+        "title": "useFocusedElement(): ShallowRef<Renderable | null>",
+        "status": "todo",
+        "detail": "Thin composable exposing just the reactive currently-focused renderable.",
+        "challenge": "Largely already exists as useFocusManager().focused (focus.ts:115, shallowRef synced via FOCUSED_RENDERABLE). Decide: (a) extract a standalone useFocusedElement() that useFocusManager reuses, or (b) skip and document `const { focused } = useFocusManager()`. Lean (a) for discoverability, but it must share one listener, not add a second.",
+        "location": "src/composables/focus.ts"
+      },
+      {
+        "id": "be3",
+        "title": "Shared TS utils module (RemoveListener, etc.)",
+        "status": "todo",
+        "detail": "Move RemoveListener out of keyboard.ts into a shared src/utils/types.ts (or composables/renderer.ts). Collect other cross-cutting helper types as they appear.",
+        "challenge": "RemoveListener currently lives in keyboard.ts and is imported by screen.ts — odd home. Keep the public re-export path stable (still exported from index). Don't over-build a utils grab-bag; add types only when ≥2 modules need them.",
+        "location": "src/composables/keyboard.ts -> shared module"
+      },
+      {
+        "id": "be4",
+        "title": "Reconsider reimplementing vueuse/core composables",
+        "status": "todo",
+        "detail": "Audit useInterval/useTimeout (timing.ts) and any future helper against @vueuse/core / @vueuse/shared (which are DOM-free and runtime-core compatible).",
+        "challenge": "Decision rule from the ask: do NOT ship our own version of something vueuse already does well. If we only need it internally, depend on it but DON'T re-export it (keep public surface minimal). Only expose/own a composable when terminal semantics differ from the web (e.g. timers tied to renderer.requestLive/dropLive). Verify @vueuse/shared truly has no DOM coupling before adding the dep.",
+        "location": "src/composables/timing.ts"
+      },
+      {
+        "id": "be5",
+        "title": "createApp renderer-options naming",
+        "status": "todo",
+        "detail": "createApp(root, props?, rendererConfig?: CliRendererConfig) already forwards options to createCliRenderer (renderer/index.ts:210).",
+        "challenge": "The ask ('pass createCliRenderer options as rendererOptions') is ALREADY DONE — only the name differs (rendererConfig vs rendererOptions). Reduce to a naming decision; rename to rendererOptions only if we prefer it, then update docs/cookbook. Low effort, low priority."
+      }
+    ],
+
+    "typesAndDocs": [
+      {
+        "id": "be6",
+        "title": "Audit BoxProps against OpenTUI layout docs",
+        "status": "todo",
+        "detail": "Cross-check every BoxProps field + value union against https://opentui.com/docs/core-concepts/layout/ (flex, sizing, spacing, position). Fill gaps, fix value unions, drop anything OpenTUI doesn't accept.",
+        "location": "src/components/types.ts:38 (BoxProps)",
+        "challenge": "BoxProps is already fairly complete; this is a verification pass, not a rewrite. Add a type-level test (*.test-d.ts) so drift is caught."
+      },
+      {
+        "id": "be7",
+        "title": "Co-locate component prop types with components",
+        "status": "todo",
+        "detail": "Move BoxProps -> Box.ts, TextProps -> Text.ts, SelectOption -> Select.ts. Keep only shared primitives (ColorInput, Dimension, FlexDirection, Align, Justify, Position, Overflow, BorderStyle) in types.ts.",
+        "challenge": "InputProps already lives in Input.ts — so this just makes Box/Text/Select consistent. Re-export from components/index + root index so the public path is unchanged.",
+        "location": "src/components/types.ts"
+      },
+      {
+        "id": "be8",
+        "title": "Complete TextProps docs + JSDoc style sweep",
+        "status": "todo",
+        "detail": "Document every TextProps field (bold/dim/italic/underline/blink/inverse/strikethrough have no descriptions today). Apply house JSDoc style everywhere: always multiline block comments, and a blank line after each documented property.",
+        "location": "src/components/types.ts:114 (TextProps)"
+      },
+      {
+        "id": "be9",
+        "title": "Type-safe KeyEvent.name (and related fields)",
+        "status": "todo",
+        "detail": "KeyEvent.name is `string` today (keyboard.ts:13). Find OpenTUI's canonical key-name list and type name as a union (with a `(string & {})` escape hatch for forward-compat). Same treatment for eventType ('press'|'release'|'repeat' already known).",
+        "location": "src/composables/keyboard.ts:12",
+        "challenge": "Investigate whether OpenTUI exports the name list; if not, maintain our own union and add a test that flags when OpenTUI emits a name we don't cover."
+      }
+    ],
+
+    "focusSystem": [
+      {
+        "id": "be10",
+        "title": "Rethink Input `focus` prop",
+        "status": "todo",
+        "detail": "Input exposes `focus?: boolean` meaning 'focus on mount' (Input.ts:22,79). Docs (https://opentui.com/docs/components/input/) talk about id/delegate, but those belong to the construct API we deliberately don't use.",
+        "challenge": "`focus: true` reads as a weird boolean. Options: rename to `autoFocus` (matches useFocus({autoFocus})), or drop in favor of useFocus + template ref. Decide one and apply across all focusable components consistently. Do NOT adopt the construct/delegate API — imperative only.",
+        "location": "src/components/Input.ts"
+      },
+      {
+        "id": "be11",
+        "title": "Design a real focus system (registration-based)",
+        "status": "todo",
+        "detail": "Investigate a focus manager where components register themselves as focusable elements into an ordered set, enabling app-managed traversal. OpenTUI has NO global Tab cycling/ordering (it leaves it to the app — see phase 6 notes).",
+        "challenge": "User isn't sure registration is the right model ('I might be wrong'). Weigh registration-set vs. DOM-order traversal vs. explicit app-owned list. Prototype before committing; document the tradeoff. This underpins be10/be12.",
+        "oldRefs": ["focus/FocusManager.ts", "focus/Focusable.ts"]
+      },
+      {
+        "id": "be12",
+        "title": "Advanced keyboard navigation (browser-like)",
+        "status": "todo",
+        "detail": "Go beyond the basic Tab example at https://opentui.com/docs/components/input/: Tab/Shift-Tab order, focus traps (modals/popups), Esc to dismiss/blur, arrow-key navigation within composite widgets (lists, radio groups). Mirror browser/AT semantics where sensible.",
+        "challenge": "Depends on be11's model. Keep it composable (a useFocusTrap, arrow-nav helper) rather than baked into every component."
+      }
+    ],
+
+    "components": [
+      {
+        "id": "be13",
+        "title": "Fix Select rendering",
+        "status": "todo",
+        "detail": "Select 'looks weird' / doesn't render properly. Reproduce in playground, capture the bad frame in a spec (TDD: failing test first), then fix the mapping to SelectRenderable.",
+        "location": "src/components/Select.ts, Select.spec.ts",
+        "challenge": "Need a concrete repro before changing code — is it option layout, height, highlight, or scroll? Pin it down with the test renderer."
+      },
+      {
+        "id": "be14",
+        "title": "ProgressBar colors derive from Text colors",
+        "status": "todo",
+        "detail": "Replace hardcoded default colors: filled portion uses the inherited/text fg, background uses a dimmed variant — not magic literals.",
+        "location": "src/components/ProgressBar.ts"
+      },
+      {
+        "id": "be15",
+        "title": "Full prop/option forwarding per component (split me)",
+        "status": "todo",
+        "detail": "Every component should expose typed props that actually forward the underlying renderable's options — today many options aren't passed through. Split into one task per component (Box, Text, Input, Select, ProgressBar, ...).",
+        "challenge": "This is a meta-task: don't implement as one PR. Each component already has SOME typed props; the gap is coverage + correct undefined-omission (see the Input maxLength gotcha — never forward undefined onto a renderable default)."
+      },
+      {
+        "id": "be16",
+        "title": "Design composition for FrameBuffer & line-numbers",
+        "status": "todo",
+        "detail": "These OpenTUI features have imperative/composition patterns that don't map cleanly to declarative components — needs design discussion before any code.",
+        "challenge": "Explicitly deferred for deeper discussion; do NOT lump with be15. Capture the API question first."
+      },
+      {
+        "id": "be17",
+        "title": "Rich text: does `t` tagged template work? Link/TextTransform",
+        "status": "todo",
+        "detail": "Investigate OpenTUI's `t` template literal for rich/styled inline text (https://opentui.com/docs/components/text/). If viable, it likely unblocks the deferred Link (OSC8) + TextTransform from phase 7.",
+        "challenge": "Phase 7 deferred Link/TextTransform because text-node children don't carry per-node link/style through nodeOps. `t` may be the missing primitive — confirm before designing the components.",
+        "oldRefs": ["components/Link.ts", "components/TextTransform.ts"]
+      }
+    ],
+
+    "errorDX": [
+      {
+        "id": "be18",
+        "title": "Validate common authoring mistakes + dev error overlay",
+        "status": "todo",
+        "detail": "Two parts: (1) nodeOps-level guards for invalid trees (e.g. <Text> nested in <Text>, text where a box is required) with clear messages; (2) a built-in dev-only error component/overlay that shows the error + full stack trace on screen (errors are currently hard to debug).",
+        "challenge": "Check what OpenTUI's console/debug overlay already gives us before building our own surface — wrap it rather than duplicate. Gate everything behind a dev flag so prod TUIs stay clean. Split into validation vs. overlay if it grows.",
+        "location": "src/renderer/nodeOps.ts, src/renderer/errors.spec.ts"
+      }
+    ],
+
+    "exploration": [
+      {
+        "id": "be19",
+        "title": "Explore id registry + getElementById()",
+        "status": "todo",
+        "detail": "Keep a map of renderables by id so code can look one up and call e.g. el.focus() across components.",
+        "challenge": "el.focus() already works via template refs locally — the only real win is CROSS-component access by id. Validate that need with a concrete use case before building a registry (memory/teardown cost). OpenTUI auto-generates ids; we'd need a stable user-supplied id prop. Low priority until something needs it.",
+        "priority": "low"
+      },
+      {
+        "id": "be20",
+        "title": "Investigate keymap package for high-level widgets",
+        "status": "todo",
+        "detail": "Evaluate https://opentui.com/docs/keymap/overview/ for command palettes, key combos/chords — likely distinct from renderer.keyInput we wired in phase 4.",
+        "challenge": "Confirm it's additive to keyInput (not a replacement) and whether it belongs in core or a future higher-level package."
+      },
+      {
+        "id": "be21",
+        "title": "tree-sitter caching strategy",
+        "status": "todo",
+        "detail": "https://opentui.com/docs/reference/tree-sitter/ downloads grammars at runtime with no obvious cache. If we ship a CLI we need a cache location. Check how OpenCode (OpenTUI-based) handles it.",
+        "priority": "low"
+      },
+      {
+        "id": "be22",
+        "title": "Bun standalone-executable bundling",
+        "status": "todo",
+        "detail": "We support Node well; also support bundling to a single binary via Bun (https://opentui.com/docs/reference/standalone-executables/). Verify FFI/native renderer survives the Bun bundle.",
+        "challenge": "Keep Node the primary target; Bun bundling is an additive distribution path, not a runtime switch. Confirm @opentui/core's native FFI is compatible with `bun build --compile`."
+      }
+    ]
+  }
 }

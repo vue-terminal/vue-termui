@@ -112,18 +112,53 @@ export interface SelectOption {
  * slot. Boolean style props are folded into OpenTUI's `attributes` bitmask.
  */
 export interface TextProps {
-  /** Foreground (text) color. */
+  /**
+   * Foreground (text) color.
+   */
   fg?: ColorInput
-  /** Background color. */
+
+  /**
+   * Background color.
+   */
   bg?: ColorInput
+
+  /**
+   * Render the text in a bold/bright weight.
+   */
   bold?: boolean
+
+  /**
+   * Render the text dimmed (reduced intensity).
+   */
   dim?: boolean
+
+  /**
+   * Render the text in italics.
+   */
   italic?: boolean
+
+  /**
+   * Underline the text.
+   */
   underline?: boolean
+
+  /**
+   * Make the text blink. Terminal support varies.
+   */
   blink?: boolean
-  /** Swap foreground and background. */
+
+  /**
+   * Swap the foreground and background colors.
+   */
   inverse?: boolean
+
+  /**
+   * Draw a line through the text.
+   */
   strikethrough?: boolean
-  /** How text wraps when it overflows its line. */
+
+  /**
+   * How text wraps when it overflows its line.
+   */
   wrap?: 'none' | 'char' | 'word'
 }
