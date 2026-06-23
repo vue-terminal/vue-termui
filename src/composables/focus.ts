@@ -1,15 +1,7 @@
-import { CliRenderEvents } from '@opentui/core'
-import {
-  getCurrentScope,
-  onScopeDispose,
-  type Ref,
-  ref,
-  type ShallowRef,
-  shallowRef,
-  watch,
-} from '@vue/runtime-core'
+import { CliRenderEvents, type Renderable } from '@opentui/core'
+import { type Ref, ref, type ShallowRef, shallowRef, watch } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
-import type { Renderable } from '@opentui/core'
+import { useRendererEvent } from './useRendererEvent'
 
 /** Options for {@link useFocus}. */
 export interface UseFocusOptions {
@@ -69,20 +61,18 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
   const element = shallowRef<Renderable | null>(null)
   const focused = ref(false)
 
-  watch(element, (el) => {
-    if (!el) return
-    el.focusable = true
-    focused.value = renderer.currentFocusedRenderable === el
-    if (options.autoFocus) el.focus()
-  })
-
   const sync = (): void => {
     focused.value = !!element.value && renderer.currentFocusedRenderable === element.value
   }
-  renderer.on(CliRenderEvents.FOCUSED_RENDERABLE, sync)
-  if (getCurrentScope()) {
-    onScopeDispose(() => renderer.off(CliRenderEvents.FOCUSED_RENDERABLE, sync))
-  }
+
+  watch(element, (el) => {
+    if (!el) return
+    el.focusable = true
+    sync()
+    if (options.autoFocus) el.focus()
+  })
+
+  useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, sync)
 
   return {
     ref: (el) => {
@@ -114,13 +104,9 @@ export function useFocusManager(): UseFocusManagerReturn {
   const renderer = useRenderer()
   const focused = shallowRef<Renderable | null>(renderer.currentFocusedRenderable)
 
-  const sync = (): void => {
+  useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, () => {
     focused.value = renderer.currentFocusedRenderable
-  }
-  renderer.on(CliRenderEvents.FOCUSED_RENDERABLE, sync)
-  if (getCurrentScope()) {
-    onScopeDispose(() => renderer.off(CliRenderEvents.FOCUSED_RENDERABLE, sync))
-  }
+  })
 
   return {
     focused,
