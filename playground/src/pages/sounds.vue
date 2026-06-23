@@ -47,9 +47,11 @@ onMounted(async () => {
     return
   }
 
-  for (const pad of pads) {
-    const sound = await audio.loadSoundFile(soundPath(pad.file))
-    if (sound) sounds.set(pad.key, sound)
+  const loaded = await Promise.all(
+    pads.map(async (pad) => [pad.key, await audio!.loadSoundFile(soundPath(pad.file))] as const),
+  )
+  for (const [key, sound] of loaded) {
+    if (sound) sounds.set(key, sound)
   }
 
   status.value = `ready — ${sounds.size}/${pads.length} sounds loaded`
