@@ -202,13 +202,13 @@ export function createTuiApp(
  *
  * @param rootComponent - the Vue root component to mount
  * @param rootProps - props passed to the root component
- * @param rendererConfig - options forwarded to `createCliRenderer`
+ * @param rendererOptions - options forwarded to `createCliRenderer`
  */
 export async function createApp(
   rootComponent: Component,
   rootProps?: Record<string, unknown> | null,
-  rendererConfig?: CliRendererConfig,
+  rendererOptions?: CliRendererConfig,
 ): Promise<App<Renderable>> {
-  const renderer = await createCliRenderer(rendererConfig)
+  const renderer = await createCliRenderer(rendererOptions)
   return createTuiApp(renderer, rootComponent, rootProps)
 }

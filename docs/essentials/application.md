@@ -13,11 +13,11 @@ app.mount()
 await app.waitUntilExit()
 ```
 
-`createApp(rootComponent, rootProps?, rendererConfig?)`:
+`createApp(rootComponent, rootProps?, rendererOptions?)`:
 
 - **`rootComponent`** — your root component.
 - **`rootProps`** — props passed to the root component (or `null`).
-- **`rendererConfig`** — options forwarded to OpenTUI's renderer (see [Renderer options](#renderer-options)).
+- **`rendererOptions`** — options forwarded to OpenTUI's renderer (see [Renderer options](#renderer-options)).
 
 It returns a `Promise<App>`. The app is **not mounted yet** — that's deliberate, so you can install plugins and await async setup first:
 
