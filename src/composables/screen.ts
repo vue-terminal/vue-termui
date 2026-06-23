@@ -23,7 +23,9 @@ export function onResize(handler: (width: number, height: number) => void): Remo
   return useRendererEvent(CliRenderEvents.RESIZE, () => handler(renderer.width, renderer.height))
 }
 
-/** Reactive terminal dimensions returned by {@link useTerminalSize}. */
+/**
+ * Reactive terminal dimensions returned by {@link useTerminalSize}.
+ */
 export interface TerminalSize {
   width: Ref<number>
   height: Ref<number>

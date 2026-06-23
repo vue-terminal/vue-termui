@@ -8,27 +8,54 @@ import {
   shallowRef,
   watch,
 } from '@vue/runtime-core'
-/** A single choice in a {@link Select}. */
+
+/**
+ * A single choice in a {@link Select}.
+ */
 export interface SelectOption {
-  /** Label shown for the option. */
+  /**
+   * Label shown for the option.
+   */
   name: string
-  /** Secondary text shown alongside the name. */
+
+  /**
+   * Secondary text shown alongside the name.
+   */
   description?: string
-  /** Arbitrary value associated with the option. */
+
+  /**
+   * Arbitrary value associated with the option.
+   */
   value?: unknown
 }
 
-/** Props accepted by {@link Select}. */
+/**
+ * Props accepted by {@link Select}.
+ */
 export interface SelectProps {
-  /** The choices to display. */
+  /**
+   * The choices to display.
+   */
   options?: SelectOption[]
-  /** Index of the highlighted option. Use with `v-model`. */
+
+  /**
+   * Index of the highlighted option. Use with `v-model`.
+   */
   modelValue?: number
-  /** Focus the list as soon as it mounts (so arrow keys navigate it). */
+
+  /**
+   * Focus the list as soon as it mounts (so arrow keys navigate it).
+   */
   focus?: boolean
-  /** Show each option's description. */
+
+  /**
+   * Show each option's description.
+   */
   showDescription?: boolean
-  /** Wrap around when navigating past the ends. */
+
+  /**
+   * Wrap around when navigating past the ends.
+   */
   wrapSelection?: boolean
 }
 

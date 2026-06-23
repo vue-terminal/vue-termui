@@ -10,21 +10,43 @@ import {
 } from '@vue/runtime-core'
 import type { ColorInput } from './types'
 
-/** Props accepted by {@link Input}. */
+/**
+ * Props accepted by {@link Input}.
+ */
 export interface InputProps {
-  /** Current text value. Use with `v-model`. */
+  /**
+   * Current text value. Use with `v-model`.
+   */
   modelValue?: string
-  /** Placeholder shown while empty. */
+
+  /**
+   * Placeholder shown while empty.
+   */
   placeholder?: string
-  /** Maximum number of characters. */
+
+  /**
+   * Maximum number of characters.
+   */
   maxLength?: number
-  /** Focus the input as soon as it mounts. */
+
+  /**
+   * Focus the input as soon as it mounts.
+   */
   focus?: boolean
-  /** Text color. */
+
+  /**
+   * Text color.
+   */
   textColor?: ColorInput
-  /** Background color. */
+
+  /**
+   * Background color.
+   */
   backgroundColor?: ColorInput
-  /** Background color while focused. */
+
+  /**
+   * Background color while focused.
+   */
   focusedBackgroundColor?: ColorInput
 }
 

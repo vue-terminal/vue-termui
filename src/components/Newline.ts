@@ -1,8 +1,14 @@
 import { type FunctionalComponent, h } from '@vue/runtime-core'
 
-/** Props accepted by {@link Newline}. */
+/**
+ * Props accepted by {@link Newline}.
+ */
 export interface NewlineProps {
-  /** How many line breaks to insert. @default 1 */
+  /**
+   * How many line breaks to insert.
+   *
+   * @default 1
+   */
   count?: number
 }
 

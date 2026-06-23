@@ -8,27 +8,59 @@ import type { RemoveListener } from '../utils/types'
  * handlers stay typed without leaking the implementation type.
  */
 export interface KeyEvent {
-  /** Normalized key name, e.g. `'a'`, `'return'`, `'escape'`, `'up'`. */
+  /**
+   * Normalized key name, e.g. `'a'`, `'return'`, `'escape'`, `'up'`.
+   */
   name: string
-  /** Whether Ctrl was held. */
+
+  /**
+   * Whether Ctrl was held.
+   */
   ctrl: boolean
-  /** Whether Meta (Command/Windows) was held. */
+
+  /**
+   * Whether Meta (Command/Windows) was held.
+   */
   meta: boolean
-  /** Whether Shift was held. */
+
+  /**
+   * Whether Shift was held.
+   */
   shift: boolean
-  /** Whether Alt/Option was held. */
+
+  /**
+   * Whether Alt/Option was held.
+   */
   option: boolean
-  /** The raw escape sequence that produced this event. */
+
+  /**
+   * The raw escape sequence that produced this event.
+   */
   sequence: string
-  /** The original bytes received. */
+
+  /**
+   * The original bytes received.
+   */
   raw: string
-  /** `'press'`, `'release'` or `'repeat'`. */
+
+  /**
+   * `'press'`, `'release'` or `'repeat'`.
+   */
   eventType: string
-  /** Which parser produced the event. */
+
+  /**
+   * Which parser produced the event.
+   */
   source: 'raw' | 'kitty'
-  /** Marks the event handled so OpenTUI stops propagating it. */
+
+  /**
+   * Marks the event handled so OpenTUI stops propagating it.
+   */
   preventDefault(): void
-  /** Stops the event from reaching further handlers. */
+
+  /**
+   * Stops the event from reaching further handlers.
+   */
   stopPropagation(): void
 }
 

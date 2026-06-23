@@ -8,7 +8,9 @@ import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevSer
  */
 const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text', 'input', 'select'])
 
-/** Default app entry, resolved from the project root. */
+/**
+ * Default app entry, resolved from the project root.
+ */
 const DEFAULT_ENTRY = '/src/main.ts'
 
 /**

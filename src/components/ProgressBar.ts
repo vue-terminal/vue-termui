@@ -3,19 +3,48 @@ import { Box } from './Box'
 import { Text } from './Text'
 import type { ColorInput } from './types'
 
-/** Props accepted by {@link ProgressBar}. */
+/**
+ * Props accepted by {@link ProgressBar}.
+ */
 export interface ProgressBarProps {
-  /** Current progress, between `0` and `max`. */
+  /**
+   * Current progress, between `0` and `max`.
+   */
   value: number
-  /** The value representing 100%. @default 1 */
+
+  /**
+   * The value representing 100%.
+   *
+   * @default 1
+   */
   max?: number
-  /** Total width of the bar, in cells. @default 25 */
+
+  /**
+   * Total width of the bar, in cells.
+   *
+   * @default 25
+   */
   width?: number
-  /** Color of the filled portion. @default the inherited text color */
+
+  /**
+   * Color of the filled portion.
+   *
+   * @default the inherited text color
+   */
   color?: ColorInput
-  /** Color of the unfilled track. @default a dimmed version of the text color */
+
+  /**
+   * Color of the unfilled track.
+   *
+   * @default a dimmed version of the text color
+   */
   trackColor?: ColorInput
-  /** Character used to draw the bar. @default '█' */
+
+  /**
+   * Character used to draw the bar.
+   *
+   * @default '█'
+   */
   char?: string
 }
 

@@ -3,9 +3,15 @@ import { type Ref, ref, type ShallowRef, shallowRef, watch } from '@vue/runtime-
 import { useRenderer } from '../renderer/index'
 import { useRendererEvent } from './useRendererEvent'
 
-/** Options for {@link useFocus}. */
+/**
+ * Options for {@link useFocus}.
+ */
 export interface UseFocusOptions {
-  /** Focus the element as soon as it mounts. @default false */
+  /**
+   * Focus the element as soon as it mounts.
+   *
+   * @default false
+   */
   autoFocus?: boolean
 }
 
@@ -16,7 +22,9 @@ export interface UseFocusOptions {
  */
 export type ElementRef = (el: unknown) => void
 
-/** Return value of {@link useFocus}. */
+/**
+ * Return value of {@link useFocus}.
+ */
 export interface UseFocusReturn {
   /**
    * Template ref to bind to the element you want focusable:
@@ -28,13 +36,25 @@ export interface UseFocusReturn {
    * through untouched and works in both SFC templates and render functions.
    */
   ref: ElementRef
-  /** The focusable element once mounted (read-only; for advanced use). */
+
+  /**
+   * The focusable element once mounted (read-only; for advanced use).
+   */
   element: ShallowRef<Renderable | null>
-  /** Whether this element currently holds focus. */
+
+  /**
+   * Whether this element currently holds focus.
+   */
   focused: Ref<boolean>
-  /** Give this element focus. */
+
+  /**
+   * Give this element focus.
+   */
   focus(): void
-  /** Remove focus from this element. */
+
+  /**
+   * Remove focus from this element.
+   */
   blur(): void
 }
 
@@ -85,13 +105,23 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
   }
 }
 
-/** Return value of {@link useFocusManager}. */
+/**
+ * Return value of {@link useFocusManager}.
+ */
 export interface UseFocusManagerReturn {
-  /** The currently focused element, or `null`. Reactive. */
+  /**
+   * The currently focused element, or `null`. Reactive.
+   */
   focused: ShallowRef<Renderable | null>
-  /** Focus an element. */
+
+  /**
+   * Focus an element.
+   */
   focus(renderable: Renderable): void
-  /** Clear focus from whatever element currently has it. */
+
+  /**
+   * Clear focus from whatever element currently has it.
+   */
   blur(): void
 }
 
