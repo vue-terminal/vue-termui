@@ -1,6 +1,5 @@
 packages:
   - playground
-  - docs
 ignoreWorkspaceRootCheck: true
 strictPeerDependencies: false
 allowBuilds:
