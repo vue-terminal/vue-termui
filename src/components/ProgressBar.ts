@@ -11,9 +11,9 @@ export interface ProgressBarProps {
   max?: number
   /** Total width of the bar, in cells. @default 25 */
   width?: number
-  /** Color of the filled portion. */
+  /** Color of the filled portion. @default the inherited text color */
   color?: ColorInput
-  /** Color of the unfilled track. */
+  /** Color of the unfilled track. @default a dimmed version of the text color */
   trackColor?: ColorInput
   /** Character used to draw the bar. @default '█' */
   char?: string
@@ -25,8 +25,9 @@ function clamp(value: number, min: number, max: number): number {
 
 /**
  * A horizontal progress bar, composed from {@link Box} and {@link Text} (OpenTUI
- * has no native progress renderable). The filled portion is drawn in `color`,
- * the remainder in `trackColor`.
+ * has no native progress renderable). The filled portion uses `color` (defaulting
+ * to the inherited text color), the remainder uses `trackColor` (defaulting to a
+ * dimmed version of the text color).
  *
  * @example
  * ```vue
@@ -41,8 +42,12 @@ export const ProgressBar: FunctionalComponent<ProgressBarProps> = (props) => {
   const filled = Math.round(width * ratio)
 
   return h(Box, { flexDirection: 'row' }, () => [
-    h(Text, { fg: props.color ?? '#42b883' }, () => char.repeat(filled)),
-    h(Text, { fg: props.trackColor ?? '#3a3a3a' }, () => char.repeat(width - filled)),
+    // No `color` → inherit the default text color. No `trackColor` → render the
+    // track dimmed rather than picking an arbitrary gray.
+    h(Text, { fg: props.color }, () => char.repeat(filled)),
+    h(Text, props.trackColor !== undefined ? { fg: props.trackColor } : { dim: true }, () =>
+      char.repeat(width - filled),
+    ),
   ])
 }
 
