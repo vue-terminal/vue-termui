@@ -1,8 +1,15 @@
-import { type MaybeRefOrGetter, type Ref, ref, toValue, watch } from '@vue/runtime-core'
+import {
+  type MaybeRefOrGetter,
+  onScopeDispose,
+  type Ref,
+  ref,
+  toValue,
+  watch,
+} from '@vue/runtime-core'
 import { CliRenderEvents } from '@opentui/core'
-import { getCurrentScope, onScopeDispose } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
 import type { RemoveListener } from './keyboard'
+import { useRendererEvent } from './useRendererEvent'
 
 /**
  * Runs `handler` whenever the terminal is resized, with the new dimensions. The
@@ -13,16 +20,7 @@ export function onResize(handler: (width: number, height: number) => void): Remo
   const renderer = useRenderer()
   // Read the live dimensions off the renderer rather than relying on the event
   // payload, so the handler always sees the authoritative size.
-  const listener = (): void => handler(renderer.width, renderer.height)
-  renderer.on(CliRenderEvents.RESIZE, listener)
-
-  const remove: RemoveListener = () => {
-    renderer.off(CliRenderEvents.RESIZE, listener)
-  }
-  if (getCurrentScope()) {
-    onScopeDispose(remove)
-  }
-  return remove
+  return useRendererEvent(CliRenderEvents.RESIZE, () => handler(renderer.width, renderer.height))
 }
 
 /** Reactive terminal dimensions returned by {@link useTerminalSize}. */
@@ -68,5 +66,5 @@ export function useTitle(title: MaybeRefOrGetter<string>): void {
       immediate: true,
     },
   )
-  onScopeDispose(() => renderer.setTerminalTitle(''))
+  onScopeDispose(() => renderer.setTerminalTitle(''), true)
 }
