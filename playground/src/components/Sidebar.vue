@@ -15,6 +15,7 @@ const items = [
   { label: 'Layout', to: '/layout' },
   { label: 'Select', to: '/select' },
   { label: 'Keyboard', to: '/keyboard' },
+  { label: 'Soundboard', to: '/sounds' },
   { label: 'Form', to: '/demos/form' },
   { label: 'Bouncing box', to: '/demos/bouncing-box' },
 ] as const
