@@ -1,4 +1,4 @@
-import { getCurrentScope, onScopeDispose } from '@vue/runtime-core'
+import { onScopeDispose } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
 
 /** Removes a previously-registered listener. */
@@ -38,18 +38,11 @@ type KeyEventName = 'keypress' | 'keyrelease'
 
 function onKey(eventName: KeyEventName, handler: (event: KeyEvent) => void): RemoveListener {
   const { keyInput } = useRenderer()
-  // OpenTUI's `KeyEvent` is structurally compatible with our public type.
-  const listener = handler as (event: unknown) => void
-  keyInput.on(eventName, listener)
-
-  const remove: RemoveListener = () => {
-    keyInput.off(eventName, listener)
-  }
-  // Tie the listener to the active effect scope (the setup scope of the calling
-  // component) so it is cleaned up automatically on unmount.
-  if (getCurrentScope()) {
-    onScopeDispose(remove)
-  }
+  // `keyInput` is a typed emitter (`keypress`/`keyrelease` deliver OpenTUI's
+  // `KeyEvent`, which is assignable to our public mirror), so no cast is needed.
+  keyInput.on(eventName, handler)
+  const remove: RemoveListener = () => keyInput.off(eventName, handler)
+  onScopeDispose(remove, true)
   return remove
 }
 
