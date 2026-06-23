@@ -299,6 +299,6 @@
     "RESOLVED (Phase 2): public components are UNPREFIXED (Box/Text/Newline). Host tags stay internal lowercase 'box'/'text' and still work in templates. Components authored as explicitly-typed FunctionalComponents (not defineComponent) to satisfy isolatedDeclarations; runtime .props give Boolean coercion. Text folds bold/italic/etc into OpenTUI's `attributes` bitmask.",
     "RESOLVED (Phase 1): keep `export * from '@vue/runtime-core'`. Required, not just convenience — apps must get h/defineComponent/ref from the same runtime-core instance the renderer uses, else vnode/instance interop breaks. Revisit curation later if surface is too broad.",
     "RESOLVED (Phase 8): both supported — SFCs via vue-termui/vite, render fns (.ts) with no build. No auto-import/component-resolver (explicit imports).",
-    "Keep the placeholder src/useHello.ts + tests until real composables exist, or remove early? (kept for now.)"
+    "RESOLVED: placeholder src/useHello.ts + tests removed now that real composables exist."
   ]
 }

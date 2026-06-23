@@ -6,8 +6,6 @@ export const version = '0.0.0'
 // runtime-core and break vnode/instance interop.
 export * from '@vue/runtime-core'
 
-export { useHello } from './useHello'
-
 export {
   onKeyDown,
   onKeyUp,

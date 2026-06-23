@@ -10,7 +10,7 @@
 // even when the process crashes.
 import { mkdirSync, openSync, writeSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { inspect } from 'node:util'
+import { formatWithOptions } from 'node:util'
 
 const LOG_DIR = resolve(process.cwd(), 'logs')
 mkdirSync(LOG_DIR, { recursive: true })
@@ -18,21 +18,25 @@ mkdirSync(LOG_DIR, { recursive: true })
 const outFd = openSync(resolve(LOG_DIR, 'out.log'), 'a')
 const errFd = openSync(resolve(LOG_DIR, 'err.log'), 'a')
 
-/** Serialize one console argument, keeping Error stacks intact. */
-function format(arg: unknown): string {
-  if (arg instanceof Error) return arg.stack ?? `${arg.name}: ${arg.message}`
-  if (typeof arg === 'string') return arg
-  return inspect(arg, { depth: 6, colors: false })
-}
-
 function writeLine(fd: number, label: string, args: unknown[]): void {
-  const line = `[${new Date().toISOString()}] ${label} ${args.map(format).join(' ')}\n`
+  // `formatWithOptions` is exactly how Node renders `console.*` args — printf
+  // substitution, Error stacks and object inspection included.
+  const line = `[${new Date().toISOString()}] ${label} ${formatWithOptions({ depth: 6, colors: false }, ...args)}\n`
   try {
     writeSync(fd, line)
   } catch {
     // Never let logging crash the app.
   }
 }
+
+/** The console methods we mirror, with the file and label each uses. */
+const SINKS = [
+  ['log', outFd, 'LOG'],
+  ['info', outFd, 'INFO'],
+  ['debug', outFd, 'DEBUG'],
+  ['warn', errFd, 'WARN'],
+  ['error', errFd, 'ERROR'],
+] as const
 
 /**
  * (Re)wraps `console.*` so every call also appends to the log files, chaining to
@@ -42,19 +46,14 @@ function writeLine(fd: number, label: string, args: unknown[]): void {
  * still forwarding to OpenTUI's overlay).
  */
 export function patchConsole(): void {
-  const current = {
-    log: console.log.bind(console),
-    info: console.info.bind(console),
-    debug: console.debug.bind(console),
-    warn: console.warn.bind(console),
-    error: console.error.bind(console),
+  const sink = console as unknown as Record<string, (...args: unknown[]) => void>
+  for (const [method, fd, label] of SINKS) {
+    const inner = sink[method].bind(console)
+    sink[method] = (...args: unknown[]) => {
+      writeLine(fd, label, args)
+      inner(...args)
+    }
   }
-
-  console.log = (...args: unknown[]) => (writeLine(outFd, 'LOG', args), current.log(...args))
-  console.info = (...args: unknown[]) => (writeLine(outFd, 'INFO', args), current.info(...args))
-  console.debug = (...args: unknown[]) => (writeLine(outFd, 'DEBUG', args), current.debug(...args))
-  console.warn = (...args: unknown[]) => (writeLine(errFd, 'WARN', args), current.warn(...args))
-  console.error = (...args: unknown[]) => (writeLine(errFd, 'ERROR', args), current.error(...args))
 }
 
 // Initialize on import so console + crash handlers are active before any other

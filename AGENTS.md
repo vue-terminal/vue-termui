@@ -11,7 +11,7 @@ Ground-up rewrite. The old implementation (custom renderer + yoga) lives in
 pnpm build                                 # build core with tsdown
 pnpm test                                  # full suite: build + coverage + typecheck
 pnpm test:cov                              # vitest with coverage
-pnpm exec vitest run src/useHello.spec.ts  # single test file
+pnpm exec vitest run src/renderer/nodeOps.spec.ts  # single test file
 pnpm lint                                  # oxlint
 pnpm lint:fix                              # oxlint with auto-fix
 pnpm test:types                            # tsc type checking
