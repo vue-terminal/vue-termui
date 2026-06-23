@@ -1,8 +1,6 @@
 import { onScopeDispose } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
-
-/** Removes a previously-registered listener. */
-export type RemoveListener = () => void
+import type { RemoveListener } from '../utils/types'
 
 /**
  * A parsed keyboard event, as delivered by OpenTUI. Mirrors the public surface

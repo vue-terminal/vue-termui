@@ -1,7 +1,7 @@
 import { onScopeDispose } from '@vue/runtime-core'
 import type { CliRenderEvents } from '@opentui/core'
 import { useRenderer } from '../renderer/index'
-import type { RemoveListener } from './keyboard'
+import type { RemoveListener } from '../utils/types'
 
 /**
  * Subscribes `listener` to a renderer event for the lifetime of the current

@@ -8,7 +8,7 @@ import {
 } from '@vue/runtime-core'
 import { CliRenderEvents } from '@opentui/core'
 import { useRenderer } from '../renderer/index'
-import type { RemoveListener } from './keyboard'
+import type { RemoveListener } from '../utils/types'
 import { useRendererEvent } from './useRendererEvent'
 
 /**
