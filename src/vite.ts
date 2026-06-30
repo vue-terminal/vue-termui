@@ -1,6 +1,12 @@
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
 
+// We use the `ssr` environment but do no SSR: it is Vite's only built-in
+// environment that both runs in-process (a `ModuleRunner`, where the
+// `@opentui/core` FFI lives) and externalizes bare imports to native Node. The
+// `client` environment can't — it has no in-process runner. The one SSR-ism that
+// leaks is plugin-vue emitting `ssrRender`, undone by `forceClientCompile` below.
+
 /**
  * Renderer host tags. They are neither DOM/SVG elements nor components, so the
  * SFC compiler must leave them as plain element vnodes (`createElementVNode('box', …)`)
@@ -59,17 +65,20 @@ function forceClientCompile(plugin: Plugin): void {
  * touched the template alone). Its `import.meta.hot.accept` then calls
  * `rerender` (keep state) when that flag is true, else `reload` (reset state).
  *
- * plugin-vue broadcasts that event through `server.ws`, but this dev server runs
- * the app in the runnable `ssr` environment with the browser socket off
- * (`server.ws === false` → a no-op `send`). The module runner instead listens on
- * the `ssr` environment's own hot channel (`environment.hot`, the runner's
- * transport). So the event never arrives, `CHANGED_FILE` stays unset,
- * `_rerender_only` is always false, and every edit falls through to `reload`.
+ * plugin-vue broadcasts that event through `server.ws`, but we disable the
+ * browser WebSocket (`server: { ws: false }`), so Vite makes `server.ws` a stub
+ * whose `send` is a no-op. The module runner listens on the `ssr` hot channel
+ * instead, so the event never arrives, `CHANGED_FILE` stays unset, and every edit
+ * falls through to `reload`.
  *
- * Forwarding plugin-vue's `custom` payloads onto the `ssr` hot channel restores
- * web parity. The forward runs synchronously inside plugin-vue's hot-update
- * handler, before Vite dispatches the module update on the same channel, so the
- * runner sets `CHANGED_FILE` before the recompiled module evaluates.
+ * We fix it by re-sending plugin-vue's `custom` payloads on the `ssr` hot
+ * channel. Both that and the later module update go through the same channel in
+ * order, so `CHANGED_FILE` is set before the recompiled module evaluates.
+ *
+ * Caveat: this assumes plugin-vue keeps using the legacy `handleHotUpdate` hook
+ * (which sends via `server.ws`). If it moves to the env-API `hotUpdate` hook it
+ * would send straight to `ssr.hot` and this bridge would be dead code. Checked
+ * against `@vitejs/plugin-vue` 6.x.
  */
 function bridgeHmrEventsToRunner(server: ViteDevServer): void {
   const ssr = server.environments.ssr
@@ -121,6 +130,11 @@ export interface VueTermuiOptions {
  *   code runs in this process). Vue's renderer-agnostic HMR runtime hot-updates
  *   components live. The browser WebSocket is off; HMR flows through the runner.
  *   Run with `node --experimental-ffi` (e.g. `NODE_OPTIONS=--experimental-ffi vite`).
+ *
+ *   HMR scope: only SFCs are hot-applied (template edits keep state, script edits
+ *   reset it). Other modules (entry, router, plain `.ts`) resolve to a
+ *   `full-reload`, which nothing handles yet — so those edits are not reflected
+ *   live.
  * - In build (`vite build`), bundles a single self-contained Node entry: bundle
  *   local sources only and resolve every bare import from `node_modules` at
  *   runtime; the native `@opentui/core` is never bundled.
