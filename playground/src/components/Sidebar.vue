@@ -3,12 +3,15 @@
 // DOM <a>). The links are real OpenTUI focusables; ↑/↓ move focus between them
 // and Enter pushes the focused route. Esc returns focus to the sidebar from
 // whatever page widget grabbed it (e.g. a focused Input or Select).
-import { Box, Newline, nextTick, onKeyDown, onMounted, ref, Text } from 'vue-termui'
+import { Box, Newline, nextTick, onKeyDown, onMounted, ref, Text, useExit } from 'vue-termui'
 import { useRouter } from 'vue-router'
 import SidebarLink from './SidebarLink.vue'
 
 const router = useRouter()
+const exit = useExit()
 
+// Each item either navigates (`to`) or runs an action (`action`). "Quit" is the
+// only way to close the app now that Ctrl+C is disabled (see main.ts).
 const items = [
   { label: 'Home', to: '/' },
   { label: 'Text & styles', to: '/text-styles' },
@@ -18,6 +21,7 @@ const items = [
   { label: 'Soundboard', to: '/sounds' },
   { label: 'Form', to: '/demos/form' },
   { label: 'Bouncing box', to: '/demos/bouncing-box' },
+  { label: 'Quit', action: 'exit' },
 ] as const
 
 // Public instances of each SidebarLink, collected via function refs.
@@ -56,7 +60,12 @@ onKeyDown((key) => {
   } else if (key.name === 'up') {
     focusAt(current - 1)
   } else if (key.name === 'return') {
-    router.push(items[current].to)
+    const item = items[current]
+    if ('action' in item && item.action === 'exit') {
+      exit()
+    } else if ('to' in item) {
+      router.push(item.to)
+    }
   }
 })
 </script>
@@ -67,13 +76,13 @@ onKeyDown((key) => {
     <Newline />
     <SidebarLink
       v-for="(item, i) in items"
-      :key="item.to"
+      :key="item.label"
       :ref="(el) => (links[i] = el as any)"
       :label="item.label"
     />
     <Newline />
     <Text fg="#666666">↑/↓ move · ⏎ open</Text>
     <Text fg="#666666">Esc focus nav</Text>
-    <Text fg="#666666">^C quit</Text>
+    <Text fg="#666666">⏎ Quit to exit</Text>
   </Box>
 </template>

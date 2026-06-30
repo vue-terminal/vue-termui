@@ -10,7 +10,6 @@ const app = await createApp(App, null, {
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
   },
-  exitOnCtrlC: true,
 })
 
 app.use(router)
