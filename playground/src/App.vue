@@ -3,16 +3,45 @@
 // RouterView is imported locally; RouterLink is never used (it renders a DOM
 // <a>, which the terminal renderer can't mount) — the sidebar pushes routes
 // imperatively instead.
-import { Box } from 'vue-termui'
-import { RouterView } from 'vue-router'
+import { Box, onMounted, onUnmounted, Text, useRenderer } from 'vue-termui'
+import { RouterView, useRouter } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
+
+const router = useRouter()
+const renderer = useRenderer()
+
+onMounted(() => {
+  console.log('App mounted')
+  renderer.console.show()
+})
+
+const removeGuard = router.beforeEach((to, from) => {
+  console.log(`Navigating from ${from.fullPath} to ${to.fullPath}`)
+})
+
+const removeAfter = router.afterEach((to, from, failure) => {
+  if (failure) {
+    console.log(`Navigation to ${to.fullPath} failed:`, failure)
+  } else {
+    console.log(`Navigation to ${to.fullPath} succeeded`)
+  }
+})
+
+onUnmounted(() => {
+  console.log('App unmounted')
+  removeGuard()
+  removeAfter()
+})
 </script>
 
 <template>
   <Box flexDirection="row" :padding="1" :gap="1">
     <Sidebar />
     <Box :flexGrow="1">
-      <RouterView />
+      <Box flexDirection="column" :gap="1">
+        <Text>App shell: a fixed sidebar on the left and the routed page on the right.</Text>
+        <RouterView />
+      </Box>
     </Box>
   </Box>
 </template>
