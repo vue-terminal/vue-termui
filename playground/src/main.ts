@@ -3,20 +3,23 @@
 import { createApp } from 'vue-termui'
 import App from './App.vue'
 import { router } from './router'
+import { ConsolePosition } from '@opentui/core'
 
-const app = await createApp(App, null, { exitOnCtrlC: true })
-// OpenTUI replaces `console` with its overlay capture during renderer creation,
-// so re-own it here to keep mirroring component logs to the files.
+const app = await createApp(App, null, {
+  consoleOptions: {
+    position: ConsolePosition.BOTTOM,
+    sizePercent: 30,
+  },
+  exitOnCtrlC: true,
+})
+
 app.use(router)
-
-// Memory history performs NO initial navigation on its own, so `isReady()` would
-// never resolve (and `mount()` never run → blank screen) without an explicit
-// first navigation. Start on the home page (src/pages/index.vue).
-await router.replace('/')
+// memory history has no initial route
+await router.push('/')
 await router.isReady()
 
 app.mount()
 
 // Keep the launcher process alive until the user quits (Ctrl+C), then fall
 // through so any post-exit cleanup could run here.
-await app.waitUntilExit()
+// await app.waitUntilExit()
