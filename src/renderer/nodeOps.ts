@@ -66,9 +66,30 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     return anchor
   }
 
-  /*
-   * NOTE: setting props, adding, removing, etc all requestRender() on the affected renderable, which schedules a render pass.
-   */
+  // OpenTUI renders on demand and coalesces requests behind an internal
+  // `updateScheduled` flag it only clears a microtask *after* the in-flight
+  // frame finishes. Vue applies its mutations during an async flush (a
+  // microtask); when a key handler also triggers an imperative render in the
+  // same tick (e.g. `focus()`, which calls `requestRender` synchronously), that
+  // frame is scheduled on `process.nextTick` and runs *before* Vue's flush,
+  // leaving `updateScheduled` set across the whole flush. The `requestRender`
+  // calls OpenTUI's own setters make for our mutations are then swallowed, and
+  // the screen only catches up on the *next* render — the classic
+  // one-keystroke-late bug (see the Sidebar arrow-nav demo).
+  //
+  // So in addition to whatever OpenTUI requests synchronously, schedule one
+  // coalesced render per flush in a microtask. It runs after Vue's flush *and*
+  // after OpenTUI clears `updateScheduled`, so the request always lands and the
+  // tree's final state is painted in the same tick it changed.
+  let renderQueued = false
+  const scheduleRender = (): void => {
+    if (renderQueued) return
+    renderQueued = true
+    queueMicrotask(() => {
+      renderQueued = false
+      ctx.requestRender()
+    })
+  }
 
   return {
     createElement(tag, _namespace, _isCustomizedBuiltIn, _props) {
@@ -103,6 +124,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     setText(node, text) {
       if (node instanceof TextNodeRenderable) {
         node.children = [text]
+        scheduleRender()
       } else {
         console.warn(`[vue-termui] setText called on non-text node: ${node.constructor.name}`)
       }
@@ -111,6 +133,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     setElementText(el, text) {
       if (el instanceof TextRenderable) {
         el.content = text
+        scheduleRender()
       } else {
         console.warn(`[vue-termui] setElementText called on non-text node: ${el.constructor.name}`)
       }
@@ -129,11 +152,13 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
       } else {
         parent.add(node)
       }
+      scheduleRender()
     },
 
     remove(child) {
       const node = treeNode(child)
       node.parent?.remove(node.id)
+      scheduleRender()
     },
 
     parentNode(node) {
@@ -155,6 +180,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     // (colors, borders, flex props) lands with the Box/Text components.
     patchProp(el, key, _prevValue, nextValue) {
       ;(el as unknown as Record<string, unknown>)[key] = nextValue
+      scheduleRender()
     },
   }
 }
