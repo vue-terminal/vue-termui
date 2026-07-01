@@ -3,15 +3,23 @@
 // RouterView is imported locally; RouterLink is never used (it renders a DOM
 // <a>, which the terminal renderer can't mount) — the sidebar pushes routes
 // imperatively instead.
-import { Box, onMounted, onUnmounted, Text, useRenderer } from 'vue-termui'
+import { Box, onMounted, onUnmounted, ref, Text, useInterval, useRenderer } from 'vue-termui'
 import { RouterView, useRouter } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
+import { DebugOverlayCorner } from '@opentui/core'
+import { useIntervalFn, useNow } from '@vueuse/core'
 
 const router = useRouter()
 const renderer = useRenderer()
 
+renderer.configureDebugOverlay({
+  enabled: true,
+  corner: DebugOverlayCorner.topRight,
+})
+
 onMounted(() => {
   console.log('App mounted')
+  renderer.setTerminalTitle(`VueTermUI Playground - ${new Date().toLocaleString()}`)
   renderer.console.show()
 })
 
