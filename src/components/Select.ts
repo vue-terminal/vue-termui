@@ -5,6 +5,7 @@ import {
   type SelectOption as Base_SelectOption,
 } from '@opentui/core'
 import { type FunctionalComponent, h, type PropType, type VNodeRef } from '@vue/runtime-core'
+import { propToOptionalBoolean } from './utils'
 
 /**
  * A single choice in a {@link Select}.
@@ -87,6 +88,9 @@ export const Select: FunctionalComponent<SelectProps, SelectEmits> = (props, { e
     // through as attributes: they only reach the renderable when actually set,
     // so unset props never overwrite the renderable's defaults.
     ...attrs,
+    showDescription: propToOptionalBoolean(props.showDescription),
+    showScrollIndicator: propToOptionalBoolean(props.showScrollIndicator),
+    wrapSelection: propToOptionalBoolean(props.wrapSelection),
     // `options` and the `selectedIndex` (driven by `v-model`) ride the normal
     // prop path: `patchProp` assigns them only when they actually change (Vue
     // skips unchanged props). Crucially, the `selectedIndex` *setter* is silent
@@ -122,10 +126,10 @@ Select.props = {
   options: Array as PropType<SelectOption[]>,
   modelValue: Number,
   focus: Boolean,
-  // all boolean props need to become a real boolean through Vue props
-  showScrollIndicator: Boolean,
-  wrapSelection: Boolean,
-  showDescription: Boolean,
+  // not to cast to boolean
+  showDescription: null,
+  showScrollIndicator: null,
+  wrapSelection: null,
 }
 // no need for runtime validation
 // Select.emits = {

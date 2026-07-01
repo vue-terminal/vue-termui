@@ -47,9 +47,9 @@ describe('Markdown', () => {
     expect(mounted().syntaxStyle).toBe(syntaxStyle)
   })
 
-  it('conceals markdown markers by default', () => {
+  it('keeps undefined conceal by default', () => {
     render(h(Markdown, { content: '# Title' }), test.renderer.root)
-    expect(mounted().conceal).toBe(true)
+    expect(mounted().conceal).toBe(undefined)
   })
 
   it('forwards boolean options when set', () => {

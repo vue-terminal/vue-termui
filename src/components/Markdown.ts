@@ -1,5 +1,6 @@
 import { type MarkdownOptions, SyntaxStyle } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
+import { propToOptionalBoolean } from './utils'
 
 // Re-exported so consumers can build a custom `syntaxStyle` (and type theme
 // maps) without reaching into `@opentui/core` directly.
@@ -110,28 +111,27 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
   // `content`, `fg`/`bg`, `tableOptions`, `renderNode`, `id`, `width`, … fall
   // through as attrs so they only reach the renderable when actually set,
   // leaving unset options at the renderable's defaults.
-  const options: Record<string, unknown> = { ...attrs }
+  const options: Record<string, unknown> = {
+    ...attrs,
+    // pass downn undefined to let defaults take over,
+    // anything else than false is true, so conceal and conceal="" are true
+    conceal: propToOptionalBoolean(props.conceal),
+    concealCode: propToOptionalBoolean(props.concealCode),
+    streaming: propToOptionalBoolean(props.streaming),
+  }
 
   // Always provide a style so content renders styled out of the box; the user's
   // wins when they pass one.
   options.syntaxStyle = props.syntaxStyle ?? getDefaultSyntaxStyle()
 
-  // The boolean props are declared (so `<Markdown conceal>` coerces to `true`
-  // rather than `""`); forward them only when set to preserve renderable defaults.
-  if (props.conceal !== undefined) options.conceal = props.conceal
-  if (props.concealCode !== undefined) options.concealCode = props.concealCode
-  if (props.streaming !== undefined) options.streaming = props.streaming
-
   return h('markdown', options)
 }
 
 Markdown.displayName = 'Markdown'
-// Runtime prop declaration so `syntaxStyle` and the booleans are extracted
-// instead of falling through as raw attributes; `default: undefined` keeps an
-// unset boolean unset so it never overwrites the renderable's own default.
 Markdown.props = {
   syntaxStyle: Object,
-  conceal: Boolean,
-  concealCode: Boolean,
-  streaming: Boolean,
+  // not to cast to boolean
+  conceal: null,
+  concealCode: null,
+  streaming: null,
 }
