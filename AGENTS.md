@@ -107,6 +107,14 @@ Always keep this file up to date when project commands, structure, or tooling ch
   `onSubmit` it inherits from Textarea but never fires) and ones you manage
   yourself (`Select` omits `options`/`selectedIndex`). Don't invent semantics —
   `Input` has **no** submit event (a form concept); react to Enter via `onKeyDown`.
+- `Textarea` (`TextareaRenderable`) is a multi-line editor: `modelValue` **seeds**
+  the buffer via the renderable's one-time `initialValue` setter (so it rides the
+  prop path yet never clobbers cursor/undo on reassignment — an editor owns its
+  text), and edits emit `update:modelValue` via the `onContentChange` handler
+  (read `plainText`; `ContentChangeEvent` is empty). Unlike `Input`, submit **is**
+  real here: Enter → newline, Meta/Cmd+Enter → `submit` (OpenTUI's default
+  keybinding); the component owns `onSubmit` and re-emits it as `submit` with the
+  text. To reset the editor, remount it with a `:key`.
 - `ProgressBar` is a `Box`+`Text` composite (OpenTUI has no native progress bar).
 - `Link` / `TextTransform` are NOT ported yet — they need TextNode-with-link/
   transform support threaded through `nodeOps` (text-node children don't carry
