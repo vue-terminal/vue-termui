@@ -27,7 +27,17 @@ export type {
   UseFocusReturn,
 } from './composables/index'
 
-export { Box, Input, Newline, ProgressBar, Select, Text } from './components/index'
+export {
+  Box,
+  Input,
+  Markdown,
+  Newline,
+  ProgressBar,
+  Select,
+  SyntaxStyle,
+  Text,
+  Textarea,
+} from './components/index'
 export type {
   Align,
   BorderStyle,
@@ -44,6 +54,8 @@ export type {
   ProgressBarProps,
   SelectOption,
   SelectProps,
+  StyleDefinitionInput,
+  TextareaProps,
   TextProps,
 } from './components/index'
 

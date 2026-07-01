@@ -7,6 +7,7 @@ import {
   type Renderable,
   type RenderContext,
   SelectRenderable,
+  TextareaRenderable,
   TextNodeRenderable,
   TextRenderable,
 } from '@opentui/core'
@@ -29,7 +30,7 @@ class AnchorRenderable extends VRenderable {
  * Host element tags understood by the renderer. These are intentionally
  * lowercase and internal; public component names are layered on top.
  */
-export type TuiElementTag = 'box' | 'text' | 'input' | 'select'
+export type TuiElementTag = 'box' | 'text' | 'input' | 'textarea' | 'select' | 'markdown'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -103,6 +104,8 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new TextRenderable(ctx, {})
         case 'input':
           return new InputRenderable(ctx, {})
+        case 'textarea':
+          return new TextareaRenderable(ctx, {})
         case 'select':
           return new SelectRenderable(ctx, {})
         case 'markdown':
