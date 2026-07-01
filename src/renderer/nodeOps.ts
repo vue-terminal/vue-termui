@@ -1,5 +1,6 @@
 import {
   type BaseRenderable,
+  VRenderable,
   BoxRenderable,
   InputRenderable,
   type Renderable,
@@ -9,6 +10,18 @@ import {
   TextRenderable,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
+
+/**
+ * Simplified renderable used as an invisible anchor for comment nodes and text
+ * nodes, needed by Vue.
+ *
+ * @internal
+ */
+class AnchorRenderable extends VRenderable {
+  constructor(ctx: RenderContext) {
+    super(ctx, { visible: false, live: false, render: () => {} })
+  }
+}
 
 /**
  * Host element tags understood by the renderer. These are intentionally
@@ -25,13 +38,7 @@ export type TuiElementTag = 'box' | 'text' | 'input' | 'select'
  * @param ctx - the OpenTUI render context (a `CliRenderer` instance)
  */
 export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderable, Renderable> {
-  // An invisible, out-of-flow placeholder used for comment nodes and as a
-  // stand-in for text nodes that land in a layout container (see below).
-  const makeAnchor = (): BoxRenderable => {
-    const anchor = new BoxRenderable(ctx, { position: 'absolute' })
-    anchor.visible = false
-    return anchor
-  }
+  const makeAnchor = (): AnchorRenderable => new AnchorRenderable(ctx)
 
   // Text nodes (`TextNodeRenderable`) are only valid inside a `<text>`. Vue,
   // however, creates Fragment boundary anchors as empty text nodes and inserts
@@ -40,7 +47,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
   // where `Box.add` rejects them (they have no layout node). For those, we keep
   // an invisible layout anchor as a stand-in and map between the two so all tree
   // operations stay consistent. Per-app maps (this closure) avoid cross-app leaks.
-  const anchorForText = new WeakMap<object, BoxRenderable>()
+  const anchorForText = new WeakMap<object, AnchorRenderable>()
   const textForAnchor = new WeakMap<object, TextNodeRenderable>()
 
   // The renderable actually present in the OpenTUI tree for a given Vue node.
@@ -49,7 +56,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
   const vueNode = (node: BaseRenderable): BaseRenderable => textForAnchor.get(node) ?? node
 
   // Realize (once) the layout anchor standing in for a text node in a layout parent.
-  const layoutStandIn = (text: TextNodeRenderable): BoxRenderable => {
+  const layoutStandIn = (text: TextNodeRenderable): AnchorRenderable => {
     let anchor = anchorForText.get(text)
     if (!anchor) {
       anchor = makeAnchor()
@@ -59,33 +66,13 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     return anchor
   }
 
-  // OpenTUI renders on demand and coalesces requests behind an internal
-  // `updateScheduled` flag it only clears a microtask *after* the in-flight
-  // frame finishes. Vue applies its mutations during an async flush (a
-  // microtask); when a key handler also triggers an imperative render in the
-  // same tick (e.g. `focus()`, which calls `requestRender` synchronously), that
-  // frame is scheduled on `process.nextTick` and runs *before* Vue's flush,
-  // leaving `updateScheduled` set across the whole flush. The `requestRender`
-  // calls OpenTUI's own setters make for our mutations are then swallowed, and
-  // the screen only catches up on the *next* render — the classic
-  // one-keystroke-late bug (see the Sidebar arrow-nav demo).
-  //
-  // So in addition to whatever OpenTUI requests synchronously, schedule one
-  // coalesced render per flush in a microtask. It runs after Vue's flush *and*
-  // after OpenTUI clears `updateScheduled`, so the request always lands and the
-  // tree's final state is painted in the same tick it changed.
-  let renderQueued = false
-  const scheduleRender = (): void => {
-    if (renderQueued) return
-    renderQueued = true
-    queueMicrotask(() => {
-      renderQueued = false
-      ctx.requestRender()
-    })
-  }
+  /*
+   * NOTE: setting props, adding, removing, etc all requestRender() on the affected renderable, which schedules a render pass.
+   */
 
   return {
-    createElement(tag) {
+    createElement(tag, _namespace, _isCustomizedBuiltIn, _props) {
+      // NOTE: we don't pass the props because Vue calls patchProp sync anyway
       switch (tag) {
         case 'box':
           return new BoxRenderable(ctx, {})
@@ -103,6 +90,8 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     // Inline text node (only used for array/interpolated text children and
     // Fragment anchors; a lone string child goes through `setElementText`).
     createText(text) {
+      // not worth the optimization?
+      // if (!text) return makeAnchor()
       return TextNodeRenderable.fromString(text)
     },
 
@@ -114,15 +103,16 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     setText(node, text) {
       if (node instanceof TextNodeRenderable) {
         node.children = [text]
-        node.requestRender()
-        scheduleRender()
+      } else {
+        console.warn(`[vue-termui] setText called on non-text node: ${node.constructor.name}`)
       }
     },
 
     setElementText(el, text) {
       if (el instanceof TextRenderable) {
         el.content = text
-        scheduleRender()
+      } else {
+        console.warn(`[vue-termui] setElementText called on non-text node: ${el.constructor.name}`)
       }
     },
 
@@ -139,13 +129,11 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
       } else {
         parent.add(node)
       }
-      scheduleRender()
     },
 
     remove(child) {
       const node = treeNode(child)
       node.parent?.remove(node.id)
-      scheduleRender()
     },
 
     parentNode(node) {
@@ -167,7 +155,6 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     // (colors, borders, flex props) lands with the Box/Text components.
     patchProp(el, key, _prevValue, nextValue) {
       ;(el as unknown as Record<string, unknown>)[key] = nextValue
-      scheduleRender()
     },
   }
 }
