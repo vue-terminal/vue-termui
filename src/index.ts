@@ -37,6 +37,7 @@ export type {
   FlexDirection,
   InputProps,
   Justify,
+  MarkdownProps,
   NewlineProps,
   Overflow,
   Position,

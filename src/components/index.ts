@@ -10,6 +10,8 @@ export { Select } from './Select'
 export type { SelectOption, SelectProps } from './Select'
 export { ProgressBar } from './ProgressBar'
 export type { ProgressBarProps } from './ProgressBar'
+export { Markdown, SyntaxStyle } from './Markdown'
+export type { MarkdownProps, StyleDefinitionInput } from './Markdown'
 export type {
   Align,
   BorderStyle,

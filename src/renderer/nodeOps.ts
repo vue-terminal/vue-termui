@@ -3,6 +3,7 @@ import {
   VRenderable,
   BoxRenderable,
   InputRenderable,
+  MarkdownRenderable,
   type Renderable,
   type RenderContext,
   SelectRenderable,
@@ -10,6 +11,7 @@ import {
   TextRenderable,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
+import { getDefaultSyntaxStyle } from '../components/Markdown'
 
 /**
  * Simplified renderable used as an invisible anchor for comment nodes and text
@@ -103,6 +105,11 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new InputRenderable(ctx, {})
         case 'select':
           return new SelectRenderable(ctx, {})
+        case 'markdown':
+          // `MarkdownRenderable` requires a `syntaxStyle`; seed it with the
+          // shared default so a bare `<markdown>` renders even before the
+          // component patches its own (or the user's) style in.
+          return new MarkdownRenderable(ctx, { syntaxStyle: getDefaultSyntaxStyle() })
         default:
           throw new Error(`[vue-termui] Unknown element type: <${tag}>`)
       }
