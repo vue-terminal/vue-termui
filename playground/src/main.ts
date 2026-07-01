@@ -15,8 +15,9 @@ const app = await createApp(App, null, {
 })
 
 app.use(router)
-// memory history has no initial route
-await router.push('/')
+// memory history has no initial route; VUE_TERMUI_START_LOCATION defaults to '/',
+// is overridable via the env var, and is restored across dev full reloads.
+await router.push(VUE_TERMUI_START_LOCATION)
 await router.isReady()
 
 app.mount()

@@ -26,7 +26,7 @@ export const router = createRouter({
 })
 ```
 
-Install the router on the app and wait for it to be ready **before mounting**, so the first frame already shows the matched component:
+Install the router on the app and wait for it to be ready **before mounting**, so the first frame already shows the matched component. Because a memory history has no initial route, push a start location first — use the `VUE_TERMUI_START_LOCATION` global so navigation survives dev full reloads:
 
 ```ts
 // src/main.ts
@@ -36,10 +36,15 @@ import { router } from './router'
 
 const app = await createApp(App)
 app.use(router)
+await router.push(VUE_TERMUI_START_LOCATION)
 await router.isReady()
 app.mount()
 await app.waitUntilExit()
 ```
+
+::: tip Start location
+`VUE_TERMUI_START_LOCATION` is a global provided by vue-termui. It defaults to `/`, can be overridden with an environment variable of the same name (`VUE_TERMUI_START_LOCATION=/settings vite`), and in dev it is set to the current route before each full reload — so editing a non-HMR file (the entry, the router, a plain `.ts`) keeps you on the screen you were viewing instead of jumping back to `/`.
+:::
 
 Render the active page with `<RouterView>` somewhere in your layout:
 

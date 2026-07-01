@@ -56,3 +56,75 @@ describe('disposePreviousDevApp', () => {
     expect(g.__VUE_TERMUI_TEARDOWN__).toHaveBeenCalledTimes(0)
   })
 })
+
+/**
+ * Before disposing the previous dev app, its current router location is stashed
+ * on the `VUE_TERMUI_START_LOCATION` global so the re-imported entry can push it
+ * back and land on the same screen after a full reload (see the capture in
+ * `createTuiApp` and the seed in `./index`).
+ */
+describe('start location capture', () => {
+  const g = globalThis as {
+    __VUE_TERMUI_DEV__?: boolean
+    __VUE_TERMUI_DEV_DESTROY__?: () => void
+    __VUE_TERMUI_TEARDOWN__?: () => void
+  }
+
+  afterEach(() => {
+    g.__VUE_TERMUI_DEV__ = undefined
+    g.__VUE_TERMUI_DEV_DESTROY__ = undefined
+    g.__VUE_TERMUI_TEARDOWN__ = undefined
+  })
+
+  it('captures the router location before a full reload', async () => {
+    g.__VUE_TERMUI_DEV__ = true
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({ render: () => h('text', null, 'v1') }),
+    )
+    // vue-router sets `$router` on install; fake the shape the capture reads.
+    app.config.globalProperties.$router = { currentRoute: { value: { fullPath: '/select' } } }
+    app.mount()
+
+    globalThis.VUE_TERMUI_START_LOCATION = '/'
+    disposePreviousDevApp()
+
+    expect(globalThis.VUE_TERMUI_START_LOCATION).toBe('/select')
+  })
+
+  it('leaves the start location untouched when no router is installed', async () => {
+    g.__VUE_TERMUI_DEV__ = true
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({ render: () => h('text', null, 'v1') }),
+    )
+    app.mount()
+
+    globalThis.VUE_TERMUI_START_LOCATION = '/keep'
+    disposePreviousDevApp()
+
+    expect(globalThis.VUE_TERMUI_START_LOCATION).toBe('/keep')
+  })
+
+  it('leaves the start location untouched when $router lacks a current route', async () => {
+    g.__VUE_TERMUI_DEV__ = true
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({ render: () => h('text', null, 'v1') }),
+    )
+    // A foreign or partially-initialized `$router` with no `currentRoute`.
+    app.config.globalProperties.$router = {}
+    app.mount()
+
+    globalThis.VUE_TERMUI_START_LOCATION = '/keep'
+    disposePreviousDevApp()
+
+    expect(globalThis.VUE_TERMUI_START_LOCATION).toBe('/keep')
+  })
+})

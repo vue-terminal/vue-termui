@@ -18,6 +18,23 @@ import { createNodeOps } from './nodeOps'
 export { createNodeOps } from './nodeOps'
 export type { TuiElementTag } from './nodeOps'
 
+declare global {
+  /**
+   * Location pushed to the router when the app starts. Read it in your entry
+   * (`router.push(VUE_TERMUI_START_LOCATION)`) so navigation survives dev full
+   * reloads: it is seeded from the `VUE_TERMUI_START_LOCATION` env var (or `/`),
+   * then overwritten with the current route before each reload (see the capture
+   * in {@link createTuiApp}).
+   */
+  // eslint-disable-next-line no-var
+  var VUE_TERMUI_START_LOCATION: string
+}
+
+// Seed once per process. The library is externalized to native Node (see the dev
+// full-reload bridge below), so this module evaluates a single time and the value
+// persists across reloads — the env var sets the very first screen, `/` otherwise.
+globalThis.VUE_TERMUI_START_LOCATION ??= process.env.VUE_TERMUI_START_LOCATION || '/'
+
 /**
  * Injection key for the OpenTUI {@link CliRenderer} the app is mounted onto.
  * {@link createTuiApp} provides it on the app so components can reach the
@@ -128,8 +145,21 @@ export function createTuiApp(
   // pattern as `__VUE_TERMUI_DEV__`/`__VUE_TERMUI_TEARDOWN__`). Unset outside dev,
   // so this is a no-op in production and tests.
   if ((globalThis as { __VUE_TERMUI_DEV__?: boolean }).__VUE_TERMUI_DEV__) {
-    ;(globalThis as { __VUE_TERMUI_DEV_DESTROY__?: () => void }).__VUE_TERMUI_DEV_DESTROY__ = () =>
-      renderer.destroy()
+    ;(globalThis as { __VUE_TERMUI_DEV_DESTROY__?: () => void }).__VUE_TERMUI_DEV_DESTROY__ =
+      () => {
+        // Stash the current route before tearing down so the re-imported entry can
+        // push it back and land on the same screen. `$router` is set by vue-router
+        // on install (long before teardown); read it structurally so the library
+        // keeps no dependency on vue-router. It is absent when no router is installed
+        // and may be some other plugin's `$router`, so optional-chain the whole path
+        // and only accept an actual string.
+        const router = app.config.globalProperties.$router as
+          | { currentRoute?: { value?: { fullPath?: string } } }
+          | undefined
+        const location = router?.currentRoute?.value?.fullPath
+        if (typeof location === 'string') globalThis.VUE_TERMUI_START_LOCATION = location
+        renderer.destroy()
+      }
   }
 
   // `waitUntilExit()` resolves when the renderer is destroyed (Ctrl+C, an exit
