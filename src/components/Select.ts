@@ -2,13 +2,14 @@ import {
   type SelectRenderable,
   SelectRenderableEvents,
   type SelectRenderableOptions,
+  type SelectOption as Base_SelectOption,
 } from '@opentui/core'
 import { type FunctionalComponent, h, type PropType, type VNodeRef } from '@vue/runtime-core'
 
 /**
  * A single choice in a {@link Select}.
  */
-export interface SelectOption {
+export interface SelectOption extends Omit<Base_SelectOption, 'value' | 'description'> {
   /**
    * Label shown for the option.
    */
@@ -97,15 +98,18 @@ export const Select: FunctionalComponent<SelectProps, SelectEmits> = (props, { e
       if (!select || wired.has(select)) return
       wired.add(select)
 
-      // User navigation moves the highlight and emits `selectionChanged`; mirror
-      // it back out through `v-model`.
-      select.on(SelectRenderableEvents.SELECTION_CHANGED, () => {
-        const index = select.getSelectedIndex()
+      // Both events carry `(index, option)` — use that payload directly rather
+      // than re-querying the renderable. User navigation moves the highlight and
+      // emits `selectionChanged`; mirror the new index back out through `v-model`.
+      select.on(SelectRenderableEvents.SELECTION_CHANGED, (index: number) => {
         if (index !== props.modelValue) emit('update:modelValue', index)
       })
-      select.on(SelectRenderableEvents.ITEM_SELECTED, () => {
-        emit('select', select.getSelectedOption() as SelectOption | null, select.getSelectedIndex())
-      })
+      select.on(
+        SelectRenderableEvents.ITEM_SELECTED,
+        (index: number, option: SelectOption | null) => {
+          emit('select', option, index)
+        },
+      )
 
       if (props.focus) select.focus()
     }) as VNodeRef,
@@ -115,9 +119,13 @@ Select.displayName = 'Select'
 // Runtime prop declaration so `options`/`modelValue`/`focus` are extracted
 // instead of falling through as attributes onto the host `<select>` element.
 Select.props = {
-  options: { type: Array as PropType<SelectOption[]>, default: () => [] },
-  modelValue: { type: Number, default: 0 },
+  options: Array as PropType<SelectOption[]>,
+  modelValue: Number,
   focus: Boolean,
+  // all boolean props need to become a real boolean through Vue props
+  showScrollIndicator: Boolean,
+  wrapSelection: Boolean,
+  showDescription: Boolean,
 }
 Select.emits = {
   'update:modelValue': (index: number) => typeof index === 'number',
