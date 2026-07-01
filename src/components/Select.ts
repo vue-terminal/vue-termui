@@ -1,13 +1,9 @@
-import { SelectRenderable, SelectRenderableEvents } from '@opentui/core'
 import {
-  type DefineComponent,
-  defineComponent,
-  h,
-  onMounted,
-  type PropType,
-  shallowRef,
-  watch,
-} from '@vue/runtime-core'
+  type SelectRenderable,
+  SelectRenderableEvents,
+  type SelectRenderableOptions,
+} from '@opentui/core'
+import { type FunctionalComponent, h, type PropType, type VNodeRef } from '@vue/runtime-core'
 
 /**
  * A single choice in a {@link Select}.
@@ -30,9 +26,15 @@ export interface SelectOption {
 }
 
 /**
- * Props accepted by {@link Select}.
+ * Props accepted by {@link Select}. Extends OpenTUI's native `SelectRenderable`
+ * options (`showDescription`, `wrapSelection`, colors, …), which fall through
+ * to the underlying renderable; the extra props below drive `v-model` and
+ * focus, and `options` is narrowed to the local {@link SelectOption} type.
+ *
+ * `options` and `selectedIndex` are omitted from the native surface: they are
+ * managed here through `options` and `v-model` respectively.
  */
-export interface SelectProps {
+export interface SelectProps extends Omit<SelectRenderableOptions, 'options' | 'selectedIndex'> {
   /**
    * The choices to display.
    */
@@ -47,16 +49,6 @@ export interface SelectProps {
    * Focus the list as soon as it mounts (so arrow keys navigate it).
    */
   focus?: boolean
-
-  /**
-   * Show each option's description.
-   */
-  showDescription?: boolean
-
-  /**
-   * Wrap around when navigating past the ends.
-   */
-  wrapSelection?: boolean
 }
 
 /**
@@ -76,34 +68,37 @@ export interface SelectProps {
  * </template>
  * ```
  */
-export const Select = defineComponent({
-  name: 'Select',
+type SelectEmits = {
+  'update:modelValue': (index: number) => void
+  select: (option: SelectOption | null, index: number) => void
+}
 
-  props: {
-    options: { type: Array as PropType<SelectOption[]>, default: () => [] },
-    modelValue: { type: Number, default: 0 },
-    focus: Boolean,
-    showDescription: { type: Boolean, default: undefined },
-    wrapSelection: { type: Boolean, default: undefined },
-  },
+// Event listeners (and the initial focus) are one-time, mount-shaped side
+// effects, but a functional component has no lifecycle hooks. A function `ref`
+// fills that gap: OpenTUI hands us the `SelectRenderable` when it mounts. The
+// `WeakSet` guard makes wiring idempotent — Vue may invoke the ref again on
+// updates, and re-attaching would duplicate the listeners.
+const wired = new WeakSet<SelectRenderable>()
 
-  emits: {
-    'update:modelValue': (index: number) => typeof index === 'number',
-    select: (option: SelectOption | null, index: number) => typeof index === 'number',
-  },
+export const Select: FunctionalComponent<SelectProps, SelectEmits> = (props, { emit, attrs }) =>
+  h('select', {
+    // Native options (`showDescription`, `wrapSelection`, colors, …) fall
+    // through as attributes: they only reach the renderable when actually set,
+    // so unset props never overwrite the renderable's defaults.
+    ...attrs,
+    // `options` and the `selectedIndex` (driven by `v-model`) ride the normal
+    // prop path: `patchProp` assigns them only when they actually change (Vue
+    // skips unchanged props). Crucially, the `selectedIndex` *setter* is silent
+    // (it does not emit `selectionChanged`, unlike `setSelectedIndex()`), so an
+    // outside-driven change never bounces back through `update:modelValue`.
+    options: props.options,
+    selectedIndex: props.modelValue,
+    ref: ((select: SelectRenderable | null) => {
+      if (!select || wired.has(select)) return
+      wired.add(select)
 
-  setup(props, { emit }) {
-    const el = shallowRef<SelectRenderable | null>(null)
-
-    onMounted(() => {
-      const select = el.value
-      if (!select) return
-
-      select.options = props.options as never
-      if (props.modelValue !== select.getSelectedIndex()) {
-        select.setSelectedIndex(props.modelValue ?? 0)
-      }
-
+      // User navigation moves the highlight and emits `selectionChanged`; mirror
+      // it back out through `v-model`.
       select.on(SelectRenderableEvents.SELECTION_CHANGED, () => {
         const index = select.getSelectedIndex()
         if (index !== props.modelValue) emit('update:modelValue', index)
@@ -113,27 +108,18 @@ export const Select = defineComponent({
       })
 
       if (props.focus) select.focus()
-    })
+    }) as VNodeRef,
+  })
 
-    watch(
-      () => props.modelValue,
-      (index) => {
-        const select = el.value
-        if (select && select.getSelectedIndex() !== index) select.setSelectedIndex(index ?? 0)
-      },
-    )
-    watch(
-      () => props.options,
-      (options) => {
-        if (el.value) el.value.options = options as never
-      },
-    )
-
-    return () => {
-      const attrs: Record<string, unknown> = { ref: el }
-      if (props.showDescription !== undefined) attrs.showDescription = props.showDescription
-      if (props.wrapSelection !== undefined) attrs.wrapSelection = props.wrapSelection
-      return h('select', attrs)
-    }
-  },
-}) as DefineComponent<SelectProps>
+Select.displayName = 'Select'
+// Runtime prop declaration so `options`/`modelValue`/`focus` are extracted
+// instead of falling through as attributes onto the host `<select>` element.
+Select.props = {
+  options: { type: Array as PropType<SelectOption[]>, default: () => [] },
+  modelValue: { type: Number, default: 0 },
+  focus: Boolean,
+}
+Select.emits = {
+  'update:modelValue': (index: number) => typeof index === 'number',
+  select: (_option: SelectOption | null, index: number) => typeof index === 'number',
+}
