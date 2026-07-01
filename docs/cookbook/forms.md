@@ -37,26 +37,27 @@ const filled = computed(() => Math.min(name.value.length, max))
 
 ## Submitting
 
-Use `@submit` to react to <kbd>Enter</kbd> — here we collect a list of todos, clearing the field each time:
+Watch for the <kbd>Enter</kbd> (`return`) key with `onKeyDown` — here we collect a list of todos, clearing the field each time:
 
 ```vue
 <script setup lang="ts">
-import { Box, Input, Text, ref } from 'vue-termui'
+import { Box, Input, Text, onKeyDown, ref } from 'vue-termui'
 
 const draft = ref('')
 const todos = ref<string[]>([])
 
-function add(value: string) {
-  const text = value.trim()
+onKeyDown((key) => {
+  if (key.name !== 'return') return
+  const text = draft.value.trim()
   if (!text) return
   todos.value.push(text)
   draft.value = '' // clear the field
-}
+})
 </script>
 
 <template>
   <Box flexDirection="column" :gap="1" :padding="1" border>
-    <Input v-model="draft" placeholder="Add a todo and press Enter…" focus @submit="add" />
+    <Input v-model="draft" placeholder="Add a todo and press Enter…" focus />
     <Text v-for="(todo, i) in todos" :key="i">• {{ todo }}</Text>
     <Text v-if="!todos.length" fg="#888888">No todos yet.</Text>
   </Box>

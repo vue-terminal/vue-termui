@@ -54,27 +54,24 @@ describe('Input', () => {
     test.renderer.destroy()
   })
 
-  it('emits submit with the value on Enter', async () => {
+  it('syncs external model changes into the renderable', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 3 })
-    const submitted: string[] = []
+    const value = ref('one')
     const app = createTuiApp(
       test.renderer,
       defineComponent({
-        setup() {
-          return () =>
-            h(Input, {
-              modelValue: 'done',
-              focus: true,
-              onSubmit: (v: string) => submitted.push(v),
-            })
-        },
+        setup: () => () => h(Input, { modelValue: value.value }),
       }),
     )
     app.mount()
     await nextTick()
 
-    test.mockInput.pressEnter()
-    expect(submitted).toEqual(['done'])
+    const input = test.renderer.root.getChildren()[0] as InputRenderable
+    expect(input.value).toBe('one')
+
+    value.value = 'two'
+    await nextTick()
+    expect(input.value).toBe('two')
 
     test.renderer.destroy()
   })

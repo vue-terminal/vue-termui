@@ -1,20 +1,16 @@
 # `<Input>`
 
-A single-line text input, mapping to OpenTUI's input renderable. It supports `v-model` for the text value and emits `submit` when <kbd>Enter</kbd> is pressed.
+A single-line text input, mapping to OpenTUI's input renderable. It supports `v-model` for the text value.
 
 ```vue
 <script setup lang="ts">
 import { Input, ref } from 'vue-termui'
 
 const name = ref('')
-
-function save(value: string) {
-  // ...
-}
 </script>
 
 <template>
-  <Input v-model="name" placeholder="Your name" focus @submit="save" />
+  <Input v-model="name" placeholder="Your name" focus />
 </template>
 ```
 
@@ -37,7 +33,6 @@ An input only receives typing while it's **focused**. Pass `focus` to grab focus
 | Event               | Payload  | Fires when                          |
 | ------------------- | -------- | ----------------------------------- |
 | `update:modelValue` | `string` | The text changes (drives `v-model`) |
-| `submit`            | `string` | <kbd>Enter</kbd> is pressed         |
 
 ## `v-model`
 
@@ -56,25 +51,26 @@ watch(query, (q) => search(q))
 </template>
 ```
 
-## Submitting
+## Reacting to <kbd>Enter</kbd>
 
-Use `@submit` to act when the user presses <kbd>Enter</kbd> — for example, to add an item and clear the field:
+Watch for the `return` key with [`onKeyDown`](../essentials/input) — for example, to add an item and clear the field:
 
 ```vue
 <script setup lang="ts">
-import { Input, ref } from 'vue-termui'
+import { Input, onKeyDown, ref } from 'vue-termui'
 
 const draft = ref('')
 const items = ref<string[]>([])
 
-function add(value: string) {
-  if (value.trim()) items.value.push(value.trim())
+onKeyDown((key) => {
+  if (key.name !== 'return') return
+  if (draft.value.trim()) items.value.push(draft.value.trim())
   draft.value = ''
-}
+})
 </script>
 
 <template>
-  <Input v-model="draft" placeholder="Add a todo…" focus @submit="add" />
+  <Input v-model="draft" placeholder="Add a todo…" focus />
 </template>
 ```
 
