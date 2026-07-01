@@ -1,7 +1,22 @@
 import { onScopeDispose } from '@vue/runtime-core'
-import type { CliRenderEvents } from '@opentui/core'
+import type { CliRenderEvents, CliRenderer } from '@opentui/core'
 import { useRenderer } from '../renderer/index'
 import type { RemoveListener } from '../utils/types'
+
+type Listener = (...args: unknown[]) => void
+
+/**
+ * Per-renderer, per-event fan-out. `CliRenderer` extends Node's `EventEmitter`,
+ * which warns once more than 10 listeners are attached to the same event. Since
+ * composables like {@link useFocus} subscribe one listener per focusable
+ * element, an app with 11+ of them would trip that warning. To avoid it we keep
+ * a single underlying `renderer.on()` per event and fan out to the local set of
+ * subscribers ourselves.
+ */
+const registries = new WeakMap<
+  CliRenderer,
+  Map<CliRenderEvents, { fanOut: Listener; subscribers: Set<Listener> }>
+>()
 
 /**
  * Subscribes `listener` to a renderer event for the lifetime of the current
@@ -15,8 +30,41 @@ import type { RemoveListener } from '../utils/types'
  */
 export function useRendererEvent(event: CliRenderEvents, listener: () => void): RemoveListener {
   const renderer = useRenderer()
-  renderer.on(event, listener)
-  const remove: RemoveListener = () => renderer.off(event, listener)
+
+  let events = registries.get(renderer)
+  if (!events) {
+    events = new Map()
+    registries.set(renderer, events)
+  }
+
+  let entry = events.get(event)
+  if (!entry) {
+    const subscribers = new Set<Listener>()
+    // Copy before iterating so a listener that unsubscribes during dispatch
+    // doesn't mutate the set mid-loop.
+    const fanOut: Listener = (...args) => {
+      for (const sub of [...subscribers]) sub(...args)
+    }
+    entry = { fanOut, subscribers }
+    events.set(event, entry)
+    renderer.on(event, fanOut)
+  }
+
+  entry.subscribers.add(listener)
+
+  let removed = false
+  const remove: RemoveListener = () => {
+    if (removed) return
+    removed = true
+    entry!.subscribers.delete(listener)
+    // Last subscriber gone: detach the single underlying listener too.
+    if (entry!.subscribers.size === 0) {
+      renderer.off(event, entry!.fanOut)
+      events!.delete(event)
+      if (events!.size === 0) registries.delete(renderer)
+    }
+  }
+
   onScopeDispose(remove, true)
   return remove
 }
