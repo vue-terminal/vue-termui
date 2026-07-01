@@ -12,7 +12,6 @@ import {
   TextRenderable,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
-import { getDefaultSyntaxStyle } from '../components/Markdown'
 
 /**
  * Simplified renderable used as an invisible anchor for comment nodes and text
@@ -95,8 +94,10 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
   }
 
   return {
-    createElement(tag, _namespace, _isCustomizedBuiltIn, _props) {
-      // NOTE: we don't pass the props because Vue calls patchProp sync anyway
+    createElement(tag, _namespace, _isCustomizedBuiltIn, props) {
+      // NOTE: props are ignored here because Vue calls patchProp sync right
+      // after — except for `<markdown>`, whose renderable *requires* a
+      // `syntaxStyle` at construction (it cannot be patched in later).
       switch (tag) {
         case 'box':
           return new BoxRenderable(ctx, {})
@@ -108,11 +109,19 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new TextareaRenderable(ctx, {})
         case 'select':
           return new SelectRenderable(ctx, {})
-        case 'markdown':
-          // `MarkdownRenderable` requires a `syntaxStyle`; seed it with the
-          // shared default so a bare `<markdown>` renders even before the
-          // component patches its own (or the user's) style in.
-          return new MarkdownRenderable(ctx, { syntaxStyle: getDefaultSyntaxStyle() })
+        case 'markdown': {
+          // `MarkdownRenderable` requires a `syntaxStyle` up front, so read it
+          // from the props here rather than deferring to patchProp. The
+          // `<Markdown>` component declares it required; a bare `<markdown>`
+          // without one is a usage error we surface eagerly.
+          const syntaxStyle = props?.syntaxStyle
+          if (!syntaxStyle) {
+            throw new Error(
+              '[vue-termui] <Markdown> requires a `syntaxStyle` prop. Build one with `SyntaxStyle.fromStyles(...)`.',
+            )
+          }
+          return new MarkdownRenderable(ctx, { syntaxStyle })
+        }
         default:
           throw new Error(`[vue-termui] Unknown element type: <${tag}>`)
       }
