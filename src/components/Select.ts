@@ -127,7 +127,8 @@ Select.props = {
   wrapSelection: Boolean,
   showDescription: Boolean,
 }
-Select.emits = {
-  'update:modelValue': (index: number) => typeof index === 'number',
-  select: (_option: SelectOption | null, index: number) => typeof index === 'number',
-}
+// no need for runtime validation
+// Select.emits = {
+//   'update:modelValue': (index: number) => typeof index === 'number',
+//   select: (_option: SelectOption | null, index: number) => typeof index === 'number',
+// }
