@@ -82,10 +82,13 @@ export const ProgressBar: FunctionalComponent<ProgressBarProps> = (props) => {
 
 ProgressBar.displayName = 'ProgressBar'
 ProgressBar.props = {
+  // displays a warning if missing
   value: { type: Number, required: true },
-  max: { type: Number, default: 1 },
-  width: { type: Number, default: 25 },
+
+  // defaults applied in the render function
+  max: Number,
+  width: Number,
   color: [String, Object],
   trackColor: [String, Object],
-  char: { type: String, default: '█' },
+  char: String,
 }
