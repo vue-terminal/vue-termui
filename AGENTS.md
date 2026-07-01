@@ -80,19 +80,33 @@ Always keep this file up to date when project commands, structure, or tooling ch
 - `Text` folds its boolean style props (`bold`, `italic`, `underline`, `dim`,
   `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
   bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
-- Simple components (`Box`, `Text`, `Newline`, `ProgressBar`) are explicitly-typed
-  `FunctionalComponent`s so `isolatedDeclarations` is satisfied without
-  hand-writing a `DefineComponent` return type; runtime `.props` give Boolean
-  coercion. Interactive ones (`Input`, `Select`) need lifecycle/refs so they use
-  `defineComponent({...}) as DefineComponent<Props>` — the `as` cast supplies the
-  explicit export type isolatedDeclarations requires.
-- `Input`/`Select` map to the `input`/`select` host tags (→ `InputRenderable` /
-  `SelectRenderable`) and support `v-model` (`Input` on the string value, `Select`
-  on the highlighted index). They wire OpenTUI's emitter events via a template
-  ref in `onMounted`. **Never forward `undefined` host props** — it overwrites
-  renderable defaults (e.g. `Input` `maxLength` defaults to 1000; `undefined`
-  makes it silently drop all typed input). Build the host props object
-  conditionally.
+
+#### Building a component (`Input`/`Select` are the templates)
+
+- **Always a `FunctionalComponent<Props, Emits>`** — even interactive ones. No
+  `defineComponent`/`setup`/`onMounted`/`watch`/`shallowRef`. The explicit
+  `const` type satisfies `isolatedDeclarations`; add `.displayName`, runtime
+  `.props` (Boolean coercion + extracts real props from `attrs`).
+- **Fallthrough for native options**: spread `...attrs` so only _set_ props reach
+  the renderable. **Never forward `undefined`** — it clobbers renderable defaults
+  (e.g. `Input.maxLength` defaults to 1000; `undefined` drops all typed input).
+- **`v-model` / outside→renderable sync rides the prop path** — pass the mapped
+  prop explicitly (`value: modelValue`, `selectedIndex: modelValue`). `patchProp`
+  assigns `el[key]` only when it changes (Vue skips unchanged props) and the
+  OpenTUI setter is idempotent, so **no `watch` is needed**. Verify the setter is
+  silent/guarded (e.g. `selectedIndex` setter doesn't emit, unlike
+  `setSelectedIndex()`) or you'll loop.
+- **Mount-shaped side effects go in a function `ref`** (listeners, initial
+  `focus`) — functional components have no lifecycle. Dedupe with a module
+  `WeakSet<Renderable>` so re-invocation on updates doesn't double-wire.
+- **Consume the event payload**, don't re-query — OpenTUI emits it
+  (`selectionChanged`/`itemSelected` → `(index, option)`).
+- **No runtime `emits` validators** — the typed `Emits` generic documents
+  payloads; `emit` resolves listeners without a `.emits` object.
+- **`Omit` OpenTUI options you don't honor**: leaked/dead ones (`Input` omits the
+  `onSubmit` it inherits from Textarea but never fires) and ones you manage
+  yourself (`Select` omits `options`/`selectedIndex`). Don't invent semantics —
+  `Input` has **no** submit event (a form concept); react to Enter via `onKeyDown`.
 - `ProgressBar` is a `Box`+`Text` composite (OpenTUI has no native progress bar).
 - `Link` / `TextTransform` are NOT ported yet — they need TextNode-with-link/
   transform support threaded through `nodeOps` (text-node children don't carry
