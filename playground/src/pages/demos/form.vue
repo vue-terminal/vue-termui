@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TextDecoder } from 'node:util'
 import { Box, computed, Input, ProgressBar, ref, Text } from 'vue-termui'
 
 // The Input autofocuses, so typing flows here. Esc hands focus back to the
@@ -11,7 +12,14 @@ const filled = computed(() => Math.min(name.value.length, max))
 <template>
   <Box flexDirection="column" :padding="1" :gap="1" borderStyle="rounded">
     <Text fg="#42b883" bold>What is your name?</Text>
-    <Input v-model="name" placeholder="Type here…" focus :maxLength="max" />
+    <Input
+      v-model="name"
+      placeholder="Type here…"
+      focus
+      :maxLength="max"
+      :attributes="1"
+      @paste="console.log('pasted', new TextDecoder().decode($event.bytes))"
+    />
     <Box flexDirection="row" :gap="1">
       <ProgressBar :value="filled" :max="max" :width="max" />
       <Text fg="#888888">{{ filled }}/{{ max }}</Text>

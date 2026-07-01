@@ -3,9 +3,18 @@ import { Box, ref, Select, Text } from 'vue-termui'
 import type { SelectOption } from 'vue-termui'
 
 const options: SelectOption[] = [
-  { name: 'Vue', description: 'The progressive framework' },
-  { name: 'OpenTUI', description: 'Native terminal renderer' },
-  { name: 'vue-termui', description: 'Vue 3 in the terminal' },
+  { name: 'New File', description: 'Create a new file' },
+  { name: 'Open File', description: 'Open an existing file' },
+  { name: 'Close File', description: 'Close the current file' },
+  { name: 'Undo', description: 'Undo last action' },
+  { name: 'Redo', description: 'Redo last undone action' },
+  { name: 'Copy', description: 'Copy selected text' },
+  { name: 'Paste', description: 'Paste from clipboard' },
+  { name: 'Cut', description: 'Cut selected text' },
+  { name: 'Find', description: 'Find text in the file' },
+  { name: 'Replace', description: 'Replace text in the file' },
+  { name: 'Save', description: 'Save current file' },
+  { name: 'Exit', description: 'Exit the application' },
 ]
 
 const index = ref(0)
@@ -19,8 +28,10 @@ const chosen = ref('')
     <Select
       v-model="index"
       :options="options"
-      :showDescription="true"
       focus
+      :showDescription="false"
+      width="30%"
+      :height="6"
       @select="(option) => (chosen = option?.name ?? '')"
     />
     <Text>Highlighted: {{ options[index]?.name }}</Text>

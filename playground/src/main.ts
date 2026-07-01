@@ -6,6 +6,8 @@ import { router } from './router'
 import { ConsolePosition } from '@opentui/core'
 
 const app = await createApp(App, null, {
+  // easier debug
+  exitOnCtrlC: true,
   consoleOptions: {
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,

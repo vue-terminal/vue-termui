@@ -15,8 +15,11 @@ const exit = useExit()
 const items = [
   { label: 'Home', to: '/' },
   { label: 'Text & styles', to: '/text-styles' },
+  { label: 'Markdown', to: '/markdown' },
+  { label: 'Markdown themes', to: '/markdown-themes' },
   { label: 'Layout', to: '/layout' },
   { label: 'Select', to: '/select' },
+  { label: 'Textarea', to: '/textarea' },
   { label: 'Keyboard', to: '/keyboard' },
   { label: 'Soundboard', to: '/sounds' },
   { label: 'Form', to: '/demos/form' },
