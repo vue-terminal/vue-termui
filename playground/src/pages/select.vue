@@ -29,8 +29,7 @@ const chosen = ref('')
       v-model="index"
       :options="options"
       focus
-      :showDescription="false"
-      width="30%"
+      width="40%"
       :height="6"
       @select="(option) => (chosen = option?.name ?? '')"
     />
