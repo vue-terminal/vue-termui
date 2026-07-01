@@ -1,22 +1,11 @@
-import { TextAttributes } from '@opentui/core'
-import { type FunctionalComponent, h, type PropType } from '@vue/runtime-core'
-import type { ColorInput } from './types'
+import { TextAttributes, type TextOptions } from '@opentui/core'
+import { type FunctionalComponent, h } from '@vue/runtime-core'
 
 /**
  * Props accepted by {@link Text}. Text content is provided through the default
  * slot. Boolean style props are folded into OpenTUI's `attributes` bitmask.
  */
-export interface TextProps {
-  /**
-   * Foreground (text) color.
-   */
-  fg?: ColorInput
-
-  /**
-   * Background color.
-   */
-  bg?: ColorInput
-
+export interface TextProps extends TextOptions {
   /**
    * Render the text in a bold/bright weight.
    */
@@ -51,11 +40,6 @@ export interface TextProps {
    * Draw a line through the text.
    */
   strikethrough?: boolean
-
-  /**
-   * How text wraps when it overflows its line.
-   */
-  wrap?: 'none' | 'char' | 'word'
 }
 
 /**
@@ -83,14 +67,12 @@ function toAttributes(props: TextProps): number {
  * <Text fg="#42b883" bold>vue-termui</Text>
  * ```
  */
-export const Text: FunctionalComponent<TextProps> = (props, { slots }) =>
+export const Text: FunctionalComponent<TextProps> = (props, { slots, attrs }) =>
   h(
     'text',
     {
-      fg: props.fg,
-      bg: props.bg,
       attributes: toAttributes(props),
-      wrapMode: props.wrap,
+      ...attrs,
     },
     slots.default?.(),
   )
@@ -100,8 +82,6 @@ Text.displayName = 'Text'
 // → `true`) and the color/wrap props are extracted instead of falling through
 // as attributes onto the host `<text>` element.
 Text.props = {
-  fg: [String, Object] as PropType<ColorInput>,
-  bg: [String, Object] as PropType<ColorInput>,
   bold: Boolean,
   dim: Boolean,
   italic: Boolean,
@@ -109,5 +89,4 @@ Text.props = {
   blink: Boolean,
   inverse: Boolean,
   strikethrough: Boolean,
-  wrap: String as PropType<TextProps['wrap']>,
 }
