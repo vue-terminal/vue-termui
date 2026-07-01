@@ -118,6 +118,20 @@ export function createTuiApp(
   const app = baseCreateApp(rootComponent, rootProps ?? null)
   app.provide(rendererInjectionKey, renderer)
 
+  // Dev full-reload bridge. On an edit with no HMR boundary (the entry, the
+  // router, a plain `.ts` module), Vite's module runner clears its cache and
+  // re-imports the entry — so `createApp` runs again and would mount a *second*
+  // app while this one still owns the terminal. Expose this renderer's teardown
+  // on a global so the next `createApp` can dispose the previous app before it
+  // creates the new renderer. The library is externalized to native Node but
+  // shares the runner's `globalThis`, so a plain global is the bridge (same
+  // pattern as `__VUE_TERMUI_DEV__`/`__VUE_TERMUI_TEARDOWN__`). Unset outside dev,
+  // so this is a no-op in production and tests.
+  if ((globalThis as { __VUE_TERMUI_DEV__?: boolean }).__VUE_TERMUI_DEV__) {
+    ;(globalThis as { __VUE_TERMUI_DEV_DESTROY__?: () => void }).__VUE_TERMUI_DEV_DESTROY__ = () =>
+      renderer.destroy()
+  }
+
   // `waitUntilExit()` resolves when the renderer is destroyed (Ctrl+C, an exit
   // signal, `exit()` or a direct `renderer.destroy()`). The promise is created
   // eagerly so it can be awaited before `mount()`; `once` guarantees a single
@@ -209,6 +223,37 @@ export async function createApp(
   rootProps?: Record<string, unknown> | null,
   rendererOptions?: CliRendererConfig,
 ): Promise<App<Renderable>> {
+  disposePreviousDevApp()
   const renderer = await createCliRenderer(rendererOptions)
   return createTuiApp(renderer, rootComponent, rootProps)
+}
+
+/**
+ * Dev full reload: the module runner re-imports the entry on an edit with no HMR
+ * boundary (the entry, the router, a plain `.ts` module), landing back in
+ * {@link createApp}. Dispose the previously mounted app first so its renderer
+ * releases the terminal and its `onUnmounted` hooks run (clearing timers) —
+ * otherwise the old and new renderers fight over the TTY.
+ *
+ * The previous app's `DESTROY` hook also runs the dev teardown (which closes the
+ * Vite server and exits the process), so suppress that for the disposal: a reload
+ * must not exit. `destroy()` emits `DESTROY` synchronously, so nulling the
+ * teardown around the call reliably covers the hook, then restores it for the
+ * next app's eventual Ctrl+C.
+ *
+ * No-op outside dev and on first launch — the disposer is only registered by
+ * {@link createTuiApp} once an app exists under the dev server. Only the
+ * {@link createApp} path is covered; apps that bring their own renderer to
+ * {@link createTuiApp} own this lifecycle themselves.
+ */
+export function disposePreviousDevApp(): void {
+  const dev = globalThis as {
+    __VUE_TERMUI_DEV_DESTROY__?: () => void
+    __VUE_TERMUI_TEARDOWN__?: () => void
+  }
+  if (!dev.__VUE_TERMUI_DEV_DESTROY__) return
+  const teardown = dev.__VUE_TERMUI_TEARDOWN__
+  dev.__VUE_TERMUI_TEARDOWN__ = undefined
+  dev.__VUE_TERMUI_DEV_DESTROY__()
+  dev.__VUE_TERMUI_TEARDOWN__ = teardown
 }
