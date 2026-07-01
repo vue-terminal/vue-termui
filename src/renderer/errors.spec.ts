@@ -3,6 +3,7 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createTuiApp } from './index'
+import { mockConsoleError } from '../__tests__/mock-warn'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 /**
@@ -12,6 +13,8 @@ import type { TestRendererSetup } from '@opentui/core/testing'
  * Vite's module runner via `console.error` also pop the overlay open.
  */
 describe('renderer error handling', () => {
+  mockConsoleError()
+
   afterEach(() => {
     delete (globalThis as { __VUE_TERMUI_DEV__?: boolean }).__VUE_TERMUI_DEV__
   })
@@ -36,6 +39,8 @@ describe('renderer error handling', () => {
     expect(() => app.mount()).not.toThrow()
     await nextTick()
     expect(shown).toBeGreaterThan(0)
+    // The default handler logs the swallowed error to the overlay.
+    expect('[vue-termui] Unhandled error').toHaveBeenErrored()
 
     test.renderer.destroy()
   })
@@ -81,11 +86,13 @@ describe('renderer error handling', () => {
     // Simulate a compile error logged by Vite's module runner.
     console.error('[vite] (ssr) [vue/compiler-sfc] Unexpected token')
     expect(shown, 'overlay opened on logged error').toBeGreaterThan(0)
+    expect('[vite] (ssr) [vue/compiler-sfc] Unexpected token').toHaveBeenErrored()
 
     // Destroying the renderer restores the original console.error (no leak).
     test.renderer.destroy()
     shown = 0
     console.error('after destroy, must not open overlay')
     expect(shown, 'console.error wrap removed on destroy').toBe(0)
+    expect('after destroy, must not open overlay').toHaveBeenErrored()
   })
 })
