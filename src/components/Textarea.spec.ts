@@ -18,7 +18,7 @@ describe('Textarea', () => {
           return () =>
             h(Textarea, {
               modelValue: value.value,
-              focus: true,
+              autofocus: true,
               'onUpdate:modelValue': (v: string) => {
                 value.value = v
               },
@@ -65,7 +65,7 @@ describe('Textarea', () => {
           return () =>
             h(Textarea, {
               modelValue: value.value,
-              focus: true,
+              autofocus: true,
               onSubmit,
               'onUpdate:modelValue': (v: string) => {
                 value.value = v
@@ -99,7 +99,7 @@ describe('Textarea', () => {
           return () =>
             h(Textarea, {
               modelValue: value.value,
-              focus: true,
+              autofocus: true,
               onSubmit,
               'onUpdate:modelValue': (v: string) => {
                 value.value = v

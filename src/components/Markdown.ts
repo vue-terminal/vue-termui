@@ -1,6 +1,6 @@
 import { type MarkdownOptions, SyntaxStyle } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
-import { propToOptionalBoolean } from './utils'
+import { optionalBooleanProps } from './utils'
 
 // Re-exported so consumers can build a `syntaxStyle` (and type theme maps)
 // without reaching into `@opentui/core` directly.
@@ -54,11 +54,10 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
 
   return h('markdown', {
     ...attrs,
-    // pass down undefined to let defaults take over,
-    // anything else than false is true, so conceal and conceal="" are true
-    conceal: propToOptionalBoolean(props.conceal),
-    concealCode: propToOptionalBoolean(props.concealCode),
-    streaming: propToOptionalBoolean(props.streaming),
+    // Coerce and forward each optional boolean only when set, so an unset prop
+    // keeps the renderable's own default — e.g. `conceal` stays `true`, and
+    // `conceal`/`conceal=""` read as `true` (see `optionalBooleanProps`).
+    ...optionalBooleanProps(props, ['conceal', 'concealCode', 'streaming']),
     // required: seeded at element creation (see nodeOps) and kept in sync here
     syntaxStyle: props.syntaxStyle,
   })

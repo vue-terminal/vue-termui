@@ -97,7 +97,7 @@ describe('Input', () => {
       test.renderer,
       defineComponent({
         setup: () => () =>
-          h(Box, null, [
+          h(Box, null, () => [
             h(Input, { modelValue: '', autofocus: true, onFocus: () => focused.push('first') }),
             h(Input, { modelValue: '', autofocus: true, onFocus: () => focused.push('second') }),
           ]),

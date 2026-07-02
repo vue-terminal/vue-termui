@@ -1,5 +1,13 @@
-import { type TextareaRenderable, type TextareaOptions } from '@opentui/core'
-import { type FunctionalComponent, h, type VNodeRef } from '@vue/runtime-core'
+import type { TextareaRenderable, TextareaOptions } from '@opentui/core'
+import { defineComponent, h, onMounted, shallowRef, type VNode } from '@vue/runtime-core'
+import {
+  type ExtractEventsNames,
+  optionalBooleanProps,
+  type RenderableEventProps,
+  renderableEmits,
+  setupRenderableEvents,
+  type TuiComponent,
+} from './utils'
 
 /**
  * Props accepted by {@link Textarea}. Extends OpenTUI's native `TextareaRenderable`
@@ -11,7 +19,8 @@ import { type FunctionalComponent, h, type VNodeRef } from '@vue/runtime-core'
  * is managed here through `modelValue`, and the latter is re-exposed as the
  * typed `submit` event.
  */
-export interface TextareaProps extends Omit<TextareaOptions, 'initialValue' | 'onSubmit'> {
+export interface TextareaProps
+  extends Omit<TextareaOptions, 'initialValue' | 'onSubmit'>, RenderableEventProps {
   /**
    * Current text value. Use with `v-model`.
    *
@@ -24,9 +33,15 @@ export interface TextareaProps extends Omit<TextareaOptions, 'initialValue' | 'o
   modelValue?: string
 
   /**
-   * Focus the textarea as soon as it mounts.
+   * Emitted when the user edits the text.
    */
-  focus?: boolean
+  'onUpdate:modelValue'?: (value: string) => void
+
+  /**
+   * Emitted on Meta/Cmd+Enter (OpenTUI's default submit keybinding), with the
+   * current text.
+   */
+  onSubmit?: (value: string) => void
 }
 
 /**
@@ -48,62 +63,62 @@ export interface TextareaProps extends Omit<TextareaOptions, 'initialValue' | 'o
  *     v-model="notes"
  *     placeholder="Type notes… (⌘+⏎ to submit)"
  *     :height="6"
- *     focus
+ *     autofocus
  *     @submit="(text) => console.log(text)"
  *   />
  * </template>
  * ```
  */
-type TextareaEmits = {
-  'update:modelValue': (value: string) => void
-  submit: (value: string) => void
-}
+export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineComponent({
+  name: 'Textarea',
+  props: {
+    modelValue: String,
+    autofocus: Boolean,
+    // not cast to boolean, kept optional so an unset prop preserves the
+    // renderable's own `focusable` default (see `optionalBooleanProps`)
+    focusable: null,
+  },
+  // for type safety and to avoid runtime warnings
+  // but we rely on TextareaProps declaration as onUpdate:modelValue for component-usage type safety
+  emits: {
+    'update:modelValue': (value: string) => typeof value === 'string',
+    submit: (value: string) => typeof value === 'string',
+    ...renderableEmits,
+  } satisfies ExtractEventsNames<TextareaProps, Omit<TextareaOptions, 'onSubmit'>>,
+  setup(props, { emit, attrs }) {
+    const textarea = shallowRef<TextareaRenderable | null>(null)
 
-// Event listeners (and the initial focus) are one-time, mount-shaped side
-// effects, but a functional component has no lifecycle hooks. A function `ref`
-// fills that gap: OpenTUI hands us the `TextareaRenderable` when it mounts. The
-// `WeakSet` guard makes wiring idempotent — Vue may invoke the ref again on
-// updates, and re-attaching would duplicate the listeners.
-const wired = new WeakSet<TextareaRenderable>()
-
-export const Textarea: FunctionalComponent<TextareaProps, TextareaEmits> = (
-  props,
-  { emit, attrs },
-) =>
-  h('textarea', {
-    // Native options (`placeholder`, `wrapMode`, colors, `keyBindings`, …) fall
-    // through as attributes: they only reach the renderable when actually set,
-    // so unset props never overwrite the renderable's defaults.
-    ...attrs,
-    // Seed the editor through the renderable's `initialValue`, which rides the
-    // normal prop path: `patchProp` assigns it only when `modelValue` changes
-    // (Vue skips unchanged props), and the `initialValue` setter is one-time
-    // guarded — it applies the seed once and silently ignores later
-    // reassignments, so this never clobbers the buffer/cursor or loops.
-    initialValue: props.modelValue,
-    ref: ((textarea: TextareaRenderable | null) => {
-      if (!textarea || wired.has(textarea)) return
-      wired.add(textarea)
+    onMounted(() => {
+      const el = textarea.value
+      if (!el) return
 
       // Mirror user edits back out through `v-model`. `ContentChangeEvent` is
       // empty, so read the current text off the renderable; the guard absorbs
       // the change the initial seed emits.
-      textarea.onContentChange = () => {
-        if (textarea.plainText !== props.modelValue) emit('update:modelValue', textarea.plainText)
+      el.onContentChange = () => {
+        if (el.plainText !== props.modelValue) emit('update:modelValue', el.plainText)
       }
 
       // Meta/Cmd+Enter submits (OpenTUI's default keybinding). `SubmitEvent` is
       // empty, so forward the current text as the payload.
-      textarea.onSubmit = () => emit('submit', textarea.plainText)
+      el.onSubmit = () => emit('submit', el.plainText)
 
-      if (props.focus) textarea.focus()
-    }) as VNodeRef,
-  })
+      // Common Renderable events + autofocus on mount
+      setupRenderableEvents(el, emit, { autofocus: props.autofocus })
+    })
 
-Textarea.displayName = 'Textarea'
-// Runtime prop declaration so `modelValue`/`focus` are extracted instead of
-// falling through as attributes onto the host `<textarea>` element.
-Textarea.props = {
-  modelValue: String,
-  focus: Boolean,
-}
+    return (): VNode =>
+      h('textarea', {
+        // native options and listeners
+        ...attrs,
+        ...optionalBooleanProps(props, ['focusable']),
+        // Seed the editor through the renderable's `initialValue`, which rides
+        // the normal prop path: `patchProp` assigns it only when `modelValue`
+        // changes (Vue skips unchanged props), and the `initialValue` setter is
+        // one-time guarded — it applies the seed once and silently ignores later
+        // reassignments, so this never clobbers the buffer/cursor or loops.
+        initialValue: props.modelValue ?? attrs.value ?? '',
+        ref: textarea,
+      })
+  },
+})

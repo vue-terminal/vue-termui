@@ -38,7 +38,7 @@ describe('Select', () => {
             h(Select, {
               options,
               modelValue: index.value,
-              focus: true,
+              autofocus: true,
               'onUpdate:modelValue': (i: number) => {
                 index.value = i
               },
@@ -107,7 +107,7 @@ describe('Select', () => {
             h(Select, {
               options,
               modelValue: 2,
-              focus: true,
+              autofocus: true,
               onSelect: (opt: SelectOption | null, i: number) => picked.push([opt?.name, i]),
             })
         },

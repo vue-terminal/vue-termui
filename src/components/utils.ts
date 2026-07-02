@@ -72,6 +72,44 @@ export function propToOptionalBoolean(prop: unknown): boolean | undefined {
 }
 
 /**
+ * Extract only the keys of `T` whose values are optional booleans. Used by
+ {@link optionalBooleanProps} to ensure we only pick the right props off a
+ component's props object.
+ *
+ * @internal
+ */
+export type OptionalBooleanKeys<T> = {
+  [K in keyof T]-?: boolean extends T[K] ? K : never
+}[keyof T]
+
+/**
+ * Pick the given optional-boolean props off `source`, coerce them with
+ * {@link propToOptionalBoolean}, and return an object containing *only* the
+ * keys the author actually set.
+ *
+ * OpenTUI's boolean setters (`focusable`, `showDescription`, …) are plain
+ * assignments with no `undefined` guard, so spreading an unset prop as
+ * `key: undefined` resets a renderable whose default is `true` (e.g.
+ * `focusable` on `Input`/`Select`) down to `undefined`. Omitting the key
+ * instead preserves each renderable's own default; an explicit `false` still
+ * opts out and an empty-string attribute (`<Input focusable />`) reads as
+ * `true`.
+ *
+ * @internal
+ */
+export function optionalBooleanProps<T extends object, K extends OptionalBooleanKeys<T>>(
+  source: T,
+  keys: readonly K[],
+): { [P in K]?: boolean } {
+  const result: { [P in K]?: boolean } = {}
+  for (const key of keys) {
+    const value = propToOptionalBoolean(source[key])
+    if (value !== undefined) result[key] = value
+  }
+  return result
+}
+
+/**
  * Type helper to ensure we declare all needed events in `emits`
  *
  * @internal
@@ -106,6 +144,15 @@ export interface RenderableEventProps {
    * non-focusable elements. When several are set, the first one wins.
    */
   autofocus?: boolean
+
+  /**
+   * Whether the element can receive focus (via keyboard, mouse or `focus()`).
+   * Each renderable has its own default — interactive ones (`Input`, `Textarea`,
+   * `Select`) are focusable, containers (`Box`) are not — so leaving this unset
+   * keeps that default. Set it to opt a container in or an interactive element
+   * out.
+   */
+  focusable?: boolean
 }
 
 /**

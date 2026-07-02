@@ -58,9 +58,12 @@ describe('Markdown', () => {
     expect(mounted().syntaxStyle).toBe(custom)
   })
 
-  it('keeps undefined conceal by default', () => {
+  it("keeps the renderable's conceal default (true) when unset", () => {
+    // An unset optional boolean is omitted rather than forwarded as
+    // `undefined`, so the renderable keeps its own default — matching the
+    // documented "markers are concealed by default" behavior.
     render(h(Markdown, { content: '# Title', syntaxStyle }), test.renderer.root)
-    expect(mounted().conceal).toBe(undefined)
+    expect(mounted().conceal).toBe(true)
   })
 
   it('forwards boolean options when set', () => {

@@ -14,7 +14,7 @@ import {
 } from '@vue/runtime-core'
 import {
   type ExtractEventsNames,
-  propToOptionalBoolean,
+  optionalBooleanProps,
   type RenderableEventProps,
   renderableEmits,
   setupRenderableEvents,
@@ -101,6 +101,7 @@ export const Select: TuiComponent<SelectProps, SelectRenderable> = defineCompone
     showDescription: null,
     showScrollIndicator: null,
     wrapSelection: null,
+    focusable: null,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on SelectProps declaration as onUpdate:modelValue for component-usage type safety
@@ -134,9 +135,14 @@ export const Select: TuiComponent<SelectProps, SelectRenderable> = defineCompone
       h('select', {
         // native options and listeners
         ...attrs,
-        showDescription: propToOptionalBoolean(props.showDescription),
-        showScrollIndicator: propToOptionalBoolean(props.showScrollIndicator),
-        wrapSelection: propToOptionalBoolean(props.wrapSelection),
+        // Coerce and forward each optional boolean only when set, so an unset
+        // prop keeps the renderable's own default (see `optionalBooleanProps`).
+        ...optionalBooleanProps(props, [
+          'showDescription',
+          'showScrollIndicator',
+          'wrapSelection',
+          'focusable',
+        ]),
         // `options` and the `selectedIndex` (driven by `v-model`) ride the normal
         // prop path: `patchProp` assigns them only when they actually change (Vue
         // skips unchanged props). Crucially, the `selectedIndex` *setter* is silent

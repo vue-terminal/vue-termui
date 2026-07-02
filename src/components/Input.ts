@@ -6,6 +6,7 @@ import {
 import { defineComponent, h, onMounted, shallowRef, type VNode } from '@vue/runtime-core'
 import {
   type ExtractEventsNames,
+  optionalBooleanProps,
   type RenderableEventProps,
   renderableEmits,
   setupRenderableEvents,
@@ -71,6 +72,9 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
   props: {
     modelValue: String,
     autofocus: Boolean,
+    // not cast to boolean, kept optional so an unset prop preserves the
+    // renderable's own `focusable` default (see `optionalBooleanProps`)
+    focusable: null,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on InputProps declaration as onUpdate:modelValue for component-usage type safety
@@ -108,6 +112,7 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
       h('input', {
         // native options and listeners
         ...attrs,
+        ...optionalBooleanProps(props, ['focusable']),
         // our overrides
         value: props.modelValue ?? attrs.value ?? '',
         ref: input,
