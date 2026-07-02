@@ -4,6 +4,7 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
 import { createTuiApp } from '../renderer/index'
+import { Box } from './Box'
 import { Input } from './Input'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
@@ -18,7 +19,7 @@ describe('Input', () => {
           return () =>
             h(Input, {
               modelValue: value.value,
-              focus: true,
+              autofocus: true,
               'onUpdate:modelValue': (v: string) => {
                 value.value = v
               },
@@ -85,6 +86,27 @@ describe('Input', () => {
 
     input.blur()
     expect(blurred).toBe(1)
+
+    test.renderer.destroy()
+  })
+
+  it('focuses only the first of several autofocus elements', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 5 })
+    const focused: string[] = []
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup: () => () =>
+          h(Box, null, [
+            h(Input, { modelValue: '', autofocus: true, onFocus: () => focused.push('first') }),
+            h(Input, { modelValue: '', autofocus: true, onFocus: () => focused.push('second') }),
+          ]),
+      }),
+    )
+    app.mount()
+    await nextTick()
+
+    expect(focused).toEqual(['first'])
 
     test.renderer.destroy()
   })
