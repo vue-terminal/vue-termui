@@ -6,26 +6,19 @@ export const version = '0.0.0'
 // runtime-core and break vnode/instance interop.
 export * from '@vue/runtime-core'
 
-export {
-  onKeyDown,
-  onKeyUp,
-  onResize,
-  useFocus,
-  useFocusManager,
-  useInterval,
-  useTerminalSize,
-  useTimeout,
-  useTitle,
-} from './composables/index'
+export { useFocus, useFocusManager } from './composables/focus'
 export type {
   ElementRef,
-  KeyEvent,
-  RemoveListener,
-  TerminalSize,
   UseFocusManagerReturn,
   UseFocusOptions,
   UseFocusReturn,
-} from './composables/index'
+} from './composables/focus'
+export { onKeyDown, onKeyUp } from './composables/keyboard'
+export type { KeyEvent } from './composables/keyboard'
+export { onResize, useTerminalSize, useTitle } from './composables/screen'
+export type { TerminalSize } from './composables/screen'
+export { useInterval, useTimeout } from './composables/timing'
+export type { RemoveListener } from './utils/types'
 
 export { Box } from './components/Box'
 export type { BoxProps } from './components/Box'

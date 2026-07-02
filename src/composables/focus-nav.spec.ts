@@ -3,7 +3,8 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, onMounted, ref } from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
 import { createTuiApp } from '../renderer/index'
-import { onKeyDown, useFocus } from './index'
+import { onKeyDown } from './keyboard'
+import { useFocus } from './focus'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 /**
