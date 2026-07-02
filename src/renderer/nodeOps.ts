@@ -176,7 +176,9 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
 
     remove(child) {
       const node = treeNode(child)
-      node.parent?.remove(node.id)
+      // remove is only called to the root component being destroyed
+      // so we need to destroy the whole tree recursively
+      node.destroyRecursively()
       scheduleRender()
     },
 
