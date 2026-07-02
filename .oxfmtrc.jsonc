@@ -5,5 +5,5 @@
   "trailingComma": "all",
   "experimentalSortPackageJson": false,
   "singleQuote": true,
-  "ignorePatterns": ["pnpm-lock.yaml"],
+  "ignorePatterns": ["pnpm-lock.yaml", "old/"],
 }
