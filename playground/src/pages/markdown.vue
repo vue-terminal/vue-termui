@@ -4,7 +4,7 @@ import { markdownThemes } from '../markdown-themes'
 
 // `syntaxStyle` is required — build one from a theme map (see markdown-themes.ts
 // for copy-paste presets).
-const syntaxStyle = SyntaxStyle.fromStyles(markdownThemes[0].styles)
+const syntaxStyle = SyntaxStyle.fromStyles(markdownThemes[0]!.styles)
 
 // Bump a counter on space to show that `content` is fully reactive — the block
 // re-renders whenever the string changes.
@@ -51,7 +51,16 @@ function greet(name: string) {
 <template>
   <Box flexDirection="column" :gap="1" borderStyle="rounded" :padding="1">
     <Box borderStyle="single" :padding="1">
-      <Markdown :content="content" :syntax-style="syntaxStyle" streaming conceal />
+      <Markdown
+        :content="content"
+        :syntax-style="syntaxStyle"
+        streaming
+        conceal
+        @mouseDown="console.log('mouseDown')"
+        @focus="console.log('focuse')"
+        @blur="console.log('blur')"
+        @destroyed="console.log('destroyed')"
+      />
     </Box>
   </Box>
 </template>

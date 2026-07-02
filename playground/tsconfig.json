@@ -10,7 +10,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "esnext",
-    "lib": ["esnext"],
+    // DOM because of https://github.com/vuejs/core/pull/15040
+    "lib": ["esnext", "DOM"],
     "types": ["node"],
 
     // Other Outputs

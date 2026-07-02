@@ -3,19 +3,13 @@ import {
   InputRenderableEvents,
   type InputRenderableOptions,
 } from '@opentui/core'
-import {
-  defineComponent,
-  type DefineComponent,
-  h,
-  onMounted,
-  shallowRef,
-  type VNode,
-} from '@vue/runtime-core'
+import { defineComponent, h, onMounted, shallowRef, type VNode } from '@vue/runtime-core'
 import {
   type ExtractEventsNames,
   type RenderableEventProps,
   renderableEmits,
   setupRenderableEvents,
+  type TuiComponent,
 } from './utils'
 
 /**
@@ -28,11 +22,6 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, Re
    * Current text value. Use with `v-model`.
    */
   modelValue?: string
-
-  /**
-   * Focus the input as soon as it mounts.
-   */
-  focus?: boolean
 
   /**
    * Emitted when the user edits the text
@@ -73,15 +62,15 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, Re
  * const name = ref('')
  * </script>
  * <template>
- *   <Input v-model="name" placeholder="Your name" focus />
+ *   <Input v-model="name" placeholder="Your name" autofocus />
  * </template>
  * ```
  */
-export const Input: DefineComponent<InputProps> = defineComponent({
+export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent({
   name: 'Input',
   props: {
     modelValue: String,
-    focus: Boolean,
+    autofocus: Boolean,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on InputProps declaration as onUpdate:modelValue for component-usage type safety
@@ -111,10 +100,8 @@ export const Input: DefineComponent<InputProps> = defineComponent({
         emit('enter', el.value)
       })
 
-      // Common Renderable events
-      setupRenderableEvents(el, emit)
-
-      if (props.focus) el.focus()
+      // Common Renderable events + autofocus on mount
+      setupRenderableEvents(el, emit, props)
     })
 
     return (): VNode =>
@@ -122,7 +109,7 @@ export const Input: DefineComponent<InputProps> = defineComponent({
         // native options and listeners
         ...attrs,
         // our overrides
-        value: props.modelValue,
+        value: props.modelValue ?? attrs.value ?? '',
         ref: input,
       })
   },

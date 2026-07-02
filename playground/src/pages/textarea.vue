@@ -16,7 +16,7 @@ function onSubmit(text: string): void {
          Enter inserts a newline, ⌘/Meta+Enter submits. -->
     <Textarea
       v-model="notes"
-      focus
+      autofocus
       placeholder="Type notes… (⌘+⏎ to submit)"
       wrapMode="word"
       width="50%"

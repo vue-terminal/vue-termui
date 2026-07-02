@@ -28,7 +28,7 @@ const chosen = ref('')
     <Select
       v-model="index"
       :options="options"
-      focus
+      autofocus
       width="40%"
       :height="6"
       @select="(option) => (chosen = option?.name ?? '')"
