@@ -5,6 +5,7 @@ import {
   optionalBooleanProps,
   type RenderableEventProps,
   renderableEmits,
+  renderableProps,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
@@ -73,10 +74,7 @@ export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineC
   name: 'Textarea',
   props: {
     modelValue: String,
-    autofocus: Boolean,
-    // not cast to boolean, kept optional so an unset prop preserves the
-    // renderable's own `focusable` default (see `optionalBooleanProps`)
-    focusable: null,
+    ...renderableProps,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on TextareaProps declaration as onUpdate:modelValue for component-usage type safety

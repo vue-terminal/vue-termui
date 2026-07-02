@@ -17,6 +17,7 @@ import {
   optionalBooleanProps,
   type RenderableEventProps,
   renderableEmits,
+  renderableProps,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
@@ -96,12 +97,11 @@ export const Select: TuiComponent<SelectProps, SelectRenderable> = defineCompone
   props: {
     options: Array as PropType<SelectOption[]>,
     modelValue: Number,
-    autofocus: Boolean,
+    ...renderableProps,
     // not to cast to boolean, kept optional so unset props preserve defaults
     showDescription: null,
     showScrollIndicator: null,
     wrapSelection: null,
-    focusable: null,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on SelectProps declaration as onUpdate:modelValue for component-usage type safety

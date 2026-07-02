@@ -156,6 +156,16 @@ export interface RenderableEventProps {
 }
 
 /**
+ * Global props for all renderable components to spread into their `props` option.
+ *
+ * @internal
+ */
+export const renderableProps = {
+  autofocus: Boolean as BooleanConstructor, // cast needed with --isolatedDeclarations
+  focusable: null,
+}
+
+/**
  * Just a pass-through validator for the `emits` option
  *
  * @internal

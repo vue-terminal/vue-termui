@@ -9,6 +9,7 @@ import {
   optionalBooleanProps,
   type RenderableEventProps,
   renderableEmits,
+  renderableProps,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
@@ -71,10 +72,7 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
   name: 'Input',
   props: {
     modelValue: String,
-    autofocus: Boolean,
-    // not cast to boolean, kept optional so an unset prop preserves the
-    // renderable's own `focusable` default (see `optionalBooleanProps`)
-    focusable: null,
+    ...renderableProps,
   },
   // for type safety and to avoid runtime warnings
   // but we rely on InputProps declaration as onUpdate:modelValue for component-usage type safety
