@@ -27,37 +27,32 @@ export type {
   UseFocusReturn,
 } from './composables/index'
 
-export {
-  Box,
-  Input,
-  Markdown,
-  Newline,
-  ProgressBar,
-  Select,
-  SyntaxStyle,
-  Text,
-  Textarea,
-} from './components/index'
+export { Box } from './components/Box'
+export type { BoxProps } from './components/Box'
+export { Text } from './components/Text'
+export type { TextProps } from './components/Text'
+export { Newline } from './components/Newline'
+export type { NewlineProps } from './components/Newline'
+export { Input } from './components/Input'
+export type { InputProps } from './components/Input'
+export { Textarea } from './components/Textarea'
+export type { TextareaProps } from './components/Textarea'
+export { Select } from './components/Select'
+export type { SelectOption, SelectProps } from './components/Select'
+export { ProgressBar } from './components/ProgressBar'
+export type { ProgressBarProps } from './components/ProgressBar'
+export { Markdown, SyntaxStyle } from './components/Markdown'
+export type { MarkdownProps, StyleDefinitionInput } from './components/Markdown'
 export type {
   Align,
   BorderStyle,
-  BoxProps,
   ColorInput,
   Dimension,
   FlexDirection,
   Justify,
-  InputProps,
-  MarkdownProps,
-  NewlineProps,
   Overflow,
   Position,
-  ProgressBarProps,
-  SelectOption,
-  SelectProps,
-  StyleDefinitionInput,
-  TextareaProps,
-  TextProps,
-} from './components/index'
+} from './components/types'
 
 export {
   createApp,
