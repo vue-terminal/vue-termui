@@ -35,6 +35,8 @@ also need FFI, so `test:cov` / `dev` set `NODE_OPTIONS=--experimental-ffi`
 
 Always keep this file up to date when project commands, structure, or tooling change.
 
+Doc comments: say what a thing is _for_, not how it works — short and stable over exhaustive and quick to go stale. Let the code/types carry the detail.
+
 ## Architecture
 
 - Root package `vue-termui` is the core library. `src/index.ts` re-exports from
@@ -81,12 +83,26 @@ Always keep this file up to date when project commands, structure, or tooling ch
   `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
   bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
 
-#### Building a component (`Input`/`Select` are the templates)
+#### Building a component
 
-- **Always a `FunctionalComponent<Props, Emits>`** — even interactive ones. No
-  `defineComponent`/`setup`/`onMounted`/`watch`/`shallowRef`. The explicit
-  `const` type satisfies `isolatedDeclarations`; add `.displayName`, runtime
-  `.props` (Boolean coercion + extracts real props from `attrs`).
+- **Default to stateful `defineComponent`s.** Only a stateful component has a
+  public instance, so consumers can grab it with `useTemplateRef` and reach
+  `$el` (the backing OpenTUI renderable) and any exposed methods — a functional
+  component exposes none of that. (`Input` is the template; `Textarea`/`Select`
+  follow it.) Shape: `setup` + `shallowRef` for the renderable + `onMounted` to
+  wire events/focus; a `name`; a runtime `props` decl (only the non-native
+  props: `modelValue`, `autofocus`, …); and an `emits` object of runtime
+  validators ending in `satisfies ExtractEventsNames<Props, RenderableOptions>`
+  (compile-time check that every event is declared). Type the export
+  `TuiComponent<Props, Renderable>` so `$el` is the concrete renderable, extend
+  `RenderableEventProps` in the Props, spread `...renderableEmits`, and call
+  `setupRenderableEvents(el, emit)` for the common focus/blur/destroyed. Read
+  event payloads/values off `el` at emit time.
+- **Reach for `FunctionalComponent<Props, Emits>` only for pure passthroughs**
+  no one needs a handle to (`Text`, `Box`, `Newline`): no lifecycle, just `h()`
+  — but also no instance, so no `useTemplateRef`/`$el`/exposed methods. The
+  explicit `const` type satisfies `isolatedDeclarations`; add `.displayName` and
+  runtime `.props` (Boolean coercion + extracts real props from `attrs`).
 - **Fallthrough for native options**: spread `...attrs` so only _set_ props reach
   the renderable. **Never forward `undefined`** — it clobbers renderable defaults
   (e.g. `Input.maxLength` defaults to 1000; `undefined` drops all typed input).
@@ -96,13 +112,12 @@ Always keep this file up to date when project commands, structure, or tooling ch
   OpenTUI setter is idempotent, so **no `watch` is needed**. Verify the setter is
   silent/guarded (e.g. `selectedIndex` setter doesn't emit, unlike
   `setSelectedIndex()`) or you'll loop.
-- **Mount-shaped side effects go in a function `ref`** (listeners, initial
-  `focus`) — functional components have no lifecycle. Dedupe with a module
-  `WeakSet<Renderable>` so re-invocation on updates doesn't double-wire.
+- **Mount-shaped side effects** (listeners, initial `focus`): stateful
+  components use `onMounted` reading the `shallowRef`; functional ones use a
+  function `ref` deduped with a module `WeakSet<Renderable>` so re-invocation on
+  updates doesn't double-wire.
 - **Consume the event payload**, don't re-query — OpenTUI emits it
   (`selectionChanged`/`itemSelected` → `(index, option)`).
-- **No runtime `emits` validators** — the typed `Emits` generic documents
-  payloads; `emit` resolves listeners without a `.emits` object.
 - **`Omit` OpenTUI options you don't honor**: leaked/dead ones (`Input` omits the
   `onSubmit` it inherits from Textarea but never fires) and ones you manage
   yourself (`Select` omits `options`/`selectedIndex`). Don't invent semantics —
