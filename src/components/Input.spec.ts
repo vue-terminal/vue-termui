@@ -54,6 +54,41 @@ describe('Input', () => {
     test.renderer.destroy()
   })
 
+  it('emits focus and blur as the renderable gains and loses focus', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 3 })
+    let focused = 0
+    let blurred = 0
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup: () => () =>
+          h(Input, {
+            modelValue: '',
+            onFocus: () => {
+              focused++
+            },
+            onBlur: () => {
+              blurred++
+            },
+          }),
+      }),
+    )
+    app.mount()
+    await nextTick()
+
+    const input = test.renderer.root.getChildren()[0] as InputRenderable
+    expect(focused).toBe(0)
+    expect(blurred).toBe(0)
+
+    input.focus()
+    expect(focused).toBe(1)
+
+    input.blur()
+    expect(blurred).toBe(1)
+
+    test.renderer.destroy()
+  })
+
   it('syncs external model changes into the renderable', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 3 })
     const value = ref('one')

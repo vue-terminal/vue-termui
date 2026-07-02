@@ -3,14 +3,27 @@ import {
   InputRenderableEvents,
   type InputRenderableOptions,
 } from '@opentui/core'
-import { type FunctionalComponent, h, type VNodeRef } from '@vue/runtime-core'
+import {
+  defineComponent,
+  type DefineComponent,
+  h,
+  onMounted,
+  shallowRef,
+  type VNode,
+} from '@vue/runtime-core'
+import {
+  type ExtractEventsNames,
+  type RenderableEventProps,
+  renderableEmits,
+  setupRenderableEvents,
+} from './utils'
 
 /**
  * Props accepted by {@link Input}. Extends OpenTUI's native `InputRenderable`
  * options (`placeholder`, `maxLength`, `textColor`, …), which fall through to
  * the underlying renderable; the extra props below drive `v-model` and focus.
  */
-export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'> {
+export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, RenderableEventProps {
   /**
    * Current text value. Use with `v-model`.
    */
@@ -20,6 +33,28 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'> {
    * Focus the input as soon as it mounts.
    */
   focus?: boolean
+
+  /**
+   * Emitted when the user edits the text
+   */
+  'onUpdate:modelValue'?: (value: string) => void
+
+  /**
+   * Emitted after the input is blurred or enter is pressed and the value has
+   * changed since the last `change` event.
+   */
+  onChange?: (value: string) => void
+
+  /**
+   * Emitted when the user presses Enter (Return) while the input is focused.
+   */
+  onEnter?: (value: string) => void
+
+  /**
+   * Emitted on every keystroke, including when the value is changed
+   * programmatically like wiht copy/paste.
+   */
+  onInput?: (value: string) => void
 }
 
 /**
@@ -42,51 +77,53 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'> {
  * </template>
  * ```
  */
-type InputEmits = {
-  'update:modelValue': (value: string) => void
-}
+export const Input: DefineComponent<InputProps> = defineComponent({
+  name: 'Input',
+  props: {
+    modelValue: String,
+    focus: Boolean,
+  },
+  // for type safety and to avoid runtime warnings
+  // but we rely on InputProps declaration as onUpdate:modelValue for component-usage type safety
+  emits: {
+    'update:modelValue': (value: string) => typeof value === 'string',
+    change: (value: string) => typeof value === 'string',
+    enter: (value: string) => typeof value === 'string',
+    input: (value: string) => typeof value === 'string',
+    ...renderableEmits,
+  } satisfies ExtractEventsNames<InputProps, InputRenderableOptions>,
+  setup(props, { emit, attrs }) {
+    const input = shallowRef<InputRenderable | null>(null)
 
-// Event listeners (and the initial focus) are one-time, mount-shaped side
-// effects, but a functional component has no lifecycle hooks. A function `ref`
-// fills that gap: OpenTUI hands us the `InputRenderable` when it mounts. The
-// `WeakSet` guard makes wiring idempotent — Vue may invoke the ref again on
-// updates, and re-attaching would duplicate the listeners.
-const wired = new WeakSet<InputRenderable>()
+    onMounted(() => {
+      const el = input.value
+      if (!el) return
 
-export const Input: FunctionalComponent<InputProps, InputEmits> = (props, { emit, attrs }) =>
-  h('input', {
-    // Native options (`placeholder`, `maxLength`, colors, …) fall through as
-    // attributes: they only reach the renderable when actually set, so unset
-    // props never overwrite its defaults (e.g. `maxLength` defaults to 1000,
-    // and `undefined` would swallow typed input).
-    ...attrs,
-    // Outside → renderable sync rides the normal prop path: `patchProp` assigns
-    // `el.value` only when `modelValue` actually changes (Vue skips unchanged
-    // props), and the `value` setter is a no-op when the text already matches,
-    // so this never clobbers the cursor or an uncontrolled input's text.
-    value: props.modelValue,
-    ref: ((input: InputRenderable | null) => {
-      if (!input || wired.has(input)) return
-      wired.add(input)
-
-      // Mirror user edits back out through `v-model`. The guard also absorbs the
-      // `INPUT` the `value` setter emits on an outside-driven change.
-      input.on(InputRenderableEvents.INPUT, () => {
-        if (input.value !== props.modelValue) emit('update:modelValue', input.value)
+      // Setup all InputRenderable events
+      el.on(InputRenderableEvents.INPUT, () => {
+        emit('input', el.value)
+        if (el.value !== props.modelValue) emit('update:modelValue', el.value)
+      })
+      el.on(InputRenderableEvents.CHANGE, () => {
+        emit('change', el.value)
+      })
+      el.on(InputRenderableEvents.ENTER, () => {
+        emit('enter', el.value)
       })
 
-      if (props.focus) input.focus()
-    }) as VNodeRef,
-  })
+      // Common Renderable events
+      setupRenderableEvents(el, emit)
 
-Input.displayName = 'Input'
-// Runtime prop declaration so `modelValue`/`focus` are extracted instead of
-// falling through as attributes onto the host `<input>` element.
-Input.props = {
-  modelValue: String,
-  focus: Boolean,
-}
-// We don't need the runtime validation
-// Input.emits = {
-//   'update:modelValue': (value: string) => typeof value === 'string',
-// }
+      if (props.focus) el.focus()
+    })
+
+    return (): VNode =>
+      h('input', {
+        // native options and listeners
+        ...attrs,
+        // our overrides
+        value: props.modelValue,
+        ref: input,
+      })
+  },
+})
