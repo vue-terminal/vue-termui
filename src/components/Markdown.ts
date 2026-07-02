@@ -51,7 +51,8 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
   // `content`, `fg`/`bg`, `tableOptions`, `renderNode`, `id`, `width`, … fall
   // through as attrs so they only reach the renderable when actually set,
   // leaving unset options at the renderable's defaults.
-  const options: Record<string, unknown> = {
+
+  return h('markdown', {
     ...attrs,
     // pass down undefined to let defaults take over,
     // anything else than false is true, so conceal and conceal="" are true
@@ -60,9 +61,7 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
     streaming: propToOptionalBoolean(props.streaming),
     // required: seeded at element creation (see nodeOps) and kept in sync here
     syntaxStyle: props.syntaxStyle,
-  }
-
-  return h('markdown', options)
+  })
 }
 
 Markdown.displayName = 'Markdown'
