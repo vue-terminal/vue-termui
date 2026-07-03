@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { TextareaRenderable } from '@opentui/core'
+import { TextareaRenderable, parseColor } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { describe, expect, it, vi } from 'vitest'
@@ -8,6 +8,28 @@ import { Textarea } from './Textarea'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 describe('Textarea', () => {
+  // Guards the `inheritAttrs: false` + manual `...attrs` forwarding used across
+  // the renderable-wrapping components (Box/Input/Textarea/Select/Text/Markdown):
+  // disabling fallthrough must not stop declared-but-unlisted attrs from reaching
+  // the renderable. `backgroundColor` is a plain fall-through attr with a getter,
+  // so it is the clearest proof forwarding still works.
+  it('forwards fall-through attrs to the renderable', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 6 })
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup: () => () => h(Textarea, { modelValue: '', backgroundColor: '#ff0000' }),
+      }),
+    )
+    app.mount()
+    await nextTick()
+
+    const textarea = test.renderer.root.getChildren()[0] as TextareaRenderable
+    expect(textarea.backgroundColor.equals(parseColor('#ff0000'))).toBe(true)
+
+    test.renderer.destroy()
+  })
+
   it('updates the v-model as the user types', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 30, height: 6 })
     const value = ref('')
