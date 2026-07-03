@@ -1,5 +1,5 @@
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
-import { type NodeTransform, NodeTypes } from '@vue/compiler-core'
+import { type NodeTransform, NodeTypes } from '@vue/compiler-dom'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
 import { EVENT_MODIFIER_SEPARATOR } from './components/event-modifiers'
 
@@ -226,8 +226,8 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
         // Encode terminal event modifiers before Vue's `on` transform runs, so
         // `@keyDown.enter` works against OpenTUI events (see `encodeEventModifiers`).
         // The cast bridges structurally identical `NodeTransform` types from
-        // duplicate `@vue/compiler-core` copies that split installs (e.g. git
-        // worktrees) can produce; it is a no-op with a single install.
+        // duplicate `@vue/compiler-{dom,core}` copies that split installs (e.g.
+        // git worktrees) can produce; it is a no-op with a single install.
         nodeTransforms: [
           encodeEventModifiers as unknown as ExpectedNodeTransform,
           ...(userNodeTransforms ?? []),
