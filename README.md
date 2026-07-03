@@ -1,28 +1,64 @@
-# vue-termui
+<p align="center">
+  <a href="https://vue-termui.esm.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://vue-termui.esm.dev/logo-big.svg" alt="Vue TermUI logo">
+  </a>
+</p>
 
-[![npm version](https://img.shields.io/npm/v/vue-termui.svg)](https://npmx.dev/package/vue-termui)
-[![ci](https://github.com/vue-terminal/vue-termui/actions/workflows/ci.yml/badge.svg)](https://github.com/vue-terminal/vue-termui/actions/workflows/ci.yml)
+<h1 align="center">vue-termui</h1>
 
-Build terminal apps with Vue 3.
+<p align="center">
+  <a href="https://npmx.dev/package/vue-termui"><img src="https://img.shields.io/npm/v/vue-termui.svg" alt="npm version"></a>
+  <a href="https://github.com/vue-terminal/vue-termui/actions/workflows/ci.yml"><img src="https://github.com/vue-terminal/vue-termui/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
+</p>
 
-> [!NOTE]
-> This is a ground-up rewrite on top of [OpenTUI](https://opentui.com/). The
-> previous implementation lives in [`old/`](./old) and is being stripped out
-> progressively.
+<p align="center">
+  Build terminal apps with Vue 3, powered by <a href="https://opentui.com/">OpenTUI</a>.
+</p>
 
-## Scripts
+## Install
 
-| Command           | Description                |
-| ----------------- | -------------------------- |
-| `pnpm dev`        | Start Vitest UI            |
-| `pnpm build`      | Build with tsdown          |
-| `pnpm test`       | Build + test + typecheck   |
-| `pnpm test:cov`   | Run tests with coverage    |
-| `pnpm test:types` | Typecheck                  |
-| `pnpm lint`       | Lint with oxlint           |
-| `pnpm fmt`        | Format with oxfmt          |
-| `pnpm release`    | Interactive release script |
-| `pnpm size`       | Check bundle size          |
+```bash
+pnpm add vue-termui
+```
+
+## Usage
+
+```vue
+<!-- App.vue -->
+<script setup lang="ts">
+import { Box, Text, onKeyDown, useExit } from 'vue-termui'
+
+const exit = useExit()
+onKeyDown((key) => key.name === 'q' && exit())
+</script>
+
+<template>
+  <Box border>
+    <Text>Hello from the terminal! Press <Text bold>q</Text> to quit.</Text>
+  </Box>
+</template>
+```
+
+```ts
+// main.ts
+import { createApp } from 'vue-termui'
+import App from './App.vue'
+
+const app = await createApp(App)
+app.mount()
+```
+
+Compile `.vue` files with the Vite plugin:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vueTermui from 'vue-termui/vite'
+
+export default defineConfig({
+  plugins: [vueTermui()],
+})
+```
 
 ## License
 
