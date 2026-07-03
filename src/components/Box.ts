@@ -35,6 +35,7 @@ export interface BoxProps extends BoxOptions, RenderableEventProps {}
  */
 export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
   name: 'Box',
+  inheritAttrs: false,
   props: {
     ...renderableProps,
   },

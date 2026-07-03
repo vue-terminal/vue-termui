@@ -64,6 +64,7 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
 }
 
 Markdown.displayName = 'Markdown'
+Markdown.inheritAttrs = false
 Markdown.props = {
   syntaxStyle: { type: Object, required: true },
   // not to cast to boolean

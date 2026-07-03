@@ -94,6 +94,7 @@ export interface SelectProps
  */
 export const Select: TuiComponent<SelectProps, SelectRenderable> = defineComponent({
   name: 'Select',
+  inheritAttrs: false,
   props: {
     options: Array as PropType<SelectOption[]>,
     modelValue: Number,

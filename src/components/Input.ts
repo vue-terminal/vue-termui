@@ -70,6 +70,7 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, Re
  */
 export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent({
   name: 'Input',
+  inheritAttrs: false,
   props: {
     modelValue: String,
     ...renderableProps,

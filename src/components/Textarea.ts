@@ -72,6 +72,7 @@ export interface TextareaProps
  */
 export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineComponent({
   name: 'Textarea',
+  inheritAttrs: false,
   props: {
     modelValue: String,
     ...renderableProps,
