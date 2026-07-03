@@ -212,6 +212,10 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
               output: { entryFileNames: '[name].js' },
             },
           },
+
+          // TODO: find a way to forward vite errors and logs to opentui
+          // clearScreen: false,
+          // customLogger: console,
         }
       },
     },
