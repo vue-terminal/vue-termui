@@ -55,10 +55,11 @@ onKeyDown((key) => {
 
   const current = indexOfFocused()
   // When focus lives on the page (e.g. a focused Input), let the page have the
-  // keys — only react while one of our links is focused.
+  // keys — only react while one of our links is focused. Tab/Shift+Tab cycling
+  // is handled globally in App.vue across every focusable element.
   if (current < 0) return
 
-  if (key.name === 'down' || key.name === 'tab') {
+  if (key.name === 'down') {
     focusAt(current + 1)
   } else if (key.name === 'up') {
     focusAt(current - 1)
@@ -74,7 +75,15 @@ onKeyDown((key) => {
 </script>
 
 <template>
-  <Box flexDirection="column" :width="22" :flexShrink="0" borderStyle="rounded" :padding="1">
+  <Box
+    flexDirection="column"
+    :width="22"
+    :flexShrink="0"
+    borderColor="red"
+    borderStyle="rounded"
+    :padding="1"
+    focusedBorderColor="blue"
+  >
     <Text bold fg="#42b883">vue-termui</Text>
     <Newline />
     <SidebarLink
@@ -85,6 +94,7 @@ onKeyDown((key) => {
     />
     <Newline />
     <Text fg="#666666">↑/↓ move · ⏎ open</Text>
+    <Text fg="#666666">⇥ / ⇧⇥ cycle focus</Text>
     <Text fg="#666666">Esc focus nav</Text>
     <Text fg="#666666">⏎ Quit to exit</Text>
   </Box>

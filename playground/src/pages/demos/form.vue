@@ -14,7 +14,13 @@ const max = 20
 </script>
 
 <template>
-  <Box flexDirection="column" :padding="1" :gap="1" borderStyle="rounded">
+  <Box
+    flexDirection="column"
+    :padding="1"
+    :gap="1"
+    borderStyle="rounded"
+    focusedBorderColor="#42b883"
+  >
     <Text fg="#42b883" bold>What is your name?</Text>
     <Input
       ref="input"

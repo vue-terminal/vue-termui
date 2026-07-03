@@ -63,8 +63,8 @@ onUnmounted(() => {
   sounds.clear()
 })
 
-onKeyDown((event) => {
-  const pad = pads.find((p) => p.key === event.name)
+function playSound(key: string) {
+  const pad = pads.find((p) => p.key === key)
   if (!pad || !audio) return
 
   const sound = sounds.get(pad.key)
@@ -73,6 +73,10 @@ onKeyDown((event) => {
   audio.play(sound, { volume: 0.9 })
   lastPlayed.value = pad.name
   activeKey.value = pad.key
+}
+
+onKeyDown((event) => {
+  playSound(event.name)
 })
 </script>
 
@@ -89,6 +93,11 @@ onKeyDown((event) => {
         :padding="1"
         borderStyle="rounded"
         :borderColor="activeKey === pad.key ? '#42b883' : '#444444'"
+        focusable
+        autofocus
+        @keyDown="(e) => e.name === 'space' && playSound(pad.key)"
+        focusedBorderColor="yellow"
+        @mouseDown="playSound(pad.key)"
       >
         <Text bold :fg="activeKey === pad.key ? '#42b883' : '#ffffff'">{{
           pad.key.toUpperCase()

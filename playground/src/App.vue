@@ -3,14 +3,38 @@
 // RouterView is imported locally; RouterLink is never used (it renders a DOM
 // <a>, which the terminal renderer can't mount) — the sidebar pushes routes
 // imperatively instead.
-import { Box, onMounted, onUnmounted, ref, Text, useInterval, useRenderer } from 'vue-termui'
+import {
+  Box,
+  onKeyDown,
+  onMounted,
+  onUnmounted,
+  Text,
+  useCurrentFocusedElement,
+  useFocusManager,
+  useRenderer,
+} from 'vue-termui'
 import { RouterView, useRouter } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import { DebugOverlayCorner } from '@opentui/core'
-import { useIntervalFn, useNow } from '@vueuse/core'
 
 const router = useRouter()
 const renderer = useRenderer()
+
+// App-wide Tab focus cycling across every focusable element (sidebar links plus
+// whatever the current page renders). `useFocusManager` walks the render tree
+// in order and wraps around; OpenTUI doesn't cycle focus on Tab itself.
+const { focusNext, focusPrevious } = useFocusManager()
+onKeyDown((key) => {
+  if (key.name !== 'tab') return
+  // TODO: it probably depends, probably allowing .stop modifier on nested children
+  // currently, this listener goes first
+  key.preventDefault()
+  if (key.shift) {
+    focusPrevious()
+  } else {
+    focusNext()
+  }
+})
 
 renderer.configureDebugOverlay({
   enabled: true,
@@ -40,6 +64,8 @@ onUnmounted(() => {
   removeGuard()
   removeAfter()
 })
+
+const focusedElement = useCurrentFocusedElement()
 </script>
 
 <template>
@@ -48,6 +74,7 @@ onUnmounted(() => {
     <Box :flexGrow="1">
       <Box flexDirection="column" :gap="1">
         <Text>App shell: a fixed sidebar on the left and the routed page on the right.</Text>
+        <Text>Focused element {{ focusedElement?.id }}</Text>
         <RouterView />
       </Box>
     </Box>
