@@ -1,86 +1,114 @@
 # Focus Management
 
-Only one element at a time can be **focused** — the one that receives keyboard input. Inputs and selects need focus to be typed into or navigated. Vue TermUI gives you two composables over OpenTUI's focus system: `useFocus` for a single element, and `useFocusManager` for an app-wide view.
+Only one element at a time can be **focused** — the one that receives keyboard input. Inputs and selects need focus to be typed into or navigated. Vue TermUI gives you two composables over OpenTUI's focus system: `useCurrentFocusedElement` to read which element is focused, and `useFocusManager` for an app-wide view.
 
 ::: tip No automatic Tab cycling
-Unlike the web, OpenTUI does **not** cycle focus on <kbd>Tab</kbd> for you. You decide the order and which key advances it — see [Building Tab navigation](#building-tab-navigation) below. This is more code, but it gives you full control over how navigation feels.
+Unlike the web, OpenTUI does **not** cycle focus on <kbd>Tab</kbd> for you. You decide the order and which key advances it — see [Building Tab navigation](#usefocusmanager) below. This is more code, but it gives you full control over how navigation feels.
 :::
 
-## `useFocus`
+## Making an element focusable
 
-`useFocus` makes a single element focusable and tracks its state. Bind the returned `ref` to the element, then read `focused` or call `focus()` / `blur()`:
+Any element joins the focus system just by being `focusable`. Interactive components (`<Input>`, `<Select>`) already are; opt a container in with `<Box :focusable="true" />`. Once focusable, an element can be focused imperatively through its backing renderable — grab it with a template ref and call `focus()` / `blur()`:
 
 ```vue
 <script setup lang="ts">
-import { Box, Text, useFocus } from 'vue-termui'
+import { Box, Text, computed, shallowRef, useCurrentFocusedElement } from 'vue-termui'
 
-const { ref: boxRef, focused, focus, blur } = useFocus({ autoFocus: true })
+// The backing OpenTUI renderable. Bound to a host `<box>` the ref receives the
+// renderable directly; bound to the `<Box>` component, unwrap its `$el`.
+const el = shallowRef<any>(null)
+const currentFocused = useCurrentFocusedElement()
+const focused = computed(() => !!el.value && currentFocused.value === el.value)
+
+function setRef(instance: any) {
+  el.value = instance?.$el ?? instance ?? null
+}
 </script>
 
 <template>
-  <Box :ref="boxRef" border :borderColor="focused ? '#42b883' : '#666666'" :padding="1">
+  <Box :ref="setRef" focusable border :borderColor="focused ? '#42b883' : '#666666'" :padding="1">
     <Text>{{ focused ? 'focused' : 'not focused' }}</Text>
   </Box>
 </template>
 ```
 
-### Options and return value
-
-`useFocus(options)`:
-
-- **`autoFocus`** (`boolean`, default `false`) — focus this element as soon as it mounts.
-
-It returns:
-
-| Property  | Type           | Description                                |
-| --------- | -------------- | ------------------------------------------ |
-| `ref`     | template ref   | Bind to the element you want focusable     |
-| `focused` | `Ref<boolean>` | Whether this element currently holds focus |
-| `focus()` | `() => void`   | Give this element focus                    |
-| `blur()`  | `() => void`   | Remove focus from this element             |
+`el.value.focus()` gives the element focus and `el.value.blur()` removes it. `focused` stays in sync because [`useCurrentFocusedElement`](#usecurrentfocusedelement) is reactive.
 
 A common pattern is a reusable focusable item that exposes its controls to a parent:
 
 ```vue
 <!-- MenuItem.vue -->
 <script setup lang="ts">
-import { Box, Text, useFocus } from 'vue-termui'
+import { Box, Text, computed, shallowRef, useCurrentFocusedElement } from 'vue-termui'
 
 defineProps<{ label: string }>()
-const { ref: boxRef, focused, focus } = useFocus()
+
+const el = shallowRef<any>(null)
+const currentFocused = useCurrentFocusedElement()
+const focused = computed(() => !!el.value && currentFocused.value === el.value)
 
 // Let the parent drive focus and read state.
-defineExpose({ focus, focused })
+defineExpose({ focus: () => el.value?.focus(), focused })
 </script>
 
 <template>
-  <Box :ref="boxRef" :backgroundColor="focused ? '#42b883' : undefined" :paddingX="1">
+  <Box
+    :ref="(c) => (el = c?.$el ?? c ?? null)"
+    focusable
+    :backgroundColor="focused ? '#42b883' : undefined"
+    :paddingX="1"
+  >
     <Text :fg="focused ? '#0b0b0b' : '#cccccc'">{{ focused ? '›' : ' ' }} {{ label }}</Text>
   </Box>
 </template>
 ```
 
-## `useFocusManager`
+## `useCurrentFocusedElement`
 
-`useFocusManager` gives you the app-wide focus state — the currently focused element (reactive) plus imperative `focus()` / `blur()`:
+`useCurrentFocusedElement` returns a reactive `ShallowRef` of the element that currently holds focus, or `null` when nothing is focused. It updates whenever focus moves.
 
 ```vue
 <script setup lang="ts">
-import { useFocusManager } from 'vue-termui'
+import { useCurrentFocusedElement } from 'vue-termui'
 
-const { focused, focus, blur } = useFocusManager()
+const focused = useCurrentFocusedElement()
+// focused.value is the currently focused renderable, or null
 </script>
 ```
 
-| Property    | Type                     | Description                              |
-| ----------- | ------------------------ | ---------------------------------------- |
-| `focused`   | `ShallowRef<Renderable>` | The currently focused element, or `null` |
-| `focus(el)` | `(el) => void`           | Focus a specific element                 |
-| `blur()`    | `() => void`             | Clear focus from whatever element has it |
+Compare it against your own element (see [above](#making-an-element-focusable)) to derive a per-element `focused` boolean.
 
-## Building Tab navigation
+## `useFocusManager`
 
-Since focus cycling is up to you, the recipe is: keep an **ordered list** of your focusable children, track which one is focused, and move on a key press. Here a parent collects child refs and moves focus with the arrow keys, committing on <kbd>Enter</kbd>:
+`useFocusManager` gives you app-wide Tab navigation: the currently focused element (reactive, same as `useCurrentFocusedElement`), plus `focusNext()` / `focusPrevious()` that cycle through **every** focusable element in render-tree order (wrapping around), and `blur()`.
+
+```vue
+<script setup lang="ts">
+import { onKeyDown, useFocusManager } from 'vue-termui'
+
+const { focused, focusNext, focusPrevious } = useFocusManager()
+
+// One handler, anywhere near the root, wires Tab across the whole app.
+onKeyDown((key) => {
+  if (key.name !== 'tab') return
+  key.preventDefault()
+  key.shift ? focusPrevious() : focusNext()
+})
+</script>
+```
+
+| Property          | Type                     | Description                                                         |
+| ----------------- | ------------------------ | ------------------------------------------------------------------- |
+| `focused`         | `ShallowRef<Renderable>` | The currently focused element, or `null`                            |
+| `focusNext()`     | `() => void`             | Focus the next focusable in tree order, wrapping (first if none)    |
+| `focusPrevious()` | `() => void`             | Focus the previous focusable in tree order, wrapping (last if none) |
+| `blur()`          | `() => void`             | Clear focus from whatever element has it                            |
+
+Elements join the cycle just by being `focusable`: interactive components (`<Input>`, `<Select>`) already are, and you opt a container in with `<Box :focusable="true" />`. The order is the render tree's depth-first order.
+
+## Scoped navigation within a component
+
+`useFocusManager` cycles the **whole** app. When you instead want arrow keys to move only within one list — a sidebar, a menu, a tab bar — keep an **ordered list** of that component's focusable children, track which is focused, and move on a key press. Here a parent collects child refs and moves focus with the arrow keys, committing on <kbd>Enter</kbd>:
 
 ```vue
 <script setup lang="ts">

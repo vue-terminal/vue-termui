@@ -8,10 +8,10 @@ type Listener = (...args: unknown[]) => void
 /**
  * Per-renderer, per-event fan-out. `CliRenderer` extends Node's `EventEmitter`,
  * which warns once more than 10 listeners are attached to the same event. Since
- * composables like {@link useFocus} subscribe one listener per focusable
- * element, an app with 11+ of them would trip that warning. To avoid it we keep
- * a single underlying `renderer.on()` per event and fan out to the local set of
- * subscribers ourselves.
+ * composables subscribe one listener per component, an app with 11+ of them
+ * would trip that warning. To avoid it we keep a single underlying
+ * `renderer.on()` per event and fan out to the local set of subscribers
+ * ourselves.
  */
 const registries = new WeakMap<
   CliRenderer,

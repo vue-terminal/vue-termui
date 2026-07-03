@@ -1,115 +1,8 @@
-import { CliRenderEvents, type CliRenderer, type Renderable } from '@opentui/core'
-import { inject, type Ref, ref, type ShallowRef, shallowRef, watch } from '@vue/runtime-core'
+import { type CliRenderer, type Renderable } from '@opentui/core'
+import { inject, type ShallowRef, shallowRef } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
-import { useRendererEvent } from './useRendererEvent'
 
-/**
- * Options for {@link useFocus}.
- */
-export interface UseFocusOptions {
-  /**
-   * Focus the element as soon as it mounts.
-   *
-   * @default false
-   */
-  autoFocus?: boolean
-}
-
-/**
- * A function template ref — bind it with `:ref` / `ref:`. The parameter is
- * `unknown` (rather than `Renderable`) so it stays assignable to Vue's
- * DOM-oriented `VNodeRef` type when used in render functions.
- */
-export type ElementRef = (el: unknown) => void
-
-/**
- * Return value of {@link useFocus}.
- */
-export interface UseFocusReturn {
-  /**
-   * Template ref to bind to the element you want focusable:
-   * `<Box :ref="focusRef" />`. Once mounted the element is marked focusable.
-   *
-   * It's a **function ref** on purpose: `<script setup>` unwraps a destructured
-   * `ref` object in `:ref="..."` (compiling to `ref: theRef.value`, i.e. `null`),
-   * so a plain ref returned from a composable never binds. A function is passed
-   * through untouched and works in both SFC templates and render functions.
-   */
-  ref: ElementRef
-
-  /**
-   * The focusable element once mounted (read-only; for advanced use).
-   */
-  element: ShallowRef<Renderable | null>
-
-  /**
-   * Whether this element currently holds focus.
-   */
-  focused: Ref<boolean>
-
-  /**
-   * Give this element focus.
-   */
-  focus(): void
-
-  /**
-   * Remove focus from this element.
-   */
-  blur(): void
-}
-
-/**
- * Makes a single element focusable and tracks/controls its focus state. Bind
- * the returned `ref` to the element, then read `focused` or call `focus()` /
- * `blur()`. OpenTUI owns focus routing (the focused element receives key
- * events); this is a thin reactive wrapper over it.
- *
- * OpenTUI does not cycle focus on Tab for you — wire Tab to `focus()` across
- * your elements (see {@link useFocusManager}).
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- * import { useFocus } from 'vue-termui'
- * const { ref: inputRef, focused } = useFocus({ autoFocus: true })
- * </script>
- * <template><Box :ref="inputRef" :borderColor="focused ? 'blue' : 'gray'" /></template>
- * ```
- */
-export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
-  const renderer = useRenderer()
-  const element = shallowRef<Renderable | null>(null)
-  const focused = ref(false)
-
-  const sync = (): void => {
-    focused.value = !!element.value && renderer.currentFocusedRenderable === element.value
-  }
-
-  watch(element, (el) => {
-    if (!el) return
-    el.focusable = true
-    sync()
-    if (options.autoFocus) el.focus()
-  })
-
-  useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, sync)
-
-  return {
-    ref: (el) => {
-      // Bound to a component (e.g. `<Box :ref="...">`) the ref receives that
-      // component's public instance, whose `$el` is the backing renderable;
-      // bound to a host element it receives the renderable directly. Unwrap
-      // `$el` so both bindings resolve to the renderable.
-      const node = el && typeof el === 'object' && '$el' in el ? (el as { $el: unknown }).$el : el
-      element.value = (node as Renderable | null) ?? null
-    },
-    element,
-    focused,
-    focus: () => element.value?.focus(),
-    blur: () => element.value?.blur(),
-  }
-}
-
+// TODO: measure how slow this can be and improve performance with some dirty checking
 /**
  * Collect every focusable, visible, live renderable under `node`, in
  * depth-first tree order (which is the natural Tab order).
@@ -153,6 +46,7 @@ function moveFocus(renderer: CliRenderer, step: 1 | -1): void {
 export interface UseFocusManagerReturn {
   /**
    * The currently focused element, or `null`. Reactive.
+   * Same as {@link useCurrentFocusedElement}.
    */
   focused: ShallowRef<Renderable | null>
 
@@ -175,13 +69,11 @@ export interface UseFocusManagerReturn {
 }
 
 /**
- * App-level Tab navigation over OpenTUI's focus system: a reactive `focused`
- * element plus `focusNext()` / `focusPrevious()` that cycle through every
- * focusable element in tree order (wrapping), and `blur()` to clear focus.
+ * App-level focus management that can be used to implement Tab navigation.
  *
- * Elements opt in by being `focusable` (interactive ones like `Input` already
- * are; mark a container with `<Box :focusable="true" />` or {@link useFocus}).
- * The order is the render tree's depth-first order.
+ * Elements opt in (or out) with their `focusable` prop. Interactive ones like
+ * `Input` already are. Mark others like `<Box :focusable="true" />`. The order
+ * is the render tree's depth-first order.
  *
  * @example
  * ```vue
@@ -198,22 +90,24 @@ export interface UseFocusManagerReturn {
  */
 export function useFocusManager(): UseFocusManagerReturn {
   const renderer = useRenderer()
-  const focused = shallowRef<Renderable | null>(renderer.currentFocusedRenderable)
-
-  useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, () => {
-    focused.value = renderer.currentFocusedRenderable
-  })
 
   return {
-    focused,
+    focused: useCurrentFocusedElement(),
     focusNext: () => moveFocus(renderer, 1),
     focusPrevious: () => moveFocus(renderer, -1),
     blur: () => renderer.currentFocusedRenderable?.blur(),
   }
 }
 
+/**
+ * Injection key for the app-level current-focused element ref.
+ * @internal
+ */
 export const USE_CURRENT_FOCUSED_ELEMENT_KEY: unique symbol = Symbol('useCurrentFocused')
 
+/**
+ * Reactive currently focused element, or `null` when nothing is focused.
+ */
 export function useCurrentFocusedElement(): ShallowRef<Renderable | null> {
   // Fall back to a standalone ref when no app-level provider exists — e.g. a
   // `Box` rendered through a bare renderer in tests. Focus tracking is inert in

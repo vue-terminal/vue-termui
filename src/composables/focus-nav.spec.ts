@@ -1,10 +1,19 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
-import { defineComponent, h, nextTick, onMounted, ref } from '@vue/runtime-core'
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onMounted,
+  ref,
+  shallowRef,
+} from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
 import { createTuiApp } from '../renderer/index'
 import { onKeyDown } from './keyboard'
-import { useFocus } from './focus'
+import { useCurrentFocusedElement } from './focus'
+import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 /**
@@ -23,12 +32,21 @@ interface LinkInstance {
 const Link = defineComponent({
   props: { label: { type: String, required: true } },
   setup(props, { expose }) {
-    const { ref: boxRef, focused, focus } = useFocus()
-    expose({ focus, focused })
+    const el = shallowRef<Renderable | null>(null)
+    const currentFocused = useCurrentFocusedElement()
+    const focused = computed(() => !!el.value && currentFocused.value === el.value)
+    expose({ focus: () => el.value?.focus(), focused })
     return () =>
-      h('box', { ref: boxRef, focusable: true }, [
-        h('text', null, `${focused.value ? '>' : ' '} ${props.label}`),
-      ])
+      h(
+        'box',
+        {
+          ref: (c: unknown) => {
+            el.value = (c as Renderable | null) ?? null
+          },
+          focusable: true,
+        },
+        [h('text', null, `${focused.value ? '>' : ' '} ${props.label}`)],
+      )
   },
 })
 

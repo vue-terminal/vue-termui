@@ -92,15 +92,15 @@ Every composable here registers its cleanup on the current [effect scope](https:
 
 ## Summary
 
-| Composable                      | Returns / does                                      |
-| ------------------------------- | --------------------------------------------------- |
-| `useInterval(fn, ms)`           | Repeating timer; returns `stop()`                   |
-| `useTimeout(fn, ms)`            | One-shot timer; returns `cancel()`                  |
-| `useTerminalSize()`             | `{ width, height }` reactive refs                   |
-| `onResize(fn)`                  | Runs `fn(width, height)` on resize; returns remover |
-| `useTitle(title)`               | Sets the terminal title reactively                  |
-| `useExit()`                     | Returns a function that exits the app               |
-| `useRenderer()`                 | The underlying OpenTUI renderer (advanced)          |
-| `useFocus()`                    | Make one element focusable ([docs](./focus))        |
-| `useFocusManager()`             | App-wide focus state ([docs](./focus))              |
-| `onKeyDown(fn)` / `onKeyUp(fn)` | Keyboard listeners ([docs](./input))                |
+| Composable                      | Returns / does                                       |
+| ------------------------------- | ---------------------------------------------------- |
+| `useInterval(fn, ms)`           | Repeating timer; returns `stop()`                    |
+| `useTimeout(fn, ms)`            | One-shot timer; returns `cancel()`                   |
+| `useTerminalSize()`             | `{ width, height }` reactive refs                    |
+| `onResize(fn)`                  | Runs `fn(width, height)` on resize; returns remover  |
+| `useTitle(title)`               | Sets the terminal title reactively                   |
+| `useExit()`                     | Returns a function that exits the app                |
+| `useRenderer()`                 | The underlying OpenTUI renderer (advanced)           |
+| `useCurrentFocusedElement()`    | Reactive currently focused element ([docs](./focus)) |
+| `useFocusManager()`             | App-wide focus state ([docs](./focus))               |
+| `onKeyDown(fn)` / `onKeyUp(fn)` | Keyboard listeners ([docs](./input))                 |

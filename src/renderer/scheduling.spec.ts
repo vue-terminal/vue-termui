@@ -1,11 +1,21 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
-import { createRenderer, defineComponent, h, nextTick, ref } from '@vue/runtime-core'
+import {
+  computed,
+  createRenderer,
+  defineComponent,
+  h,
+  nextTick,
+  ref,
+  shallowRef,
+  watch,
+} from '@vue/runtime-core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNodeOps } from './nodeOps'
 import { createTuiApp } from './index'
 import { onKeyDown } from '../composables/keyboard'
-import { useFocus } from '../composables/focus'
+import { useCurrentFocusedElement } from '../composables/focus'
+import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 // Regression guard for the "one-keystroke-late" bug.
@@ -98,15 +108,43 @@ describe('render scheduling', () => {
       test.renderer,
       defineComponent({
         setup() {
-          const a = useFocus({ autoFocus: true })
-          const b = useFocus()
+          const aEl = shallowRef<Renderable | null>(null)
+          const bEl = shallowRef<Renderable | null>(null)
+          const currentFocused = useCurrentFocusedElement()
+          const aFocused = computed(() => !!aEl.value && currentFocused.value === aEl.value)
+          const bFocused = computed(() => !!bEl.value && currentFocused.value === bEl.value)
+          // Mark focusable, and autoFocus `a`, once each element mounts.
+          watch(aEl, (el) => {
+            if (!el) return
+            el.focusable = true
+            el.focus()
+          })
+          watch(bEl, (el) => {
+            if (el) el.focusable = true
+          })
           onKeyDown((key) => {
-            if (key.name === 'x') b.focus()
+            if (key.name === 'x') bEl.value?.focus()
           })
           return () =>
             h('box', null, [
-              h('box', { ref: a.ref }, [h('text', null, a.focused.value ? 'A:on' : 'A:off')]),
-              h('box', { ref: b.ref }, [h('text', null, b.focused.value ? 'B:on' : 'B:off')]),
+              h(
+                'box',
+                {
+                  ref: (c: unknown) => {
+                    aEl.value = (c as Renderable | null) ?? null
+                  },
+                },
+                [h('text', null, aFocused.value ? 'A:on' : 'A:off')],
+              ),
+              h(
+                'box',
+                {
+                  ref: (c: unknown) => {
+                    bEl.value = (c as Renderable | null) ?? null
+                  },
+                },
+                [h('text', null, bFocused.value ? 'B:on' : 'B:off')],
+              ),
             ])
         },
       }),

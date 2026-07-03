@@ -1,13 +1,11 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
-import { defineComponent, h, nextTick } from '@vue/runtime-core'
+import { createRenderer, defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { describe, expect, it } from 'vitest'
-import { createTuiApp } from '../renderer/index'
-import { Box } from '../components/Box'
+import { createNodeOps, createTuiApp } from '../renderer/index'
 import { Input } from '../components/Input'
-import { useFocus, useFocusManager } from './focus'
-import { BoxRenderable, InputRenderable } from '@opentui/core'
-import { ref } from '@vue/runtime-core'
+import { useCurrentFocusedElement, useFocusManager } from './focus'
+import { InputRenderable } from '@opentui/core'
 import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
@@ -21,87 +19,6 @@ function findFocusable(node: Renderable): Renderable | null {
 }
 
 describe('focus composables', () => {
-  it('binds its ref through the Box component (function ref forwards)', async () => {
-    // Guards the SidebarLink pattern: `useFocus().ref` must work when bound to
-    // the <Box> component, not just a host <box>. The ref is a function so it
-    // survives `<script setup>` unwrapping and forwards through the component.
-    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
-    const app = createTuiApp(
-      test.renderer,
-      defineComponent({
-        setup() {
-          const { ref: boxRef } = useFocus({ autoFocus: true })
-          return () => h(Box, { ref: boxRef }, () => h('text', null, 'link'))
-        },
-      }),
-    )
-    app.mount()
-    await nextTick()
-    await nextTick()
-
-    const box = test.renderer.root.getChildren()[0] as Renderable
-    expect(box).toBeInstanceOf(BoxRenderable)
-    expect(box.focusable).toBe(true)
-    expect(test.renderer.currentFocusedRenderable).toBe(box)
-
-    test.renderer.destroy()
-  })
-
-  it('useFocus marks the element focusable and autoFocuses it', async () => {
-    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
-    let focusedFlag = false
-    const app = createTuiApp(
-      test.renderer,
-      defineComponent({
-        setup() {
-          const { ref: boxRef, focused } = useFocus({ autoFocus: true })
-          return () => {
-            focusedFlag = focused.value
-            return h('box', { ref: boxRef })
-          }
-        },
-      }),
-    )
-    app.mount()
-    await nextTick()
-    await nextTick()
-
-    const box = test.renderer.root.getChildren()[0] as Renderable
-    expect(box.focusable).toBe(true)
-    expect(test.renderer.currentFocusedRenderable).toBe(box)
-    expect(focusedFlag).toBe(true)
-
-    test.renderer.destroy()
-  })
-
-  it('useFocus focus()/blur() drive the focus state reactively', async () => {
-    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
-    let api: ReturnType<typeof useFocus> | undefined
-    const app = createTuiApp(
-      test.renderer,
-      defineComponent({
-        setup() {
-          api = useFocus()
-          return () => h('box', { ref: api!.ref })
-        },
-      }),
-    )
-    app.mount()
-    await nextTick()
-    await nextTick()
-
-    expect(api!.focused.value).toBe(false)
-    api!.focus()
-    await nextTick()
-    expect(api!.focused.value).toBe(true)
-
-    api!.blur()
-    await nextTick()
-    expect(api!.focused.value).toBe(false)
-
-    test.renderer.destroy()
-  })
-
   it('useFocusManager cycles focus forward/backward, wrapping and skipping non-focusables', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 6 })
     let manager: ReturnType<typeof useFocusManager> | undefined
@@ -199,6 +116,182 @@ describe('focus composables', () => {
     await test.mockInput.typeText('hi')
     await nextTick()
     expect(model.value).toBe('hi')
+
+    test.renderer.destroy()
+  })
+
+  it('focusNext()/focusPrevious() are no-ops when nothing is focusable', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+    let manager: ReturnType<typeof useFocusManager> | undefined
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          manager = useFocusManager()
+          // Not a single focusable element in the tree.
+          return () => h('box', null, [h('box'), h('text', null, 'x')])
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    expect(manager!.focused.value).toBe(null)
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(null)
+    manager!.focusPrevious()
+    await nextTick()
+    expect(manager!.focused.value).toBe(null)
+
+    test.renderer.destroy()
+  })
+
+  it('skips invisible focusables when cycling', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 6 })
+    let manager: ReturnType<typeof useFocusManager> | undefined
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          manager = useFocusManager()
+          // The middle box is focusable but hidden; cycling must skip it just
+          // like a non-focusable one.
+          return () =>
+            h('box', null, [
+              h('box', { focusable: true }),
+              h('box', { focusable: true, visible: false }),
+              h('box', { focusable: true }),
+            ])
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    const [first, , third] = test.renderer.root.getChildren()[0]!.getChildren()
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(first)
+
+    // Invisible middle is skipped, so next lands on the third.
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(third)
+
+    test.renderer.destroy()
+  })
+
+  it('collects focusables depth-first, so a focusable parent precedes its child', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 8 })
+    let manager: ReturnType<typeof useFocusManager> | undefined
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          manager = useFocusManager()
+          // A focusable element that itself contains a focusable child, then a
+          // focusable sibling. Depth-first tab order is outer → inner → sibling.
+          return () =>
+            h('box', null, [
+              h('box', { focusable: true }, [h('box', { focusable: true })]),
+              h('box', { focusable: true }),
+            ])
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    const wrapper = test.renderer.root.getChildren()[0]!
+    const outer = wrapper.getChildren()[0]!
+    const inner = outer.getChildren()[0]!
+    const sibling = wrapper.getChildren()[1]!
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(outer)
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(inner)
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(sibling)
+
+    // Wrapping forward from the last returns to the depth-first first (outer).
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(outer)
+
+    test.renderer.destroy()
+  })
+
+  it('useCurrentFocusedElement is shared app-wide and tracks focus reactively', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
+    let a: ReturnType<typeof useCurrentFocusedElement> | undefined
+    let b: ReturnType<typeof useCurrentFocusedElement> | undefined
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          a = useCurrentFocusedElement()
+          b = useCurrentFocusedElement()
+          return () => h('box', { focusable: true })
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    // Every call in the same app injects the one provided ref (deduped).
+    expect(a).toBe(b)
+    expect(a!.value).toBe(null)
+
+    const box = test.renderer.root.getChildren()[0]!
+    box.focus()
+    await nextTick()
+    expect(a!.value).toBe(box)
+
+    box.blur()
+    await nextTick()
+    expect(a!.value).toBe(null)
+
+    test.renderer.destroy()
+  })
+
+  it('useCurrentFocusedElement returns an inert standalone ref without an app provider', async () => {
+    // Rendered through a bare renderer (no `createTuiApp`), so nothing provides
+    // the injection: the composable must fall back to a standalone ref rather
+    // than throw, and that ref stays inert — no renderer wiring updates it.
+    const test: TestRendererSetup = await createTestRenderer({ width: 10, height: 3 })
+    let focused: ReturnType<typeof useCurrentFocusedElement> | undefined
+    const { render } = createRenderer(createNodeOps(test.renderer))
+    render(
+      h(
+        defineComponent({
+          setup() {
+            focused = useCurrentFocusedElement()
+            return () => h('box', { focusable: true })
+          },
+        }),
+      ),
+      test.renderer.root,
+    )
+    await nextTick()
+
+    expect(focused!.value).toBe(null)
+
+    // Focusing the element does not update the standalone ref (inert fallback).
+    test.renderer.root.getChildren()[0]!.focus()
+    await nextTick()
+    expect(focused!.value).toBe(null)
 
     test.renderer.destroy()
   })

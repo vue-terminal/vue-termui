@@ -15,7 +15,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcovonly', 'html'],
       include: ['src'],
-      exclude: ['**/src/index.ts', '**/*.test-d.ts'],
+      exclude: ['**/src/index.ts', '**/*.test-d.ts', '**/__tests__/**'],
     },
   },
 })
