@@ -6,7 +6,7 @@ export const version = '0.0.0'
 // runtime-core and break vnode/instance interop.
 export * from '@vue/runtime-core'
 
-export { useFocus, useFocusManager } from './composables/focus'
+export { useFocus, useFocusManager, useCurrentFocusedElement } from './composables/focus'
 export type {
   ElementRef,
   UseFocusManagerReturn,

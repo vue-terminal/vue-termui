@@ -12,8 +12,11 @@ import {
   createRenderer,
   inject,
   type InjectionKey,
+  shallowRef,
 } from '@vue/runtime-core'
 import { createNodeOps } from './nodeOps'
+import { USE_CURRENT_FOCUSED_ELEMENT_KEY } from '../composables/focus'
+import { subscribeRendererEvent } from '../composables/useRendererEvent'
 
 export { createNodeOps } from './nodeOps'
 export type { TuiElementTag } from './nodeOps'
@@ -133,7 +136,16 @@ export function createTuiApp(
     createNodeOps(renderer),
   )
   const app = baseCreateApp(rootComponent, rootProps ?? null)
+
+  // useRenderer()
   app.provide(rendererInjectionKey, renderer)
+
+  // deduped useCurrentFocusedElement()
+  const currentFocusedElement = shallowRef<Renderable | null>(null)
+  app.provide(USE_CURRENT_FOCUSED_ELEMENT_KEY, currentFocusedElement)
+  subscribeRendererEvent(renderer, CliRenderEvents.FOCUSED_RENDERABLE, () => {
+    currentFocusedElement.value = renderer.currentFocusedRenderable
+  })
 
   // Dev full-reload bridge. On an edit with no HMR boundary (the entry, the
   // router, a plain `.ts` module), Vite's module runner clears its cache and
