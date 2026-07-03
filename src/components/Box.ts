@@ -1,12 +1,22 @@
-import { type FunctionalComponent, h } from '@vue/runtime-core'
-import type { BoxOptions } from '@opentui/core'
+import { type BoxRenderable, type BoxOptions } from '@opentui/core'
+import { computed, defineComponent, h, onMounted, shallowRef, type VNode } from '@vue/runtime-core'
+import {
+  type RenderableEventProps,
+  renderableEmits,
+  renderableProps,
+  setupRenderableEvents,
+  type TuiComponent,
+  optionalBooleanProps,
+  optionalProp,
+} from './utils'
+import { useCurrentFocusedElement } from '../composables/focus'
 
 /**
  * Props accepted by {@link Box}. These are OpenTUI's native `BoxRenderable`
  * options (layout is real flexbox, handled natively) and are forwarded as-is
  * to the underlying renderable.
  */
-export type BoxProps = BoxOptions
+export interface BoxProps extends BoxOptions, RenderableEventProps {}
 
 /**
  * A flexbox container — the terminal equivalent of a `<div>`. Maps to OpenTUI's
@@ -23,7 +33,49 @@ export type BoxProps = BoxOptions
  * </Box>
  * ```
  */
-export const Box: FunctionalComponent<BoxProps> = (_props, { slots, attrs }) =>
-  h('box', attrs, slots.default?.())
+export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
+  name: 'Box',
+  props: {
+    ...renderableProps,
+  },
+  emits: {
+    ...renderableEmits,
+  },
+  setup(props, { slots, emit, attrs }) {
+    const box = shallowRef<BoxRenderable | null>(null)
+    const currentFocusedElement = useCurrentFocusedElement()
+    const isDescendantFocused = computed(
+      () => currentFocusedElement.value && box.value?.hasFocusedDescendant,
+    )
 
-Box.displayName = 'Box'
+    onMounted(() => {
+      const el = box.value
+      if (!el) return
+
+      // Common Renderable events + autofocus on mount
+      setupRenderableEvents(el, emit, props)
+    })
+
+    return (): VNode =>
+      h(
+        'box',
+        {
+          ...attrs,
+          /*
+           * OpenTUI only applies focusedBorderColor if the box is focusable,
+           * but that makes it accessible by Tab navigation, which is usually
+           * not what we want, so instead we handle the change locally. Omit the
+           * key entirely when neither color is set, so we don't clobber the
+           * renderable's default with `undefined`.
+           */
+          ...optionalProp(
+            'borderColor',
+            (isDescendantFocused.value ? attrs.focusedBorderColor : null) ?? attrs.borderColor,
+          ),
+          ...optionalBooleanProps(props, ['autofocus', 'focusable']),
+          ref: box,
+        },
+        slots.default?.(),
+      )
+  },
+})

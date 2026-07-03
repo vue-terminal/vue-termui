@@ -18,25 +18,22 @@ const registries = new WeakMap<
   Map<CliRenderEvents, { fanOut: Listener; subscribers: Set<Listener> }>
 >()
 
-/**
- * Subscribes `listener` to a renderer event for the lifetime of the current
- * effect scope. The listener is removed automatically when the owning
- * component unmounts; the returned function removes it early.
- *
- * `event` is constrained to {@link CliRenderEvents}, so listening on an unknown
- * event is a type error. The renderer does not type its event payloads, so
- * handlers read the live state off the renderer (e.g. `renderer.width`) rather
- * than from arguments — hence the `() => void` listener.
- */
-export function useRendererEvent(event: CliRenderEvents, listener: () => void): RemoveListener {
-  const renderer = useRenderer()
-
+function getRendererEventRegistry(
+  renderer: CliRenderer,
+): Map<CliRenderEvents, { fanOut: Listener; subscribers: Set<Listener> }> {
   let events = registries.get(renderer)
   if (!events) {
     events = new Map()
     registries.set(renderer, events)
   }
+  return events
+}
 
+function getRendererEventEntry(
+  renderer: CliRenderer,
+  event: CliRenderEvents,
+): { fanOut: Listener; subscribers: Set<Listener> } {
+  const events = getRendererEventRegistry(renderer)
   let entry = events.get(event)
   if (!entry) {
     const subscribers = new Set<Listener>()
@@ -49,11 +46,30 @@ export function useRendererEvent(event: CliRenderEvents, listener: () => void): 
     events.set(event, entry)
     renderer.on(event, fanOut)
   }
+  return entry
+}
 
+/**
+ * Subscribes `listener` to a renderer event. Returns a function that removes it.
+ * Deduplicates multiple subscriptions to the same event on the same renderer
+ *
+ * @param renderer The renderer to listen on
+ * @param event The event to listen for
+ * @param listener The callback to invoke when the event fires
+ *
+ * @internal
+ */
+export function subscribeRendererEvent(
+  renderer: CliRenderer,
+  event: CliRenderEvents,
+  listener: () => void,
+): RemoveListener {
+  const events = getRendererEventRegistry(renderer)
+  const entry = getRendererEventEntry(renderer, event)
   entry.subscribers.add(listener)
 
   let removed = false
-  const remove: RemoveListener = () => {
+  return () => {
     if (removed) return
     removed = true
     entry!.subscribers.delete(listener)
@@ -64,7 +80,22 @@ export function useRendererEvent(event: CliRenderEvents, listener: () => void): 
       if (events!.size === 0) registries.delete(renderer)
     }
   }
+}
 
+/**
+ * Subscribes `listener` to a renderer event for the lifetime of the current
+ * effect scope. The listener is removed automatically when the owning
+ * component unmounts; the returned function removes it early.
+ *
+ * `event` is constrained to {@link CliRenderEvents}, so listening on an unknown
+ * event is a type error. The renderer does not type its event payloads, so
+ * handlers read the live state off the renderer (e.g. `renderer.width`) rather
+ * than from arguments — hence the `() => void` listener.
+ */
+export function useRendererEvent(event: CliRenderEvents, listener: () => void): RemoveListener {
+  const renderer = useRenderer()
+  const remove = subscribeRendererEvent(renderer, event, listener)
   onScopeDispose(remove, true)
+
   return remove
 }

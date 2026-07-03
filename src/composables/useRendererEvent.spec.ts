@@ -17,10 +17,12 @@ describe('useRendererEvent', () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     const SUBSCRIBERS = 15
     let calls = 0
+    let originalListenerCount = 0
     const app = createTuiApp(
       test.renderer,
       defineComponent({
         setup() {
+          originalListenerCount = test.renderer.listenerCount(CliRenderEvents.FOCUSED_RENDERABLE)
           for (let i = 0; i < SUBSCRIBERS; i++) {
             useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, () => {
               calls++
@@ -41,7 +43,9 @@ describe('useRendererEvent', () => {
 
     app.unmount()
     await nextTick()
-    expect(test.renderer.listenerCount(CliRenderEvents.FOCUSED_RENDERABLE)).toBe(0)
+    expect(test.renderer.listenerCount(CliRenderEvents.FOCUSED_RENDERABLE)).toBe(
+      originalListenerCount,
+    )
 
     test.renderer.destroy()
   })

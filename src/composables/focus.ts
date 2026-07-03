@@ -1,5 +1,5 @@
-import { CliRenderEvents, type Renderable } from '@opentui/core'
-import { type Ref, ref, type ShallowRef, shallowRef, watch } from '@vue/runtime-core'
+import { CliRenderEvents, type CliRenderer, type Renderable } from '@opentui/core'
+import { inject, type Ref, ref, type ShallowRef, shallowRef, watch } from '@vue/runtime-core'
 import { useRenderer } from '../renderer/index'
 import { useRendererEvent } from './useRendererEvent'
 
@@ -59,6 +59,14 @@ export interface UseFocusReturn {
 }
 
 /**
+ * Marker or Renderables to skip focus by keyboard navigation.
+ * Mainly used by Box, which needs focusable to enable focusedBorderColor to be useful
+ * but most of the time should not be focusable by Tab navigation.
+ * Cannot be a symbol because they are ignored by patchProp
+ */
+export const SKIP_FOCUS = '__vtui_skip_focus__'
+
+/**
  * Makes a single element focusable and tracks/controls its focus state. Bind
  * the returned `ref` to the element, then read `focused` or call `focus()` /
  * `blur()`. OpenTUI owns focus routing (the focused element receives key
@@ -96,13 +104,60 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
 
   return {
     ref: (el) => {
-      element.value = (el as Renderable | null) ?? null
+      // Bound to a component (e.g. `<Box :ref="...">`) the ref receives that
+      // component's public instance, whose `$el` is the backing renderable;
+      // bound to a host element it receives the renderable directly. Unwrap
+      // `$el` so both bindings resolve to the renderable.
+      const node = el && typeof el === 'object' && '$el' in el ? (el as { $el: unknown }).$el : el
+      element.value = (node as Renderable | null) ?? null
     },
     element,
     focused,
     focus: () => element.value?.focus(),
     blur: () => element.value?.blur(),
   }
+}
+
+/**
+ * Collect every focusable, visible, live renderable under `node`, in
+ * depth-first tree order (which is the natural Tab order).
+ */
+function collectFocusables(node: Renderable, out: Renderable[] = []): Renderable[] {
+  for (const child of node.getChildren()) {
+    if (
+      child.focusable &&
+      child.visible &&
+      !child.isDestroyed &&
+      !(SKIP_FOCUS in child && child[SKIP_FOCUS])
+    ) {
+      out.push(child)
+    }
+    collectFocusables(child, out)
+  }
+  return out
+}
+
+/**
+ * Move focus to the next (`step: 1`) or previous (`step: -1`) focusable element
+ * in tree order, wrapping around. With nothing focused, `1` starts at the first
+ * element and `-1` at the last. No-op when there are no focusables.
+ *
+ * The list is rebuilt on every call so it always reflects the current tree —
+ * pages that mount/unmount focusable widgets are handled without bookkeeping.
+ */
+function moveFocus(renderer: CliRenderer, step: 1 | -1): void {
+  const focusables = collectFocusables(renderer.root)
+  const count = focusables.length
+  if (!count) return
+  const current = renderer.currentFocusedRenderable
+  const index = current ? focusables.indexOf(current) : -1
+  const next =
+    index < 0 ? focusables[step > 0 ? 0 : count - 1]! : focusables[(index + step + count) % count]!
+  // Call the renderable's own `focus()`, not `renderer.focusRenderable()`: the
+  // latter only moves the `currentFocusedRenderable` pointer (and blurs the
+  // previous element) without marking `next` focused or registering its key
+  // handler, so it would receive no keystrokes. `focus()` does both.
+  next.focus()
 }
 
 /**
@@ -115,9 +170,16 @@ export interface UseFocusManagerReturn {
   focused: ShallowRef<Renderable | null>
 
   /**
-   * Focus an element.
+   * Focus the next focusable element in tree order, wrapping around. With
+   * nothing focused, focuses the first. No-op when nothing is focusable.
    */
-  focus(renderable: Renderable): void
+  focusNext(): void
+
+  /**
+   * Focus the previous focusable element in tree order, wrapping around. With
+   * nothing focused, focuses the last. No-op when nothing is focusable.
+   */
+  focusPrevious(): void
 
   /**
    * Clear focus from whatever element currently has it.
@@ -126,9 +188,26 @@ export interface UseFocusManagerReturn {
 }
 
 /**
- * App-level view of focus: the currently focused element (reactive) plus
- * imperative `focus()` / `blur()`. Use it to build Tab navigation by keeping
- * your own ordered list of elements and focusing the next on Tab.
+ * App-level Tab navigation over OpenTUI's focus system: a reactive `focused`
+ * element plus `focusNext()` / `focusPrevious()` that cycle through every
+ * focusable element in tree order (wrapping), and `blur()` to clear focus.
+ *
+ * Elements opt in by being `focusable` (interactive ones like `Input` already
+ * are; mark a container with `<Box :focusable="true" />` or {@link useFocus}).
+ * The order is the render tree's depth-first order.
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * import { onKeyDown, useFocusManager } from 'vue-termui'
+ * const { focusNext, focusPrevious } = useFocusManager()
+ * onKeyDown((key) => {
+ *   if (key.name !== 'tab') return
+ *   key.preventDefault()
+ *   key.shift ? focusPrevious() : focusNext()
+ * })
+ * </script>
+ * ```
  */
 export function useFocusManager(): UseFocusManagerReturn {
   const renderer = useRenderer()
@@ -140,7 +219,18 @@ export function useFocusManager(): UseFocusManagerReturn {
 
   return {
     focused,
-    focus: (renderable) => renderer.focusRenderable(renderable),
+    focusNext: () => moveFocus(renderer, 1),
+    focusPrevious: () => moveFocus(renderer, -1),
     blur: () => renderer.currentFocusedRenderable?.blur(),
   }
+}
+
+export const USE_CURRENT_FOCUSED_ELEMENT_KEY: unique symbol = Symbol('useCurrentFocused')
+
+export function useCurrentFocusedElement(): ShallowRef<Renderable | null> {
+  // Fall back to a standalone ref when no app-level provider exists — e.g. a
+  // `Box` rendered through a bare renderer in tests. Focus tracking is inert in
+  // that case, but the component still renders instead of throwing on a missing
+  // injection. `createTuiApp` provides the real, renderer-backed ref.
+  return inject(USE_CURRENT_FOCUSED_ELEMENT_KEY, null) ?? shallowRef<Renderable | null>(null)
 }

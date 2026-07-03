@@ -110,6 +110,20 @@ export function optionalBooleanProps<T extends object, K extends OptionalBoolean
 }
 
 /**
+ * Wrap a single computed value as a spreadable prop object that *omits* the key
+ * entirely when the value is `undefined`. Spreading `{ key: undefined }` into a
+ * renderable still calls its setter with `undefined` (OpenTUI setters have no
+ * guard), overwriting the renderable's own default; omitting the key preserves
+ * it. The single-value counterpart to {@link optionalBooleanProps}, for computed
+ * values that don't map 1:1 to a prop (e.g. a focus-derived `borderColor`).
+ *
+ * @internal
+ */
+export function optionalProp<K extends string, V>(key: K, value: V | undefined): { [P in K]?: V } {
+  return (value === undefined ? {} : { [key]: value }) as { [P in K]?: V }
+}
+
+/**
  * Type helper to ensure we declare all needed events in `emits`
  *
  * @internal
@@ -216,8 +230,9 @@ type EmitFn<Events extends string> = UnionToIntersection<
 export function setupRenderableEvents(
   el: Renderable,
   emit: EmitFn<keyof ExtractEventsNames<RenderableEventProps, {}>>,
-  { autofocus }: { autofocus?: boolean } = {},
+  { autofocus }: RenderableEventProps = {},
 ): void {
+  // NOTE: it could be worth to not add event listeners if the corresponding emit is not defined but then it wouldn't be reactive
   el.on(RenderableEvents.FOCUSED, () => emit('focus'))
   el.on(RenderableEvents.BLURRED, () => emit('blur'))
   el.on(RenderableEvents.DESTROYED, () => emit('destroyed'))
