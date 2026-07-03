@@ -68,19 +68,9 @@ Flags:
 }
 
 const EXPECTED_BRANCH = 'main'
-const MAIN_PKG_NAME = 'template-lib-ts'
+const MAIN_PKG_NAME = 'vue-termui'
 const IS_MAIN_PKG_AT_ROOT = true
-const PKG_FOLDERS = [
-  // comment for multiline format
-  join(__dirname, '..'),
-]
-
-const FILES_TO_COMMIT = [
-  // comment for multiline format
-  'package.json',
-  'pnpm-lock.yaml',
-  'CHANGELOG.md',
-]
+const PKG_FOLDERS = [join(__dirname, '..'), join(__dirname, '..', 'packages', 'create-vue-termui')]
 
 interface RunOptions {
   stdio?: 'inherit' | 'pipe'
@@ -377,7 +367,16 @@ async function main() {
   const { stdout } = await run('git', ['diff', 'HEAD'], { stdio: 'pipe' })
   if (stdout) {
     step('\nCommitting changes...')
-    await runIfNotDry('git', ['add', ...FILES_TO_COMMIT])
+    // Stage each released package's own files (a bare "package.json" would only
+    // stage the root one), plus the shared lockfile.
+    const filesToCommit = [
+      ...pkgWithVersions.flatMap(({ relativePath }) => [
+        join(relativePath, 'package.json'),
+        join(relativePath, 'CHANGELOG.md'),
+      ]),
+      'pnpm-lock.yaml',
+    ]
+    await runIfNotDry('git', ['add', ...filesToCommit])
     await runIfNotDry('git', [
       'commit',
       '-m',
@@ -452,7 +451,9 @@ function updateDeps(
  * Get the last tag published for a package or null if there are no tags
  */
 async function getLastTag(pkgName: string): Promise<string> {
-  const pattern = pkgName === MAIN_PKG_NAME ? 'v*' : `${pkgName}@*`
+  // Main pkg tags are semver-prefixed (`v1.2.3`). Use `v[0-9]*` rather than
+  // `v*` so it can't match legacy `vue-termui@*` tags from the old impl.
+  const pattern = pkgName === MAIN_PKG_NAME ? 'v[0-9]*' : `${pkgName}@*`
   const prefix = pkgName === MAIN_PKG_NAME ? 'v' : `${pkgName}@`
 
   try {
@@ -516,6 +517,9 @@ async function getChangedPackages(...folders: string[]): Promise<PackageInfo[]> 
             // apparently {src,package.json} doesn't work
             join(folder, 'src'),
             join(folder, 'index.js'),
+            // scaffolder starter files (create-vue-termui); harmless for pkgs
+            // without a template dir since git diff just matches nothing
+            join(folder, 'template'),
             // TODO: should not check dev deps and should compare to last tag changes
             join(folder, 'package.json'),
           ],

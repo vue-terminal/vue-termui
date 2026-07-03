@@ -15,7 +15,21 @@
   Build terminal apps with Vue 3, powered by <a href="https://opentui.com/">OpenTUI</a>.
 </p>
 
+> [!IMPORTANT]
+> vue-termui renders through [OpenTUI](https://opentui.com/)'s native engine, which requires FFI.
+> Run your app with **Node ≥ 26.3** and `--experimental-ffi` (add
+> `--disable-warning=ExperimentalWarning` to silence the notice), or use **[Bun](https://bun.sh/)**,
+> which supports FFI natively.
+
 ## Install
+
+Scaffold a new app:
+
+```bash
+npm create vue-termui@latest
+```
+
+Or add it to an existing project:
 
 ```bash
 pnpm add vue-termui

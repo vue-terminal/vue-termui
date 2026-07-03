@@ -74,7 +74,7 @@ importers:
         version: 12.1.0
       tsdown:
         specifier: ^0.22.3
-        version: 0.22.3(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(vue-tsc@3.3.6(typescript@6.0.3))
+        version: 0.22.3(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1))(vue-tsc@3.3.6(typescript@6.0.3))
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -93,6 +93,15 @@ importers:
       vue-tsc:
         specifier: ^3.3.6
         version: 3.3.6(typescript@6.0.3)
+
+  packages/create-vue-termui:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.0
+        version: 26.0.0
+      tsdown:
+        specifier: ^0.22.3
+        version: 0.22.3(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1))(vue-tsc@3.3.6(typescript@6.0.3))
 
   playground:
     dependencies:
@@ -3798,9 +3807,9 @@ snapshots:
   '@rolldown/binding-openharmony-arm64@1.1.2':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.12(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.12(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -5126,7 +5135,7 @@ snapshots:
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown@1.0.0-rc.12(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0):
+  rolldown@1.0.0-rc.12(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1):
     dependencies:
       '@oxc-project/types': 0.122.0
       '@rolldown/pluginutils': 1.0.0-rc.12
@@ -5143,7 +5152,7 @@ snapshots:
       '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.12
       '@rolldown/binding-linux-x64-musl': 1.0.0-rc.12
       '@rolldown/binding-openharmony-arm64': 1.0.0-rc.12
-      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.12(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.12(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.12
       '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.12
     transitivePeerDependencies:
@@ -5385,7 +5394,7 @@ snapshots:
 
   trim-lines@3.0.1: {}
 
-  tsdown@0.22.3(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(vue-tsc@3.3.6(typescript@6.0.3)):
+  tsdown@0.22.3(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1))(vue-tsc@3.3.6(typescript@6.0.3)):
     dependencies:
       ansis: 4.3.1
       cac: 7.0.0
@@ -5404,7 +5413,7 @@ snapshots:
       unconfig-core: 7.5.0
     optionalDependencies:
       typescript: 6.0.3
-      unrun: 0.2.34(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      unrun: 0.2.34(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@ts-macro/tsc'
       - '@typescript/native-preview'
@@ -5462,9 +5471,9 @@ snapshots:
       picomatch: 4.0.4
       webpack-virtual-modules: 0.6.2
 
-  unrun@0.2.34(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0):
+  unrun@0.2.34(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1):
     dependencies:
-      rolldown: 1.0.0-rc.12(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      rolldown: 1.0.0-rc.12(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'

@@ -23,8 +23,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     if: |
-      startsWith(github.ref_name, 'v') &&
-      github.repository == 'posva/template-lib-ts'
+      (startsWith(github.ref_name, 'v') || startsWith(github.ref_name, 'create-vue-termui@')) &&
+      github.repository == 'vue-terminal/vue-termui'
 
     environment: release
 
@@ -47,11 +47,29 @@ jobs:
           echo "Current tag: $TAG"
           echo "TAG=$TAG" >>$GITHUB_OUTPUT
 
-          # Compute previous tag (skip current tag)
-          echo "Finding previous tag using: git describe --match 'v*'"
+          # Map the tag to the package it releases. "v*" is the main package
+          # (vue-termui, at the root); "<name>@*" is a package under packages/.
+          if [[ "$TAG" == create-vue-termui@* ]]; then
+            PKG_NAME="create-vue-termui"
+            PKG_DIR="packages/create-vue-termui"
+            MATCH="create-vue-termui@*"
+            VERSION="${TAG#create-vue-termui@}"
+          else
+            PKG_NAME="vue-termui"
+            PKG_DIR="."
+            # v[0-9]* (not v*) so previous-tag lookup skips legacy vue-termui@* tags
+            MATCH="v[0-9]*"
+            VERSION="${TAG#v}"
+          fi
+
+          echo "PKG_NAME=$PKG_NAME" >>$GITHUB_OUTPUT
+          echo "PKG_DIR=$PKG_DIR" >>$GITHUB_OUTPUT
+
+          # Compute previous tag for this package (skip current tag)
+          echo "Finding previous tag using: git describe --match '$MATCH'"
 
           set +e
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 --match "v*" "${TAG}^" 2>/dev/null)
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 --match "$MATCH" "${TAG}^" 2>/dev/null)
           STATUS=$?
           set -e
 
@@ -65,7 +83,6 @@ jobs:
           echo "PREVIOUS_TAG=$PREVIOUS_TAG" >>$GITHUB_OUTPUT
 
           # Determine npm dist-tag
-          VERSION="${TAG#v}"
           if [[ "$VERSION" =~ -beta ]]; then
             NPM_TAG="beta"
           elif [[ "$VERSION" =~ -alpha ]]; then
@@ -80,6 +97,8 @@ jobs:
 
           echo "Resolved:"
           echo "  TAG=$TAG"
+          echo "  PKG_NAME=$PKG_NAME"
+          echo "  PKG_DIR=$PKG_DIR"
           echo "  PREVIOUS_TAG=$PREVIOUS_TAG"
           echo "  NPM_TAG=$NPM_TAG"
 
@@ -98,9 +117,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        working-directory: ${{ steps.resolve.outputs.PKG_DIR }}
         run: pnpm run build
 
       - name: Publish to NPM
+        working-directory: ${{ steps.resolve.outputs.PKG_DIR }}
         run: pnpm publish --access public --no-git-checks --tag ${{ steps.resolve.outputs.NPM_TAG }}
 
       - name: Generate GitHub Changelog

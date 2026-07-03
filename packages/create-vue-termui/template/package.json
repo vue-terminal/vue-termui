@@ -1,0 +1,23 @@
+{
+  "name": "vue-termui-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vite",
+    "build": "vite build",
+    "start": "node --experimental-ffi dist/main.js"
+  },
+  "dependencies": {
+    "vue": "^3.5.17",
+    "vue-termui": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=26.3.0"
+  }
+}

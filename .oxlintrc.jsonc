@@ -51,10 +51,17 @@
     "builtin": true,
   },
   "globals": {},
-  "ignorePatterns": ["**/*.ts.timestamp*", "dist", "scripts", "**/CLAUDE.md", "old"],
+  "ignorePatterns": [
+    "**/*.ts.timestamp*",
+    "dist",
+    "scripts",
+    "**/CLAUDE.md",
+    "old",
+    "packages/create-vue-termui/template",
+  ],
   "overrides": [
     {
-      "files": ["playground/**"],
+      "files": ["playground/**", "packages/create-vue-termui/**"],
       "rules": {
         "no-console": "off",
       },
