@@ -1,5 +1,7 @@
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
+import { type NodeTransform, NodeTypes } from '@vue/compiler-core'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
+import { EVENT_MODIFIER_SEPARATOR } from './components/event-modifiers'
 
 // We use the `ssr` environment but do no SSR: it is Vite's only built-in
 // environment that both runs in-process (a `ModuleRunner`, where the
@@ -18,6 +20,53 @@ const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text', 'input', 'textare
  * Default app entry, resolved from the project root.
  */
 const DEFAULT_ENTRY = '/src/main.ts'
+
+/**
+ * Whether a `v-on` event name (as written in the template) is a terminal input
+ * event whose modifiers we handle ourselves. These map to OpenTUI renderable
+ * listeners — `onKeyDown`/`onKeyUp` and the `onMouse*` family — whose
+ * `KeyEvent`/`MouseEvent` payloads Vue's DOM-only modifier guards cannot read.
+ */
+function isTuiInputEvent(name: string): boolean {
+  return name.startsWith('key') || name.startsWith('mouse')
+}
+
+/**
+ * SFC compiler transform that rewrites terminal input `v-on` bindings so their
+ * modifiers survive to runtime. Vue's built-in `on` transform compiles
+ * `@keyDown.ctrl.c` into `withKeys`/`withModifiers` wrappers that read DOM event
+ * fields (`event.key`, `event.ctrlKey`) absent from OpenTUI's events — so
+ * `@keyDown.enter` would simply never fire. Instead we fold the modifiers into
+ * the listener prop name with {@link EVENT_MODIFIER_SEPARATOR}
+ * (`@keyDown.ctrl.c` → `onKeyDown__ctrl__c`) and clear them, leaving the handler
+ * unwrapped; `resolveEventListeners` — used by every renderable component —
+ * parses them back out and applies them against the terminal event.
+ *
+ * Only static-name key/mouse bindings with modifiers are touched. Every other
+ * `v-on` (other events, dynamic names, no modifiers) keeps Vue's default
+ * handling, so component-emit modifiers like `.once` are unaffected.
+ *
+ * @internal
+ */
+export const encodeEventModifiers: NodeTransform = (node) => {
+  if (node.type !== NodeTypes.ELEMENT) return
+  for (const prop of node.props) {
+    if (
+      prop.type === NodeTypes.DIRECTIVE &&
+      prop.name === 'on' &&
+      prop.modifiers.length > 0 &&
+      prop.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
+      prop.arg.isStatic &&
+      isTuiInputEvent(prop.arg.content)
+    ) {
+      prop.arg.content = [
+        prop.arg.content,
+        ...prop.modifiers.map((modifier) => modifier.content),
+      ].join(EVENT_MODIFIER_SEPARATOR)
+      prop.modifiers = []
+    }
+  }
+}
 
 /**
  * Forces `@vitejs/plugin-vue` to compile **client** render functions (with HMR)
@@ -159,6 +208,10 @@ export interface VueTermuiOptions {
  */
 export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
   const userIsCustomElement = options.vue?.template?.compilerOptions?.isCustomElement
+  const userNodeTransforms = options.vue?.template?.compilerOptions?.nodeTransforms
+  // The `NodeTransform` type as `@vitejs/plugin-vue` expects it, kept as the one
+  // source of truth for the cast below (see `nodeTransforms`).
+  type ExpectedNodeTransform = NonNullable<typeof userNodeTransforms>[number]
   const entry = options.entry ?? DEFAULT_ENTRY
   const autoLaunch = options.autoLaunch ?? true
 
@@ -170,6 +223,15 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
         ...options.vue?.template?.compilerOptions,
         isCustomElement: (tag: string) =>
           HOST_TAGS.has(tag) || (userIsCustomElement?.(tag) ?? false),
+        // Encode terminal event modifiers before Vue's `on` transform runs, so
+        // `@keyDown.enter` works against OpenTUI events (see `encodeEventModifiers`).
+        // The cast bridges structurally identical `NodeTransform` types from
+        // duplicate `@vue/compiler-core` copies that split installs (e.g. git
+        // worktrees) can produce; it is a no-op with a single install.
+        nodeTransforms: [
+          encodeEventModifiers as unknown as ExpectedNodeTransform,
+          ...(userNodeTransforms ?? []),
+        ],
       },
     },
   })
