@@ -51,7 +51,7 @@
     "docs": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "play": "pnpm --filter playground dev",
-    "test": "pnpm run build && pnpm run test:cov && pnpm run test:types",
+    "test": "pnpm run lint && pnpm run fmt --check && pnpm run build && pnpm run test:cov && pnpm run test:types",
     "test:cov": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vitest run --coverage",
     "test:types": "tsc --build ./tsconfig.json",
     "lint": "oxlint ${CI:+--deny-warnings} .",
