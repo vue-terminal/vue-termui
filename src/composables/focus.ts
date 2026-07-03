@@ -59,14 +59,6 @@ export interface UseFocusReturn {
 }
 
 /**
- * Marker or Renderables to skip focus by keyboard navigation.
- * Mainly used by Box, which needs focusable to enable focusedBorderColor to be useful
- * but most of the time should not be focusable by Tab navigation.
- * Cannot be a symbol because they are ignored by patchProp
- */
-export const SKIP_FOCUS = '__vtui_skip_focus__'
-
-/**
  * Makes a single element focusable and tracks/controls its focus state. Bind
  * the returned `ref` to the element, then read `focused` or call `focus()` /
  * `blur()`. OpenTUI owns focus routing (the focused element receives key
@@ -124,12 +116,7 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
  */
 function collectFocusables(node: Renderable, out: Renderable[] = []): Renderable[] {
   for (const child of node.getChildren()) {
-    if (
-      child.focusable &&
-      child.visible &&
-      !child.isDestroyed &&
-      !(SKIP_FOCUS in child && child[SKIP_FOCUS])
-    ) {
+    if (child.focusable && child.visible && !child.isDestroyed) {
       out.push(child)
     }
     collectFocusables(child, out)
