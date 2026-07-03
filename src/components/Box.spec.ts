@@ -2,7 +2,7 @@
 import { BoxRenderable, parseColor } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, defineComponent, h, nextTick } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNodeOps } from '../renderer/nodeOps'
 import { createTuiApp } from '../renderer/index'
 import { Box } from './Box'
@@ -22,6 +22,59 @@ describe('Box', () => {
 
   afterEach(() => {
     test.renderer.destroy()
+  })
+
+  // The SFC transform encodes `@keyDown.ctrl.c` into a prop name; here we pass
+  // the encoded name directly (tests use `h`, not compiled templates) to prove
+  // Box wires it through `resolveEventListeners` onto the renderable.
+  describe('event modifiers', () => {
+    function keyEvent(overrides: Record<string, unknown> = {}) {
+      return {
+        name: 'a',
+        ctrl: false,
+        meta: false,
+        shift: false,
+        option: false,
+        sequence: '',
+        raw: '',
+        eventType: 'press',
+        source: 'raw',
+        preventDefault() {},
+        stopPropagation() {},
+        ...overrides,
+      }
+    }
+
+    it('applies key-name + system modifiers to the renderable listener', async () => {
+      const onCtrlC = vi.fn()
+      render(
+        h(Box, { onKeyDown__ctrl__c: onCtrlC }, () => []),
+        test.renderer.root,
+      )
+      await test.renderOnce()
+
+      const box = test.renderer.root.getChildren()[0] as BoxRenderable
+      expect(typeof box.onKeyDown).toBe('function')
+
+      box.onKeyDown!(keyEvent({ name: 'c' }) as never)
+      expect(onCtrlC).toHaveBeenCalledTimes(0)
+
+      box.onKeyDown!(keyEvent({ name: 'c', ctrl: true }) as never)
+      expect(onCtrlC).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves a plain (unmodified) listener working', async () => {
+      const onKeyDown = vi.fn()
+      render(
+        h(Box, { onKeyDown }, () => []),
+        test.renderer.root,
+      )
+      await test.renderOnce()
+
+      const box = test.renderer.root.getChildren()[0] as BoxRenderable
+      box.onKeyDown!(keyEvent() as never)
+      expect(onKeyDown).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('renders a BoxRenderable with its default slot', async () => {
