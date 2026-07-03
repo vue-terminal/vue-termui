@@ -8,6 +8,7 @@ import {
   type TuiComponent,
   optionalBooleanProps,
   optionalProp,
+  resolveEventListeners,
 } from './utils'
 import { useCurrentFocusedElement } from '../composables/focus'
 
@@ -61,7 +62,9 @@ export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
       h(
         'box',
         {
-          ...attrs,
+          // Fold event-modifier bindings (`@keyDown.ctrl.c`) into plain
+          // renderable listeners before they reach the host element.
+          ...resolveEventListeners(attrs),
           /*
            * OpenTUI only applies focusedBorderColor if the box is focusable,
            * but that makes it accessible by Tab navigation, which is usually
