@@ -10,6 +10,7 @@ import {
   type RenderableEventProps,
   renderableEmits,
   renderableProps,
+  resolveEventListeners,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
@@ -109,8 +110,8 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
 
     return (): VNode =>
       h('input', {
-        // native options and listeners
-        ...attrs,
+        // native options and listeners (event-modifier bindings resolved here)
+        ...resolveEventListeners(attrs),
         ...optionalBooleanProps(props, ['focusable']),
         // our overrides
         value: props.modelValue ?? attrs.value ?? '',
