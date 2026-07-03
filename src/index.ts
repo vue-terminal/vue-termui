@@ -42,6 +42,23 @@ export type {
   Position,
 } from './components/types'
 
+// Styled-text helpers for building inline multi-color/attribute runs within a
+// single `<Text>` (nesting `<Text>` inside `<Text>` is not supported). Use with
+// the `content` prop: `<Text :content="t`${fg('#42b883')('vue')}-termui`" />`.
+export {
+  t,
+  fg,
+  bg,
+  bold,
+  dim,
+  italic,
+  underline,
+  blink,
+  reverse,
+  strikethrough,
+  StyledText,
+} from '@opentui/core'
+
 export {
   createApp,
   createNodeOps,
