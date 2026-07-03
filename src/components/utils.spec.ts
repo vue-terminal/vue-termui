@@ -222,6 +222,28 @@ describe('resolveEventListeners', () => {
     })
   })
 
+  describe('modifiers with no terminal equivalent', () => {
+    it('ignores .self / .once / .capture / .passive instead of treating them as key names', () => {
+      const onEnter = vi.fn()
+      const onSelf = vi.fn()
+      const listeners = resolveEventListeners({
+        // `.once` has no meaning for a renderable setter: it must not filter.
+        [enc('onKeyDown', 'once', 'enter')]: onEnter,
+        // `.self` cannot be evaluated here, so the binding still fires.
+        [enc('onMouseDown', 'self')]: onSelf,
+      }) as {
+        onKeyDown: (e: KeyEvent) => void
+        onMouseDown: (e: FakeMouseEvent) => void
+      }
+
+      listeners.onKeyDown(keyEvent({ name: 'return' }))
+      expect(onEnter).toHaveBeenCalledTimes(1)
+
+      listeners.onMouseDown(mouseEvent({ button: 0 }))
+      expect(onSelf).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('merging handlers for one base event', () => {
     it('runs a plain listener always and a modified one only when it matches', () => {
       const always = vi.fn()

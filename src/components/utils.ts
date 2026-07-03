@@ -6,6 +6,9 @@ import {
   RenderableEvents,
 } from '@opentui/core'
 import type { KeyEvent } from '../composables/keyboard'
+import { EVENT_MODIFIER_SEPARATOR } from './event-modifiers'
+
+export { EVENT_MODIFIER_SEPARATOR } from './event-modifiers'
 import type {
   Component,
   ComponentOptionsMixin,
@@ -275,20 +278,20 @@ function queueAutofocus(el: Renderable): void {
 // then parses them back out and wraps the handler with guards that read the
 // terminal event shapes. Mirrors `shentao/vue-global-events`, but for the TUI.
 
-/**
- * Separator the SFC transform uses to encode `v-on` modifiers into a listener
- * prop name (e.g. `@keyDown.ctrl.c` → `onKeyDown__ctrl__c`). Chosen so it never
- * collides with the camelCase TUI event names it is appended to.
- *
- * @internal
- */
-export const EVENT_MODIFIER_SEPARATOR = '__'
-
 /** A listener prop is `on` followed by an uppercase letter, per Vue convention. */
 const LISTENER_RE = /^on[A-Z]/
 
 /** Modifiers that manage event flow rather than filtering it. */
 const FLOW_MODIFIERS: ReadonlySet<string> = new Set(['stop', 'prevent'])
+
+/**
+ * Modifiers accepted for parity with Vue but with no terminal equivalent, so
+ * they are ignored rather than mistaken for a key name. `self` would need the
+ * receiving renderable to compare against `event.target`, which the resolver has
+ * no handle on; `capture`/`passive`/`once` are DOM `addEventListener` options
+ * that a single renderable setter has no notion of.
+ */
+const IGNORED_MODIFIERS: ReadonlySet<string> = new Set(['self', 'capture', 'passive', 'once'])
 
 /** Canonical chord modifiers, shared by key and mouse events. */
 type SystemModifier = 'ctrl' | 'shift' | 'alt' | 'meta'
@@ -383,7 +386,7 @@ function eventPassesModifiers(event: KeyEvent | TuiMouseEvent, modifiers: string
   let exact = false
 
   for (const modifier of modifiers) {
-    if (FLOW_MODIFIERS.has(modifier)) continue
+    if (FLOW_MODIFIERS.has(modifier) || IGNORED_MODIFIERS.has(modifier)) continue
     if (modifier === 'exact') {
       exact = true
       continue
