@@ -276,8 +276,8 @@ describe('vueTermui dev launch', () => {
         key,
       )}] || 0) + 1`,
     })
-    await waitFor(() => (globalThis as Record<string, number>)[key] === 1)
-    expect((globalThis as Record<string, number>)[key]).toBe(1)
+    await waitFor(() => (globalThis as Record<string, unknown>)[key] === 1)
+    expect((globalThis as Record<string, unknown>)[key]).toBe(1)
     expect((globalThis as Record<string, unknown>).__VUE_TERMUI_TEARDOWN__).toBeTypeOf('function')
     delete (globalThis as Record<string, unknown>)[key]
   })
