@@ -21,6 +21,7 @@ const items = [
   { label: 'Select', to: '/select' },
   { label: 'Textarea', to: '/textarea' },
   { label: 'Keyboard', to: '/keyboard' },
+  { label: 'Event modifiers', to: '/event-modifiers' },
   { label: 'Soundboard', to: '/sounds' },
   { label: 'Form', to: '/demos/form' },
   { label: 'Bouncing box', to: '/demos/bouncing-box' },
