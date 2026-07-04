@@ -209,13 +209,32 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   : never
 
 /**
- * To type the argument of {@link setupRenderableEvents}
+ * To type the argument of {@link setupRenderableEvents}. Each event may carry a
+ * payload — the {@link LifecycleEvent} we emit for it.
  *
  * @internal
  */
 type EmitFn<Events extends string> = UnionToIntersection<
-  Events extends any ? (event: Events) => void : never
+  Events extends any ? (event: Events, payload: LifecycleEvent) => void : never
 >
+
+/**
+ * The payload emitted with `focus`/`blur`/`destroyed`. OpenTUI gives us no event
+ * object for these, but Vue's `v-on` flow modifiers (`@blur.stop`,
+ * `@destroyed.prevent`, …) compile to guards that call `preventDefault()` /
+ * `stopPropagation()` on the payload — so we hand them a no-op event shape
+ * rather than let them dereference `undefined`.
+ *
+ * @internal
+ */
+export interface LifecycleEvent {
+  preventDefault(): void
+  stopPropagation(): void
+}
+
+function createLifecycleEvent(): LifecycleEvent {
+  return { preventDefault() {}, stopPropagation() {} }
+}
 
 /**
  * Attach RenderableEvents listeners to a component's `emit` function. Should
@@ -233,9 +252,9 @@ export function setupRenderableEvents(
   { autofocus }: RenderableEventProps = {},
 ): void {
   // NOTE: it could be worth to not add event listeners if the corresponding emit is not defined but then it wouldn't be reactive
-  el.on(RenderableEvents.FOCUSED, () => emit('focus'))
-  el.on(RenderableEvents.BLURRED, () => emit('blur'))
-  el.on(RenderableEvents.DESTROYED, () => emit('destroyed'))
+  el.on(RenderableEvents.FOCUSED, () => emit('focus', createLifecycleEvent()))
+  el.on(RenderableEvents.BLURRED, () => emit('blur', createLifecycleEvent()))
+  el.on(RenderableEvents.DESTROYED, () => emit('destroyed', createLifecycleEvent()))
   if (autofocus) queueAutofocus(el)
 }
 

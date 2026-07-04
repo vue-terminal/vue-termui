@@ -77,6 +77,47 @@ describe('event modifiers (functional)', () => {
     return test.renderer.root.getChildren()[0] as Renderable
   }
 
+  // Renderable lifecycle events (focus/blur/destroyed) are emitted with no DOM
+  // event. A flow modifier on them must not crash: Vue's `.prevent`/`.stop`
+  // guards would call `undefined.preventDefault()` unless the payload carries
+  // those methods.
+  describe('modifiers on payload-less lifecycle emits', () => {
+    it('@destroyed.prevent does not crash on unmount', async () => {
+      const onDestroyed = vi.fn()
+      const render = createRenderer(createNodeOps(test.renderer)).render
+      const Root = defineComponent({
+        components: { Box },
+        setup: () => ({ onDestroyed }),
+        render: compileRender('<Box @destroyed.prevent="onDestroyed" />'),
+      })
+      render(h(Root), test.renderer.root)
+      await nextTick()
+      await test.renderOnce()
+
+      // Unmounting destroys the renderable, which emits `destroyed`.
+      expect(() => render(null, test.renderer.root)).not.toThrow()
+      expect(onDestroyed).toHaveBeenCalledTimes(1)
+    })
+
+    it('@blur.stop does not crash when the element is blurred', async () => {
+      const onBlur = vi.fn()
+      const render = createRenderer(createNodeOps(test.renderer)).render
+      const Root = defineComponent({
+        components: { Box },
+        setup: () => ({ onBlur }),
+        render: compileRender('<Box focusable @blur.stop="onBlur" />'),
+      })
+      render(h(Root), test.renderer.root)
+      await nextTick()
+      await test.renderOnce()
+
+      const el = test.renderer.root.getChildren()[0] as Renderable
+      el.focus()
+      expect(() => el.blur()).not.toThrow()
+      expect(onBlur).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('keyboard', () => {
     it('@keyDown.ctrl.c fires only on Ctrl+C', async () => {
       const onCtrlC = vi.fn()
