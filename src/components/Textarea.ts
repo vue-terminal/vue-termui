@@ -9,7 +9,6 @@ import {
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
-import { resolveEventListeners } from './event-modifiers'
 
 /**
  * Props accepted by {@link Textarea}. Extends OpenTUI's native `TextareaRenderable`
@@ -109,8 +108,8 @@ export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineC
 
     return (): VNode =>
       h('textarea', {
-        // native options and listeners (event-modifier bindings resolved here)
-        ...resolveEventListeners(attrs),
+        // native options and listeners
+        ...attrs,
         ...optionalBooleanProps(props, ['focusable']),
         // Seed the editor through the renderable's `initialValue`, which rides
         // the normal prop path: `patchProp` assigns it only when `modelValue`

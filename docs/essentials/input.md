@@ -110,7 +110,7 @@ Available handlers include `@mouseDown`, `@mouseUp`, `@mouseMove`, `@mouseOver`,
 
 ## Event modifiers
 
-`@keyDown` and the `@mouse*` events on components support Vue-style modifiers, so you can filter and manage events declaratively instead of branching inside the handler. This needs the [`vue-termui` Vite plugin](./application), which teaches the compiler to apply them against terminal events.
+`@keyDown` and the `@mouse*` events on components support Vue-style modifiers, so you can filter and manage events declaratively instead of branching inside the handler. These are Vue's own modifiers — vue-termui just makes terminal key/mouse events carry the fields Vue looks at, so no extra setup is needed.
 
 ```vue
 <template>
@@ -139,7 +139,7 @@ The supported modifiers:
 | Mouse buttons | `.left`, `.middle`, `.right`                                                      | Fire only for that button                                              |
 | Event flow    | `.stop`, `.prevent`                                                               | Call `stopPropagation()` / `preventDefault()` once the guard passes    |
 
-Chain them freely (`@keyDown.ctrl.shift.k`, `@mouseDown.stop.left`). Multiple key names on one binding match any of them (`@keyDown.enter.esc`). The DOM-only `.self`, `.once`, `.capture` and `.passive` modifiers have no terminal equivalent and are ignored.
+Chain them freely (`@keyDown.ctrl.shift.k`, `@mouseDown.stop.left`). Multiple key names on one binding match any of them (`@keyDown.enter.esc`). The DOM-only `.self`, `.capture`, `.passive` and `.once` modifiers have no terminal equivalent and aren't supported.
 
 ## Tips
 

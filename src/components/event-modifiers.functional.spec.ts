@@ -19,7 +19,6 @@ import { withKeys, withModifiers } from '@vue/runtime-dom'
 import { createTestRenderer } from '@opentui/core/testing'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNodeOps } from '../renderer/nodeOps'
-import { encodeEventModifiers } from '../vite'
 import { Box } from './Box'
 import { Input } from './Input'
 import { Markdown } from './Markdown'
@@ -36,14 +35,16 @@ import type { VNode } from '@vue/runtime-core'
 const VUE_HELPERS = { ...RuntimeCore, withKeys, withModifiers }
 const HOST_TAGS = new Set(['box', 'text', 'input', 'textarea', 'select', 'markdown'])
 
-// Compile a template the way the library's Vite plugin does.
+// Compile a template the way the library's Vite plugin does. Modifiers are left
+// to Vue's own `withKeys`/`withModifiers` (no custom transform) — they work
+// because the renderer makes OpenTUI events DOM-shaped (see `renderer/dom-events`).
 function compileRender(template: string): (...args: unknown[]) => unknown {
   const { code } = compile(template, {
     mode: 'function',
     hoistStatic: false,
     cacheHandlers: false,
     isCustomElement: (tag) => HOST_TAGS.has(tag),
-    nodeTransforms: [encodeEventModifiers],
+    nodeTransforms: [],
   })
   return new Function('Vue', code)(VUE_HELPERS) as (...args: unknown[]) => unknown
 }

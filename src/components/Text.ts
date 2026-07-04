@@ -1,6 +1,5 @@
 import { TextAttributes, type TextOptions } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
-import { resolveEventListeners } from './event-modifiers'
 
 /**
  * Props accepted by {@link Text}. Text content is provided through the default
@@ -73,7 +72,7 @@ export const Text: FunctionalComponent<TextProps> = (props, { slots, attrs }) =>
     'text',
     {
       attributes: toAttributes(props),
-      ...resolveEventListeners(attrs),
+      ...attrs,
     },
     slots.default?.(),
   )

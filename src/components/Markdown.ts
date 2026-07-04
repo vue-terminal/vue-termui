@@ -1,7 +1,6 @@
 import { type MarkdownOptions, SyntaxStyle } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
 import { optionalBooleanProps } from './utils'
-import { resolveEventListeners } from './event-modifiers'
 
 // Re-exported so consumers can build a `syntaxStyle` (and type theme maps)
 // without reaching into `@opentui/core` directly.
@@ -54,7 +53,7 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
   // leaving unset options at the renderable's defaults.
 
   return h('markdown', {
-    ...resolveEventListeners(attrs),
+    ...attrs,
     // Coerce and forward each optional boolean only when set, so an unset prop
     // keeps the renderable's own default — e.g. `conceal` stays `true`, and
     // `conceal`/`conceal=""` read as `true` (see `optionalBooleanProps`).

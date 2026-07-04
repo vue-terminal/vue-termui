@@ -21,7 +21,6 @@ import {
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
-import { resolveEventListeners } from './event-modifiers'
 
 /**
  * A single choice in a {@link Select}.
@@ -135,8 +134,8 @@ export const Select: TuiComponent<SelectProps, SelectRenderable> = defineCompone
 
     return (): VNode =>
       h('select', {
-        // native options and listeners (event-modifier bindings resolved here)
-        ...resolveEventListeners(attrs),
+        // native options and listeners
+        ...attrs,
         // Coerce and forward each optional boolean only when set, so an unset
         // prop keeps the renderable's own default (see `optionalBooleanProps`).
         ...optionalBooleanProps(props, [

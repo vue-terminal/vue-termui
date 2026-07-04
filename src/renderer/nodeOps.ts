@@ -12,6 +12,7 @@ import {
   TextRenderable,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
+import { installDomEventCompat } from './dom-events'
 
 /**
  * Simplified renderable used as an invisible anchor for comment nodes and text
@@ -40,6 +41,10 @@ export type TuiElementTag = 'box' | 'text' | 'input' | 'textarea' | 'select' | '
  * @param ctx - the OpenTUI render context (a `CliRenderer` instance)
  */
 export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderable, Renderable> {
+  // Make OpenTUI's key/mouse events DOM-shaped so Vue's `v-on` modifier guards
+  // (`@keyDown.ctrl.c`, `@mouseDown.right`, …) work against them directly.
+  installDomEventCompat()
+
   const makeAnchor = (): AnchorRenderable => new AnchorRenderable(ctx)
 
   // Text nodes (`TextNodeRenderable`) are only valid inside a `<text>`. Vue,
@@ -200,7 +205,19 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     // Layout, ANSI and rendering are owned by OpenTUI; real prop mapping
     // (colors, borders, flex props) lands with the Box/Text components.
     patchProp(el, key, _prevValue, nextValue) {
-      ;(el as unknown as Record<string, unknown>)[key] = nextValue
+      // Several listeners for one event (e.g. multiple `@keyDown.*` bindings)
+      // arrive as an array, but a renderable holds a single handler per event —
+      // collapse them into one dispatcher that runs each, like Vue's DOM
+      // "invokers" do.
+      const value =
+        Array.isArray(nextValue) && /^on[A-Z]/.test(key)
+          ? (...args: unknown[]): void => {
+              for (const handler of nextValue) {
+                if (typeof handler === 'function') handler(...args)
+              }
+            }
+          : nextValue
+      ;(el as unknown as Record<string, unknown>)[key] = value
       scheduleRender()
     },
   }
