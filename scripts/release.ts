@@ -126,6 +126,17 @@ const runIfNotDry = isDryRun ? dryRun : run
 
 const step = (...msg: string[]) => console.log(c.cyan(msg.join(' ')))
 
+function daysAgo(isoDate: string | null): string | null {
+  if (!isoDate) return null
+  const then = new Date(`${isoDate}T00:00:00Z`).getTime()
+  if (Number.isNaN(then)) return null
+  const now = Date.now()
+  const days = Math.max(0, Math.floor((now - then) / 86_400_000))
+  if (days === 0) return 'today'
+  if (days === 1) return '1 day ago'
+  return `${days} days ago`
+}
+
 interface PackageJson {
   name: string
   version: string
@@ -142,6 +153,8 @@ interface PackageInfo {
   version: string
   pkg: PackageJson
   start: string
+  lastTag: string | null
+  lastTagDate: string | null
 }
 
 async function main() {
@@ -203,11 +216,17 @@ async function main() {
       message: 'What packages do you want to release?',
       instructions: false,
       min: 1,
-      choices: changedPackages.map((pkg) => ({
-        title: pkg.name,
-        value: pkg.name,
-        selected: true,
-      })),
+      choices: changedPackages.map((pkg) => {
+        const rel = daysAgo(pkg.lastTagDate)
+        const suffix = pkg.lastTag
+          ? `${pkg.lastTag}${rel ? ` (${rel})` : ''}`
+          : 'no previous release'
+        return {
+          title: `${pkg.name} ${c.dim(`— ${suffix}`)}`,
+          value: pkg.name,
+          selected: true,
+        }
+      }),
     })
 
     // const packagesToRelease = changedPackages
@@ -217,7 +236,7 @@ async function main() {
   step(`Ready to release ${packagesToRelease.map(({ name }) => c.boldWhite(name)).join(', ')}`)
 
   const pkgWithVersions: PackageInfo[] = []
-  for (const { name, path, pkg, relativePath } of packagesToRelease) {
+  for (const { name, path, pkg, relativePath, lastTag, lastTagDate } of packagesToRelease) {
     let { version } = pkg
 
     const prerelease = semver.prerelease(version)
@@ -279,6 +298,8 @@ async function main() {
       pkg,
       // start is set later
       start: '',
+      lastTag,
+      lastTagDate,
     })
   }
 
@@ -448,9 +469,10 @@ function updateDeps(
 }
 
 /**
- * Get the last tag published for a package or null if there are no tags
+ * Get the last tag published for a package, along with its author date, or
+ * null if there are no tags for this package.
  */
-async function getLastTag(pkgName: string): Promise<string> {
+async function getLastTag(pkgName: string): Promise<{ tag: string; date: string | null } | null> {
   // Main pkg tags are semver-prefixed (`v1.2.3`). Use `v[0-9]*` rather than
   // `v*` so it can't match legacy `vue-termui@*` tags from the old impl.
   const pattern = pkgName === MAIN_PKG_NAME ? 'v[0-9]*' : `${pkgName}@*`
@@ -461,7 +483,7 @@ async function getLastTag(pkgName: string): Promise<string> {
     const tags = (stdout as string).split('\n').filter(Boolean)
 
     if (tags.length === 0) {
-      throw new Error('No tags found')
+      return null
     }
 
     // Parse and sort tags by semver (highest first)
@@ -471,19 +493,34 @@ async function getLastTag(pkgName: string): Promise<string> {
       .sort((a, b) => semver.rcompare(a.version, b.version))
 
     if (!sortedTags[0]) {
-      throw new Error('No valid semver tags found')
+      return null
     }
 
-    return sortedTags[0].tag
+    const tag = sortedTags[0].tag
+    let date: string | null = null
+    try {
+      const { stdout: dateStdout } = await run('git', ['log', '-1', '--format=%as', tag], {
+        stdio: 'pipe',
+      })
+      date = (dateStdout as string) || null
+    } catch {
+      // leave date null
+    }
+
+    return { tag, date }
   } catch (error: any) {
-    console.log(c.dim(`Couldn't get "${c.bold(pkgName)}" last tag, using first commit...`))
-
-    if (error.message !== 'No tags found' && error.message !== 'No valid semver tags found') {
-      console.error(error)
-    }
-    const { stdout } = await run('git', ['rev-list', '--max-parents=0', 'HEAD'], { stdio: 'pipe' })
-    return stdout as string
+    console.error(error)
+    return null
   }
+}
+
+/**
+ * Get the initial commit SHA to use as a diff baseline when a package has
+ * no previous release tag.
+ */
+async function getFirstCommit(): Promise<string> {
+  const { stdout } = await run('git', ['rev-list', '--max-parents=0', 'HEAD'], { stdio: 'pipe' })
+  return stdout as string
 }
 
 /**
@@ -503,7 +540,13 @@ async function getChangedPackages(...folders: string[]): Promise<PackageInfo[]> 
         return null
       }
 
-      const lastTag = await getLastTag(pkg.name)
+      const lastTagInfo = await getLastTag(pkg.name)
+      const diffStart = lastTagInfo?.tag ?? (await getFirstCommit())
+      if (!lastTagInfo) {
+        console.log(
+          c.dim(`No previous tag for "${c.bold(pkg.name)}", diffing from first commit...`),
+        )
+      }
 
       const hasChanges = (
         await run(
@@ -511,7 +554,7 @@ async function getChangedPackages(...folders: string[]): Promise<PackageInfo[]> 
           [
             'diff',
             '--name-only',
-            lastTag,
+            diffStart,
             '--',
             // TODO: should allow build files tsdown.config.ts
             // apparently {src,package.json} doesn't work
@@ -528,11 +571,16 @@ async function getChangedPackages(...folders: string[]): Promise<PackageInfo[]> 
       ).stdout as string
       const relativePath = relative(join(__dirname, '..'), folder)
 
+      const rel = daysAgo(lastTagInfo?.date ?? null)
+      const releaseDescription = lastTagInfo
+        ? `${lastTagInfo.tag}${rel ? ` (${rel})` : ''}`
+        : 'no previous release'
+
       if (hasChanges || skipChangeCheck) {
         const changedFiles = hasChanges.split('\n').filter(Boolean)
         console.log(
           c.dimBlue(
-            `Found ${changedFiles.length} changed files in "${pkg.name}" since last release (${lastTag})`,
+            `Found ${changedFiles.length} changed files in "${pkg.name}" since ${releaseDescription}`,
           ),
         )
         console.log(c.dim(`"${changedFiles.join('", "')}"`))
@@ -543,11 +591,13 @@ async function getChangedPackages(...folders: string[]): Promise<PackageInfo[]> 
           name: pkg.name,
           version: pkg.version,
           pkg,
-          start: lastTag,
+          start: diffStart,
+          lastTag: lastTagInfo?.tag ?? null,
+          lastTagDate: lastTagInfo?.date ?? null,
         }
       } else {
         console.warn(
-          c.dim(`Skipping "${pkg.name}" as it has no changes since last release (${lastTag})`),
+          c.dim(`Skipping "${pkg.name}" as it has no changes since ${releaseDescription}`),
         )
         return null
       }
