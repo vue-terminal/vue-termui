@@ -18,10 +18,10 @@ import {
   type RenderableEventProps,
   renderableEmits,
   renderableProps,
-  resolveEventListeners,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
+import { resolveEventListeners } from './event-modifiers'
 
 /**
  * A single choice in a {@link Select}.

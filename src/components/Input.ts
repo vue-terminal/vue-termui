@@ -10,10 +10,10 @@ import {
   type RenderableEventProps,
   renderableEmits,
   renderableProps,
-  resolveEventListeners,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
+import { resolveEventListeners } from './event-modifiers'
 
 /**
  * Props accepted by {@link Input}. Extends OpenTUI's native `InputRenderable`

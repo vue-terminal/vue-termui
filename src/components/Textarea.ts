@@ -6,10 +6,10 @@ import {
   type RenderableEventProps,
   renderableEmits,
   renderableProps,
-  resolveEventListeners,
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
+import { resolveEventListeners } from './event-modifiers'
 
 /**
  * Props accepted by {@link Textarea}. Extends OpenTUI's native `TextareaRenderable`
