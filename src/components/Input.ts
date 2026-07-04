@@ -13,7 +13,6 @@ import {
   setupRenderableEvents,
   type TuiComponent,
 } from './utils'
-import { resolveEventListeners } from './event-modifiers'
 
 /**
  * Props accepted by {@link Input}. Extends OpenTUI's native `InputRenderable`
@@ -110,8 +109,8 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
 
     return (): VNode =>
       h('input', {
-        // native options and listeners (event-modifier bindings resolved here)
-        ...resolveEventListeners(attrs),
+        // native options and listeners
+        ...attrs,
         ...optionalBooleanProps(props, ['focusable']),
         // our overrides
         value: props.modelValue ?? attrs.value ?? '',
