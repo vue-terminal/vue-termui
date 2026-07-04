@@ -1,6 +1,7 @@
 import { type MarkdownOptions, SyntaxStyle } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
-import { optionalBooleanProps, resolveEventListeners } from './utils'
+import { optionalBooleanProps } from './utils'
+import { resolveEventListeners } from './event-modifiers'
 
 // Re-exported so consumers can build a `syntaxStyle` (and type theme maps)
 // without reaching into `@opentui/core` directly.

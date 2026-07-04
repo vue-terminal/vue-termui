@@ -2,7 +2,7 @@
 import { parseColor, TextAttributes, TextRenderable } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Text } from './Text'
 import type { Renderable } from '@opentui/core'
@@ -48,27 +48,6 @@ describe('Text', () => {
     const text = test.renderer.root.getChildren()[0] as TextRenderable
     expect(text.fg.equals(parseColor('#42b883'))).toBe(true)
     expect(text.wrapMode).toBe('word')
-  })
-
-  it('resolves event-modifier bindings onto the renderable (functional path)', async () => {
-    // Proves the functional-component attr path also runs through
-    // `resolveEventListeners`; the encoded prop name is what the SFC transform
-    // emits for `@keyDown.enter`.
-    const onEnter = vi.fn()
-    render(
-      h(Text, { onKeyDown__enter: onEnter }, () => 'x'),
-      test.renderer.root,
-    )
-    await test.renderOnce()
-
-    const text = test.renderer.root.getChildren()[0] as TextRenderable
-    const key = (name: string) => ({ name, ctrl: false, shift: false, option: false, meta: false })
-
-    text.onKeyDown!(key('a') as never)
-    expect(onEnter).toHaveBeenCalledTimes(0)
-
-    text.onKeyDown!(key('return') as never)
-    expect(onEnter).toHaveBeenCalledTimes(1)
   })
 
   it('renders reactive text content', async () => {

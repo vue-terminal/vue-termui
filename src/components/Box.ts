@@ -8,8 +8,8 @@ import {
   type TuiComponent,
   optionalBooleanProps,
   optionalProp,
-  resolveEventListeners,
 } from './utils'
+import { resolveEventListeners } from './event-modifiers'
 import { useCurrentFocusedElement } from '../composables/focus'
 
 /**
