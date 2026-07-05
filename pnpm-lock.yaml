@@ -39,6 +39,12 @@ importers:
       '@vitest/ui':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
+      '@vue/compiler-dom':
+        specifier: ^3.5.32
+        version: 3.5.32
+      '@vue/runtime-dom':
+        specifier: ^3.5.32
+        version: 3.5.32
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.6
