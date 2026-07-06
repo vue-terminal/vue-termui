@@ -41,6 +41,14 @@ const HOST_TAGS = new Set(['box', 'text', 'input', 'textarea', 'select', 'markdo
 function compileRender(template: string): (...args: unknown[]) => unknown {
   const { code } = compile(template, {
     mode: 'function',
+    // Prefix identifiers (`_ctx.onEnter`) instead of emitting a `with (_ctx)`
+    // block — this is how the real Vite/SFC pipeline compiles. It also avoids a
+    // spurious "[Vue warn]: Property undefined was accessed during render": the
+    // `with` block makes the engine probe `_ctx[Symbol.unscopables]` on entry,
+    // and Vue only routes that through a symbol-tolerant proxy for renders its
+    // own runtime compiler produced (via `registerRuntimeCompiler`), which this
+    // hand-rolled `new Function` compile never registers.
+    prefixIdentifiers: true,
     hoistStatic: false,
     cacheHandlers: false,
     isCustomElement: (tag) => HOST_TAGS.has(tag),
