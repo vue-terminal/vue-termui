@@ -45,12 +45,30 @@ See [Styling Text](../essentials/text) for the guide. This page is the full prop
 <Text bold italic underline fg="#ff8800">emphasis</Text>
 ```
 
-## Nesting and interpolation
+## Styling part of a line
 
-`<Text>` nests, and supports interpolation, `v-if` and `v-for`:
+`<Text>` does **not** nest — a `<Text>` inside another `<Text>` is ignored (with a
+warning), the same way the browser drops a `<p>` inside a `<p>`. To give part of a
+line its own color or weight, pass a `StyledText` to the [`content`](#content) prop,
+built with the `t` / `bold` / `fg` / … helpers re-exported from `vue-termui`:
+
+```vue
+<script setup lang="ts">
+import { Text, t, bold, fg } from 'vue-termui'
+
+const ok = true
+const status = t`Status: ${ok ? bold(fg('#42b883')('OK')) : bold(fg('red')('FAIL'))}`
+</script>
+
+<template>
+  <Text :content="status" />
+</template>
+```
+
+Plain interpolation, `v-if` and `v-for` work as usual inside a single `<Text>`:
 
 ```vue-html
-<Text>Status: <Text bold :fg="ok ? '#42b883' : 'red'">{{ ok ? 'OK' : 'FAIL' }}</Text></Text>
+<Text>Count: {{ count }}</Text>
 ```
 
 ## Wrapping

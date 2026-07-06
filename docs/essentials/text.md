@@ -52,9 +52,10 @@ Boolean props toggle the standard terminal text styles. They combine freely:
 Some attributes (notably `blink`) depend on terminal support and may render differently or not at all.
 :::
 
-## Interpolation and nesting
+## Interpolation and inline styling
 
-`<Text>` works with everything you'd expect from a Vue template — interpolation, `v-if`, `v-for`, and nested text:
+`<Text>` works with everything you'd expect from a Vue template — interpolation,
+`v-if` and `v-for`:
 
 ```vue
 <script setup lang="ts">
@@ -63,10 +64,23 @@ const name = ref('world')
 </script>
 
 <template>
-  <Text
-    >Hello, <Text bold fg="#42b883">{{ name }}</Text
-    >!</Text
-  >
+  <Text>Hello, {{ name }}!</Text>
+</template>
+```
+
+`<Text>` does **not** nest, though — a `<Text>` inside another `<Text>` is ignored
+(with a warning), like a `<p>` inside a `<p>` in the browser. To style just part of
+a line, pass a `StyledText` to the `content` prop, built with the `t` / `bold` /
+`fg` / … helpers re-exported from `vue-termui`:
+
+```vue
+<script setup lang="ts">
+import { Text, t, bold, fg, ref } from 'vue-termui'
+const name = ref('world')
+</script>
+
+<template>
+  <Text :content="t`Hello, ${bold(fg('#42b883')(name))}!`" />
 </template>
 ```
 
