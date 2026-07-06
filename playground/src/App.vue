@@ -37,7 +37,7 @@ onKeyDown((key) => {
 })
 
 renderer.configureDebugOverlay({
-  enabled: true,
+  enabled: false,
   corner: DebugOverlayCorner.topRight,
 })
 

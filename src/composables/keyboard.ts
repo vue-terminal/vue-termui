@@ -97,9 +97,11 @@ export function onKeyDown(handler: (event: KeyEvent) => void): RemoveListener {
 }
 
 /**
- * Runs `handler` on every key release. Only fires for terminals using the Kitty
- * keyboard protocol (`useKittyKeyboard` in the renderer config); ordinary
- * terminals report presses only. Same lifetime/cleanup rules as {@link onKeyDown}.
+ * Runs `handler` on every key release. Releases are only reported when the Kitty
+ * keyboard protocol's event-type reporting is enabled (`useKittyKeyboard:
+ * { events: true }` in the renderer config) *and* the terminal supports the
+ * protocol; otherwise only presses are reported. Same lifetime/cleanup rules as
+ * {@link onKeyDown}.
  */
 export function onKeyUp(handler: (event: KeyEvent) => void): RemoveListener {
   return onKey('keyrelease', handler)

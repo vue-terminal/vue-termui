@@ -12,6 +12,10 @@ const app = await createApp(App, null, {
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
   },
+  useKittyKeyboard: {
+    // needed for keyups, not supported within tmux, ssh, and other stuff
+    events: true,
+  },
 })
 
 app.use(router)
