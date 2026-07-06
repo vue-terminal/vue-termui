@@ -100,7 +100,7 @@ jobs:
           echo "  PREVIOUS_TAG=$PREVIOUS_TAG"
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v4.4.0
 
       - name: Setup node
         uses: actions/setup-node@v6
