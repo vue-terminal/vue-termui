@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Box, Text, fg, t } from 'vue-termui'
+import { fg, t } from '@opentui/core'
+import { Box, Text } from 'vue-termui'
 
 // Isometric cube: green for the edges, pink for the faces.
 const GREEN = '#42b883'
