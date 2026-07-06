@@ -3,17 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "bin": "dist/main.js",
   "scripts": {
     "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vite",
     "build": "vite build",
-    "start": "node --experimental-ffi dist/main.js"
+    "start": "node --experimental-ffi --disable-warning=ExperimentalWarning dist/main.js"
   },
   "dependencies": {
+    "@opentui/core": "^0.4.1",
     "vue": "^3.5.17",
     "vue-termui": "latest"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
     "typescript": "~6.0.3",
     "vite": "^8.0.0"
   },

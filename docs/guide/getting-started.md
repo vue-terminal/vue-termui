@@ -19,15 +19,15 @@ Install Vue TermUI and its peers with your package manager of choice:
 
 ```bash
 # pnpm
-pnpm add vue-termui vue
-pnpm add -D vite
+pnpm add vue-termui vue @opentui/core
+pnpm add -D vite @vitejs/plugin-vue
 
 # npm
-npm i vue-termui vue
-npm i -D vite
+npm i vue-termui vue @opentui/core
+npm i -D vite @vitejs/plugin-vue
 ```
 
-`vue-termui` ships its own Vite plugin (compiling `.vue` files and launching the app), so Vite is the only build dependency you need.
+`vue-termui` ships its own Vite plugin (compiling `.vue` files and launching the app), built on top of `@vitejs/plugin-vue`. `@opentui/core` is the native renderer: it stays out of the bundle and is loaded from `node_modules` when your built app runs, so it must be a direct dependency.
 
 ## Project setup
 
@@ -87,15 +87,15 @@ await app.waitUntilExit()
 
 ## Scripts
 
-Add the run scripts to your `package.json`. Both pass the FFI flag for you:
+Add the run scripts to your `package.json`. Both pass the FFI flag for you (and silence Node's `ExperimentalWarning`, which would otherwise pollute the terminal output):
 
 ```json
 {
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS=--experimental-ffi vite",
+    "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vite",
     "build": "vite build",
-    "start": "node --experimental-ffi dist/main.js"
+    "start": "node --experimental-ffi --disable-warning=ExperimentalWarning dist/main.js"
   }
 }
 ```

@@ -1,3 +1,4 @@
+import { builtinModules } from 'node:module'
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
 
@@ -25,6 +26,13 @@ const HOST_TAGS: ReadonlySet<string> = new Set([
  * Default app entry, resolved from the project root.
  */
 const DEFAULT_ENTRY = '/src/main.ts'
+
+/**
+ * Bare (unprefixed) Node builtin specifiers, e.g. `fs`, `fs/promises`.
+ * `node:`-prefixed ids are matched by prefix instead — prefix-only builtins
+ * (like `node:test`) are not listed in `builtinModules`.
+ */
+const NODE_BUILTINS: ReadonlySet<string> = new Set(builtinModules)
 
 /**
  * Forces `@vitejs/plugin-vue` to compile **client** render functions (with HMR)
@@ -142,9 +150,9 @@ export interface VueTermuiOptions {
  *   reset it). Other modules (entry, router, plain `.ts`) resolve to a
  *   `full-reload`, which nothing handles yet — so those edits are not reflected
  *   live.
- * - In build (`vite build`), bundles a single self-contained Node entry: bundle
- *   local sources only and resolve every bare import from `node_modules` at
- *   runtime; the native `@opentui/core` is never bundled.
+ * - In build (`vite build`), bundles a single self-contained Node entry: every
+ *   dep is inlined except Node builtins and the native `@opentui/core`, which
+ *   resolve from `node_modules` at runtime.
  *
  * @example
  * ```ts
@@ -206,17 +214,31 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             modulePreload: false,
             rolldownOptions: {
               input: 'src/main.ts',
-              // Externalize bare imports (resolved from node_modules at runtime),
-              // but keep plugin-generated virtual modules in the bundle: they
-              // have no on-disk runtime equivalent. `vue-router/auto-routes`
-              // (file-based routing) looks like a bare specifier but is one such
-              // virtual module, so it is excluded explicitly.
+              // Inline every dep so the output is a self-contained entry (and
+              // so the bundler replaces `process.env.NODE_ENV` everywhere,
+              // dead-code-eliminating dev-only guards — e.g. vue-termui's
+              // nested-`<Text>` warning — in a production build). Only what
+              // cannot be bundled stays external, resolved from node_modules
+              // at runtime: Node builtins and `@opentui/core`, the native FFI
+              // renderer, which ships tree-sitter `.scm` query assets that
+              // esbuild/rolldown cannot parse.
               external: (id: string) =>
-                id !== 'vue-router/auto-routes' &&
-                !id.startsWith('\0') &&
-                !id.startsWith('virtual:') &&
-                !/^[./]/.test(id),
-              output: { entryFileNames: '[name].js' },
+                id === '@opentui/core' ||
+                id.startsWith('@opentui/core/') ||
+                id.startsWith('node:') ||
+                NODE_BUILTINS.has(id),
+              output: {
+                entryFileNames: '[name].js',
+                // Make the entry directly executable so `"bin": "dist/main.js"`
+                // works out of the box: the FFI flag lives in the shebang.
+                // `env -S` splits the line into words — a plain `#!/usr/bin/env
+                // node --experimental-ffi` fails on Linux, which passes
+                // everything after `env` as one argument. Node treats a leading
+                // `#!` line as a comment, so it is inert under plain
+                // `node dist/main.js` too.
+                banner:
+                  '#!/usr/bin/env -S node --experimental-ffi --disable-warning=ExperimentalWarning',
+              },
             },
           },
 

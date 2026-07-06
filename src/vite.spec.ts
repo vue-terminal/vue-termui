@@ -143,12 +143,25 @@ describe('vueTermui plugin config', () => {
     expect(build.rolldownOptions.output.entryFileNames).toBe('[name].js')
   })
 
-  // The bundle keeps local sources and plugin virtual modules in, and pushes
-  // every real bare import out to be resolved from node_modules at runtime.
+  // `env -S` splits the line into words; without it, Linux passes
+  // "node --experimental-ffi …" to `env` as a single argument.
+  it('prepends a shebang so the entry works as a package.json bin', () => {
+    const { build } = baseConfig()
+    expect(build.rolldownOptions.output.banner).toBe(
+      '#!/usr/bin/env -S node --experimental-ffi --disable-warning=ExperimentalWarning',
+    )
+  })
+
+  // The bundle is self-contained: every dep is inlined, and only what cannot
+  // be bundled stays external — Node builtins and the native `@opentui/core`.
   it.each([
-    ['vue', true],
+    ['vue', false],
+    ['vue-router', false],
     ['@opentui/core', true],
+    ['@opentui/core/sub-path', true],
     ['node:fs', true],
+    ['fs', true],
+    ['fs/promises', true],
     ['vue-router/auto-routes', false],
     ['\0some-virtual', false],
     ['virtual:generated', false],
