@@ -17,6 +17,8 @@ const lastData = shallowRef<KeyEvent>()
 // only observable through onKeyUp — onKeyDown never sees eventType 'release'
 const lastUp = ref('(waiting for a key release…)')
 
+const keydownCount = ref(0)
+
 onKeyDown((key) => {
   const mods = [
     key.ctrl && 'Ctrl',
@@ -25,6 +27,7 @@ onKeyDown((key) => {
     key.option && 'Alt',
   ].filter(Boolean)
   lastData.value = key
+  keydownCount.value++
   last.value = [...mods, key.name].join('+')
 })
 
@@ -37,7 +40,7 @@ onKeyUp((key) => {
 <template>
   <Box flexDirection="column" :gap="1" borderStyle="rounded" :padding="1">
     <Text bold fg="#42b883"
-      >Keyboard (onKeyDown). Kitty protocol support:
+      >Keyboard (onKeyDown x{{ keydownCount }}). Kitty protocol support:
       {{ renderer.capabilities?.kitty_keyboard }}</Text
     >
     <Text>Last key: {{ last }}</Text>
