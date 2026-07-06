@@ -33,7 +33,7 @@ const chosen = ref('')
       selectedBackgroundColor="#2c3e50"
       selectedDescriptionColor="#888888"
       focusedBackgroundColor="#1a1a1a"
-      @select="(option) => (chosen = option?.name ?? '')"
+      @selected="(option) => (chosen = option?.name ?? '')"
     />
     <Text>Highlighted: {{ options[index]?.name }}</Text>
     <Text v-if="chosen" fg="#42b883">Selected: {{ chosen }} 🎉</Text>

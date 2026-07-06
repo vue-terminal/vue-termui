@@ -73,16 +73,21 @@ export interface TabSelectProps
   'onUpdate:modelValue'?: (index: number) => void
 
   /**
+   * Emitted whenever the highlighted tab changes, with the option and its index.
+   */
+  onChanged?: (option: TabSelectOption | null, index: number) => void
+
+  /**
    * Emitted when the user commits a tab (Enter), with the option and its index.
    */
-  onSelect?: (option: TabSelectOption | null, index: number) => void
+  onSelected?: (option: TabSelectOption | null, index: number) => void
 }
 
 /**
  * A horizontal, tab-based single-choice control mapping to OpenTUI's
- * `TabSelectRenderable`. `v-model` binds the highlighted index; `select` fires
- * when the user commits a tab (Enter) with the option and its index. Navigate
- * with ←/→ while focused.
+ * `TabSelectRenderable`. `v-model` binds the highlighted index; `changed` fires
+ * on every highlight move and `selected` fires when the user commits a tab
+ * (Enter), both with the option and its index. Navigate with ←/→ while focused.
  *
  * @example
  * ```vue
@@ -95,7 +100,7 @@ export interface TabSelectProps
  * ]
  * </script>
  * <template>
- *   <TabSelect v-model="index" :options="options" :width="60" autofocus @select="onPick" />
+ *   <TabSelect v-model="index" :options="options" :width="60" autofocus @selected="onPick" />
  * </template>
  * ```
  */
@@ -116,7 +121,8 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
   // but we rely on TabSelectProps declaration as onUpdate:modelValue for component-usage type safety
   emits: {
     'update:modelValue': (index: number) => typeof index === 'number',
-    select: (_option: TabSelectOption | null, index: number) => typeof index === 'number',
+    changed: (_option: TabSelectOption | null, index: number) => typeof index === 'number',
+    selected: (_option: TabSelectOption | null, index: number) => typeof index === 'number',
     ...renderableEmits,
   } satisfies ExtractEventsNames<TabSelectProps, TabSelectRenderableOptions>,
   setup(props, { emit, attrs }) {
@@ -126,32 +132,27 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
       const el = tabSelect.value
       if (!el) return
 
-      // Unlike `SelectRenderable`, there is no `selectedIndex` option/setter, so
-      // seed the initial highlight imperatively (the renderable defaults to 0).
-      // Done before wiring the listener so this seed never bounces back out.
-      // `setSelectedIndex` ignores out-of-range indices.
+      // seed before wiring the listener so it never bounces back through v-model
       if (props.modelValue != null) el.setSelectedIndex(props.modelValue)
 
-      // Both events carry `(index, option)`. User navigation moves the highlight
-      // and emits `selectionChanged`; mirror the new index back out through
-      // `v-model`.
-      el.on(TabSelectRenderableEvents.SELECTION_CHANGED, (index: number) => {
-        if (index !== props.modelValue) emit('update:modelValue', index)
-      })
+      el.on(
+        TabSelectRenderableEvents.SELECTION_CHANGED,
+        (index: number, option: TabSelectOption | null) => {
+          emit('changed', option, index)
+          if (index !== props.modelValue) emit('update:modelValue', index)
+        },
+      )
       el.on(
         TabSelectRenderableEvents.ITEM_SELECTED,
         (index: number, option: TabSelectOption | null) => {
-          emit('select', option, index)
+          emit('selected', option, index)
         },
       )
 
-      // Common Renderable events + autofocus on mount
-      setupRenderableEvents(el, emit, { autofocus: props.autofocus })
+      setupRenderableEvents(el, emit, props)
     })
 
-    // Sync outside-driven `v-model` changes into the renderable. `setSelectedIndex`
-    // emits `selectionChanged`, but the guard above (and the equality check here)
-    // stop it bouncing back through `update:modelValue`.
+    // weird but TabSelectRenderable doesn't have a settable selectedIndex option like the options
     watch(
       () => props.modelValue,
       (index) => {
@@ -159,9 +160,6 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
         if (el && index != null && index !== el.getSelectedIndex()) {
           el.setSelectedIndex(index)
         }
-      },
-      {
-        immediate: true,
       },
     )
 

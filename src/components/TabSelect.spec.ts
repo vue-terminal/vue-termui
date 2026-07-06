@@ -109,7 +109,7 @@ describe('TabSelect', () => {
     test.renderer.destroy()
   })
 
-  it('emits select with the chosen option on Enter', async () => {
+  it('emits selected with the chosen option on Enter', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 60, height: 8 })
     const picked: Array<[string | undefined, number]> = []
     const app = createTuiApp(
@@ -122,7 +122,7 @@ describe('TabSelect', () => {
               width: 60,
               modelValue: 2,
               autofocus: true,
-              onSelect: (opt: TabSelectOption | null, i: number) => picked.push([opt?.name, i]),
+              onSelected: (opt: TabSelectOption | null, i: number) => picked.push([opt?.name, i]),
             })
         },
       }),
@@ -132,6 +132,39 @@ describe('TabSelect', () => {
 
     test.mockInput.pressEnter()
     expect(picked).toEqual([['Settings', 2]])
+
+    test.renderer.destroy()
+  })
+
+  it('emits changed with the option on every highlight move', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 60, height: 8 })
+    const moves: Array<[string | undefined, number]> = []
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          return () =>
+            h(TabSelect, {
+              options,
+              width: 60,
+              modelValue: 0,
+              autofocus: true,
+              onChanged: (opt: TabSelectOption | null, i: number) => moves.push([opt?.name, i]),
+            })
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+
+    test.mockInput.pressArrow('right')
+    await nextTick()
+    test.mockInput.pressArrow('right')
+    await nextTick()
+    expect(moves).toEqual([
+      ['Files', 1],
+      ['Settings', 2],
+    ])
 
     test.renderer.destroy()
   })
