@@ -174,6 +174,21 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     },
 
     insert(child, parent, anchor) {
+      // detect nested Text to show a more comprehensive error
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        child instanceof TextRenderable &&
+        parent instanceof TextRenderable
+      ) {
+        console.error(
+          '[vue-termui] <Text> cannot be nested inside another <Text>; the nested one was ignored. ' +
+            'Style part of a line with the `content` prop instead, e.g. ' +
+            '`<Text :content="t`Press ${bold(\'q\')} to quit`" />`. ' +
+            'See https://vue-termui.esm.dev/components/text',
+        )
+        return
+      }
+
       // A text node inside a `<text>` is real content; anywhere else it needs a
       // layout stand-in so OpenTUI can place it in the layout tree.
       const node =

@@ -4,11 +4,12 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createNodeOps } from './nodeOps'
-import { mockConsoleWarn } from '../__tests__/mock-console'
+import { mockConsoleError, mockConsoleWarn } from '../__tests__/mock-console'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 describe('nodeOps', () => {
   mockConsoleWarn()
+  mockConsoleError()
 
   let test: TestRendererSetup
 
@@ -56,6 +57,29 @@ describe('nodeOps', () => {
     const frame = test.captureCharFrame()
     expect(frame).toContain('second')
     expect(frame).not.toContain('first')
+  })
+
+  it('ignores a nested text and reports it (non-production) instead of crashing', async () => {
+    // The guard is gated on `process.env.NODE_ENV !== 'production'`, which holds
+    // under the test runner, so no flag setup is needed here. It is compiled out
+    // of an app's production build (verified by the build/grep, not a unit test).
+    const { render } = createRenderer(createNodeOps(test.renderer))
+
+    // OpenTUI text can't hold a nested text block; the renderer drops the inner
+    // one (keeping the surrounding content) and points at the `content` prop.
+    const App = defineComponent({
+      setup() {
+        return () => h('box', null, [h('text', null, ['Press ', h('text', null, 'q'), ' to quit'])])
+      },
+    })
+
+    render(h(App), test.renderer.root)
+    await test.renderOnce()
+
+    const frame = test.captureCharFrame()
+    expect(frame).toContain('Press ')
+    expect(frame).toContain(' to quit')
+    expect('<Text> cannot be nested inside another <Text>').toHaveBeenErrored()
   })
 
   it('warns when setText targets a non-text node', () => {

@@ -1,15 +1,18 @@
 // @vitest-environment node
-import { parseColor, TextAttributes, TextRenderable } from '@opentui/core'
+import { bold, parseColor, t, TextAttributes, TextRenderable } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h, nextTick, ref } from '@vue/runtime-core'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Text } from './Text'
+import { mockConsoleError } from '../__tests__/mock-console'
 import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 import type { VNode } from '@vue/runtime-core'
 
 describe('Text', () => {
+  mockConsoleError()
+
   let test: TestRendererSetup
   let render: (vnode: VNode | null, container: Renderable) => void
 
@@ -65,5 +68,34 @@ describe('Text', () => {
     const frame = test.captureCharFrame()
     expect(frame).toContain('two')
     expect(frame).not.toContain('one')
+  })
+
+  it('reports and drops a nested Text instead of crashing', async () => {
+    // Nesting isn't supported (OpenTUI text holds inline content, not blocks).
+    // The nested Text is dropped, the surrounding text still renders, and the
+    // diagnostic points at the `content` prop. The guard is gated on
+    // `process.env.NODE_ENV !== 'production'` (true under the test runner) and is
+    // compiled out of an app's production build.
+    render(
+      h(Text, null, () => ['Press ', h(Text, { bold: true }, () => 'q'), ' to quit']),
+      test.renderer.root,
+    )
+    await test.renderOnce()
+
+    const frame = test.captureCharFrame()
+    expect(frame).toContain('Press ')
+    expect(frame).toContain(' to quit')
+    expect('<Text> cannot be nested inside another <Text>').toHaveBeenErrored()
+  })
+
+  it('renders styled spans within a line via the `content` prop', async () => {
+    // The supported way to style part of a line: a StyledText passed to
+    // `content`, built with `t`/`bold`/`fg` from `@opentui/core` — no nesting.
+    render(h(Text, { content: t`Press ${bold('q')} to quit` }), test.renderer.root)
+    await test.renderOnce()
+
+    const text = test.renderer.root.getChildren()[0] as TextRenderable
+    expect(text).toBeInstanceOf(TextRenderable)
+    expect(test.captureCharFrame()).toContain('Press q to quit')
   })
 })
