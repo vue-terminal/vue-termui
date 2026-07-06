@@ -57,11 +57,13 @@ Common names include `return`, `escape`, `tab`, `space`, `backspace`, `delete`, 
 
 ### Key releases
 
-`onKeyUp` fires on key _release_. This requires the **Kitty keyboard protocol**, which only some terminals support and which you opt into via the renderer config:
+`onKeyUp` fires on key _release_. Releases are only reported through the **Kitty keyboard protocol**'s _event types_ enhancement, which is off by default — opt in with the `events` flag in the renderer config:
 
 ```ts
 // main.ts
-const app = await createApp(App, null, { useKittyKeyboard: true })
+const app = await createApp(App, null, {
+  useKittyKeyboard: { events: true },
+})
 ```
 
 ```ts
@@ -69,7 +71,7 @@ import { onKeyUp } from 'vue-termui'
 onKeyUp((key) => console.log('released', key.name))
 ```
 
-On terminals without Kitty support, only presses are reported and `onKeyUp` never fires.
+Even with the flag on, only terminals that support the protocol report releases — everywhere else `onKeyUp` never fires. See [Keybinding Best Practices](./keybindings#getting-more-keys-the-kitty-keyboard-protocol) for the wider protocol picture and why releases should stay optional in your UX.
 
 ### Removing a listener early
 

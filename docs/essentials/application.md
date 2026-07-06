@@ -92,9 +92,9 @@ The third argument to `createApp` is forwarded to OpenTUI's renderer. A few comm
 const app = await createApp(App, null, {
   // Quit automatically on Ctrl+C (default behavior).
   exitOnCtrlC: true,
-  // Enable the Kitty keyboard protocol, which also reports key *releases*
-  // (see `onKeyUp`). Only some terminals support it.
-  useKittyKeyboard: true,
+  // Kitty keyboard protocol enhancements. The protocol itself is requested by
+  // default; add `events: true` to also get key *releases* (see `onKeyUp`).
+  useKittyKeyboard: { events: true },
 })
 ```
 

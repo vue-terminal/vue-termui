@@ -119,6 +119,10 @@ export default defineConfig({
             { text: 'Layout & Boxes', link: '/essentials/layout' },
             { text: 'Styling Text', link: '/essentials/text' },
             { text: 'Handling Input', link: '/essentials/input' },
+            {
+              text: 'Keybinding Best Practices',
+              link: '/essentials/keybindings',
+            },
             { text: 'Focus Management', link: '/essentials/focus' },
             { text: 'Composables & Reactivity', link: '/essentials/composables' },
             { text: 'Routing', link: '/essentials/routing' },
