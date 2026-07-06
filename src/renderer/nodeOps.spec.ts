@@ -4,9 +4,12 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createNodeOps } from './nodeOps'
+import { mockConsoleWarn } from '../__tests__/mock-console'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 describe('nodeOps', () => {
+  mockConsoleWarn()
+
   let test: TestRendererSetup
 
   beforeEach(async () => {
@@ -53,5 +56,23 @@ describe('nodeOps', () => {
     const frame = test.captureCharFrame()
     expect(frame).toContain('second')
     expect(frame).not.toContain('first')
+  })
+
+  it('warns when setText targets a non-text node', () => {
+    const nodeOps = createNodeOps(test.renderer)
+    const box = nodeOps.createElement('box', undefined, undefined, undefined)
+
+    nodeOps.setText(box, 'nope')
+
+    expect('[vue-termui] setText called on non-text node').toHaveBeenWarned()
+  })
+
+  it('warns when setElementText targets a non-text node', () => {
+    const nodeOps = createNodeOps(test.renderer)
+    const box = nodeOps.createElement('box', undefined, undefined, undefined)
+
+    nodeOps.setElementText(box, 'nope')
+
+    expect('[vue-termui] setElementText called on non-text node').toHaveBeenWarned()
   })
 })

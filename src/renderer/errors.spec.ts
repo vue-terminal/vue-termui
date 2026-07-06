@@ -3,7 +3,7 @@ import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createTuiApp } from './index'
-import { mockConsoleError } from '../__tests__/mock-warn'
+import { mockConsoleError } from '../__tests__/mock-console'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 /**

@@ -112,7 +112,7 @@ function createMockConsoleMethod(method: 'warn' | 'error') {
  * expected warnings with `expect(msg).toHaveBeenWarned()`; any unasserted
  * warning fails the test.
  */
-export function mockWarn(): void {
+export function mockConsoleWarn(): void {
   createMockConsoleMethod('warn')
 }
 

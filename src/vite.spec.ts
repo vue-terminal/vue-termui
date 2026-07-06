@@ -10,6 +10,7 @@ import {
 } from 'vite'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { vueTermui } from './vite'
+import { mockConsoleError } from './__tests__/mock-console'
 
 /**
  * The dev server runs the app in the runnable `ssr` environment with the browser
@@ -196,6 +197,8 @@ describe('vueTermui plugin config', () => {
  * the logger. Driven through a real Vite server for parity with `vite`.
  */
 describe('vueTermui dev launch', () => {
+  mockConsoleError()
+
   let server: ViteDevServer | undefined
   let root: string | undefined
   let seq = 0
@@ -294,12 +297,14 @@ describe('vueTermui dev launch', () => {
     await waitFor(() => exit.mock.calls.length > 0)
     expect(close).toHaveBeenCalled()
     expect(exit).toHaveBeenCalledWith(0)
+
+    // Let the aborted launch import reject while `console.error` is still
+    // mocked, so a regression logging it as a launch failure fails the test.
+    await new Promise((resolve) => setTimeout(resolve, 50))
   })
 
   it('logs an error when the entry fails to launch', async () => {
     const { logger, errors } = captureErrors()
-    // The plugin also `console.error`s the thrown error; keep it out of output.
-    vi.spyOn(console, 'error').mockImplementation(() => {})
     await startDev({
       entry: '/boom.ts',
       autoLaunch: true,
@@ -308,5 +313,6 @@ describe('vueTermui dev launch', () => {
     })
     await waitFor(() => errors.some((e) => e.includes('failed to launch /boom.ts')))
     expect(errors.some((e) => e.includes('[vue-termui] failed to launch /boom.ts'))).toBe(true)
+    expect('kaboom').toHaveBeenErrored()
   })
 })

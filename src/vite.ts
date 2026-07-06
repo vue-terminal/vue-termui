@@ -245,11 +245,13 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
         if (!autoLaunch) {
           return
         }
+        let closing = false
         // The first Ctrl+C destroys the OpenTUI renderer (see `createApp`), which
         // calls this teardown. Closing the dev server lets the process exit on
         // that first Ctrl+C — otherwise Vite's open handles (http server, file
         // watcher) keep it alive and a second Ctrl+C would be needed.
         ;(globalThis as { __VUE_TERMUI_TEARDOWN__?: () => void }).__VUE_TERMUI_TEARDOWN__ = () => {
+          closing = true
           void server.close().finally(() => {
             process.exit(0)
           })
@@ -263,6 +265,9 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             return
           }
           void environment.runner.import(entry).catch((error: unknown) => {
+            // Teardown closes the server, which rejects this pending import
+            // ("transport was disconnected") — shutdown noise, not a failure.
+            if (closing) return
             server.config.logger.error(`[vue-termui] failed to launch ${entry}`)
             console.error(error)
           })
