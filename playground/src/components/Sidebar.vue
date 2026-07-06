@@ -20,6 +20,7 @@ const items = [
   { label: 'Layout', to: '/layout' },
   { label: 'Select', to: '/select' },
   { label: 'Tab select', to: '/tab-select' },
+  { label: 'Scroll box', to: '/scrollbox' },
   { label: 'Textarea', to: '/textarea' },
   { label: 'Keyboard', to: '/keyboard' },
   { label: 'Event modifiers', to: '/event-modifiers' },

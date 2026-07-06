@@ -20,6 +20,8 @@ const HOST_TAGS: ReadonlySet<string> = new Set([
   'textarea',
   'select',
   'tab-select',
+  'markdown',
+  'scroll-box',
 ])
 
 /**

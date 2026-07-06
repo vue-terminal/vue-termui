@@ -6,6 +6,7 @@ import {
   MarkdownRenderable,
   type Renderable,
   type RenderContext,
+  ScrollBoxRenderable,
   SelectRenderable,
   TabSelectRenderable,
   TextareaRenderable,
@@ -13,6 +14,7 @@ import {
   TextRenderable,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
+import { propToOptionalBoolean } from '../components/utils'
 import { installDomEventCompat } from './dom-events'
 
 /**
@@ -39,6 +41,7 @@ export type TuiElementTag =
   | 'select'
   | 'tab-select'
   | 'markdown'
+  | 'scroll-box'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -124,6 +127,15 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new SelectRenderable(ctx, {})
         case 'tab-select':
           return new TabSelectRenderable(ctx, {})
+        case 'scroll-box':
+          // `scrollX`/`scrollY` are constructor-only: they pick the content's
+          // min/max size constraints and have no setters, so they must be read
+          // here instead of riding the patchProp path. `undefined` keeps the
+          // renderable's defaults (`scrollX: false`, `scrollY: true`).
+          return new ScrollBoxRenderable(ctx, {
+            scrollX: propToOptionalBoolean(props?.scrollX),
+            scrollY: propToOptionalBoolean(props?.scrollY),
+          })
         case 'markdown': {
           // `MarkdownRenderable` requires a `syntaxStyle` up front, so read it
           // from the props here rather than deferring to patchProp. The
