@@ -160,6 +160,9 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
           el.setSelectedIndex(index)
         }
       },
+      {
+        immediate: true,
+      },
     )
 
     return (): VNode =>
@@ -175,10 +178,7 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
           'wrapSelection',
           'focusable',
         ]),
-        // `options` rides the normal prop path: `patchProp` assigns it only when
-        // it actually changes. The highlighted index is *not* a prop here — the
-        // renderable has no `selectedIndex` setter, so it is driven through the
-        // `watch` above via `setSelectedIndex()`.
+        // same as calling setOptions()
         options: props.options,
         ref: tabSelect,
       })

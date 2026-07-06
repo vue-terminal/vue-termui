@@ -17,18 +17,7 @@ const chosen = ref('')
 </script>
 
 <template>
-  <!-- Fixed-width bordered container. The TabSelect fills it with width="100%"
-       so the tab strip tracks the box interior (border + padding aware) and the
-       selected-tab highlight never bleeds past the border, however the terminal
-       is resized. tabWidth keeps each tab compact; extra tabs scroll (‹ ›). -->
-  <Box
-    flexDirection="column"
-    :gap="1"
-    borderStyle="rounded"
-    :padding="1"
-    :width="60"
-    :flexShrink="0"
-  >
+  <Box flexDirection="column" :gap="1" borderStyle="rounded" :padding="0" :width="68">
     <Text bold fg="#42b883">TabSelect (v-model)</Text>
     <!-- Autofocus so ←/→ drive the tabs; Esc returns focus to the sidebar. -->
     <TabSelect
@@ -39,6 +28,7 @@ const chosen = ref('')
       :tabWidth="16"
       wrapSelection
       textColor="#a0a0a0"
+      :showDescription="true"
       selectedTextColor="#42b883"
       selectedBackgroundColor="#2c3e50"
       selectedDescriptionColor="#888888"
