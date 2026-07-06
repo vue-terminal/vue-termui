@@ -12,7 +12,14 @@ import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevSer
  * SFC compiler must leave them as plain element vnodes (`createElementVNode('box', …)`)
  * instead of trying to resolve them as components.
  */
-const HOST_TAGS: ReadonlySet<string> = new Set(['box', 'text', 'input', 'textarea', 'select'])
+const HOST_TAGS: ReadonlySet<string> = new Set([
+  'box',
+  'text',
+  'input',
+  'textarea',
+  'select',
+  'tab-select',
+])
 
 /**
  * Default app entry, resolved from the project root.

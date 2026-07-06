@@ -19,6 +19,7 @@ const items = [
   { label: 'Markdown themes', to: '/markdown-themes' },
   { label: 'Layout', to: '/layout' },
   { label: 'Select', to: '/select' },
+  { label: 'Tab select', to: '/tab-select' },
   { label: 'Textarea', to: '/textarea' },
   { label: 'Keyboard', to: '/keyboard' },
   { label: 'Event modifiers', to: '/event-modifiers' },
