@@ -1,3 +1,7 @@
+## [0.1.1](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.1.0...create-vue-termui@0.1.1) (2026-07-06)
+
+No changes
+
 # [0.1.0](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.0.12...create-vue-termui@0.1.0) (2026-07-03)
 
 ### Bug Fixes
