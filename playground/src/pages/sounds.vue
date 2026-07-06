@@ -5,15 +5,13 @@
 import { Box, onKeyDown, onMounted, onUnmounted, ref, Text } from 'vue-termui'
 import { Audio, type AudioSound } from '@opentui/core'
 import { fileURLToPath } from 'node:url'
-import { resolve } from 'node:path'
 
-// Resolve a sound file on disk. Under Vite's SSR module runner `import.meta.url`
-// is a file:// URL pointing at this .vue file, so we resolve relative to it;
-// if that's ever not a file URL, fall back to the project cwd.
+// Resolve a sound file on disk. In dev `import.meta.url` is the file:// URL of
+// this .vue source, so this reads straight from src/assets. In build Vite
+// rewrites the expression: the sounds are emitted to dist/assets and resolved
+// relative to the bundle (the vue-termui plugin sets a relative `base`).
 function soundPath(file: string): string {
-  return import.meta.url.startsWith('file:')
-    ? fileURLToPath(new URL(`../assets/sounds/${file}`, import.meta.url))
-    : resolve(process.cwd(), 'src/assets/sounds', file)
+  return fileURLToPath(new URL(`../assets/sounds/${file}`, import.meta.url))
 }
 
 // key → sound file (in src/assets/sounds). Pressing the key plays that sound.

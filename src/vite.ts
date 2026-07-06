@@ -203,6 +203,13 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
           // through `rolldownOptions.external` below).
           optimizeDeps: { exclude: ['@opentui/core'] },
           ssr: { optimizeDeps: { exclude: ['@opentui/core'] } },
+          // A terminal app has no server root: with the default `base: '/'`,
+          // built asset references (`new URL('./x.wav', import.meta.url)`,
+          // `?url` imports…) become root-absolute `/assets/x-<hash>.wav`, which
+          // Node resolves to `file:///assets/…` — the filesystem root. A
+          // relative base makes Vite resolve them against `import.meta.url` at
+          // runtime, i.e. next to the emitted bundle.
+          base: './',
           build: {
             // Node runs the output directly; no syntax down-leveling, and
             // top-level `await` in the entry must survive.
@@ -214,6 +221,10 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             // its error path would crash on those globals. Disabling it leaves
             // dynamic imports as plain `import()`.
             modulePreload: false,
+            // Assets are consumed as file paths (`fileURLToPath`) by native
+            // APIs (e.g. `@opentui/core`'s audio engine), which cannot read
+            // `data:` URIs — never inline them, always emit real files.
+            assetsInlineLimit: 0,
             rolldownOptions: {
               input: 'src/main.ts',
               // Inline every dep so the output is a self-contained entry (and

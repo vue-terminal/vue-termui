@@ -143,6 +143,17 @@ describe('vueTermui plugin config', () => {
     expect(build.rolldownOptions.output.entryFileNames).toBe('[name].js')
   })
 
+  // With the default `base: '/'`, built asset references become root-absolute
+  // (`/assets/x-<hash>.wav`), which Node resolves to `file:///assets/…` — the
+  // filesystem root. A relative base resolves them against `import.meta.url`,
+  // next to the emitted bundle. Inlined `data:` URIs would break consumers
+  // that need a real file path (`fileURLToPath`), so assets are always files.
+  it('emits assets as files resolved relative to the bundle', () => {
+    const config = baseConfig()
+    expect(config.base).toBe('./')
+    expect(config.build.assetsInlineLimit).toBe(0)
+  })
+
   // `env -S` splits the line into words; without it, Linux passes
   // "node --experimental-ffi …" to `env` as a single argument.
   it('prepends a shebang so the entry works as a package.json bin', () => {
