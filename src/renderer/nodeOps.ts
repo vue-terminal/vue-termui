@@ -7,6 +7,7 @@ import {
   type Renderable,
   type RenderContext,
   SelectRenderable,
+  TabSelectRenderable,
   TextareaRenderable,
   TextNodeRenderable,
   TextRenderable,
@@ -30,7 +31,14 @@ class AnchorRenderable extends VRenderable {
  * Host element tags understood by the renderer. These are intentionally
  * lowercase and internal; public component names are layered on top.
  */
-export type TuiElementTag = 'box' | 'text' | 'input' | 'textarea' | 'select' | 'markdown'
+export type TuiElementTag =
+  | 'box'
+  | 'text'
+  | 'input'
+  | 'textarea'
+  | 'select'
+  | 'tab-select'
+  | 'markdown'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -114,6 +122,8 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new TextareaRenderable(ctx, {})
         case 'select':
           return new SelectRenderable(ctx, {})
+        case 'tab-select':
+          return new TabSelectRenderable(ctx, {})
         case 'markdown': {
           // `MarkdownRenderable` requires a `syntaxStyle` up front, so read it
           // from the props here rather than deferring to patchProp. The

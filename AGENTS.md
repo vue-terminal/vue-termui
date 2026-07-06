@@ -83,6 +83,39 @@ Doc comments: say what a thing is _for_, not how it works — short and stable o
   `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
   bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
 
+#### Adding a new native component (research recipe)
+
+Wrapping an OpenTUI renderable (e.g. `TabSelect`, done as the template). Don't re-research — follow this:
+
+1. **Find the renderable's API.** List exports:
+   `node --input-type=module -e "import * as c from '@opentui/core'; console.log(Object.keys(c).filter(k => /Foo/i.test(k)))"`.
+   Read the types in `node_modules/.pnpm/@opentui+core@*/node_modules/@opentui/core/renderables/<Name>.d.ts`
+   — it has the `*RenderableOptions`, the option type (`{ name, description, value? }`), and the
+   `*RenderableEvents` enum. The **implementation is bundled** in that package's `index.js` (no
+   per-renderable `.js`); `grep -n "setSelectedIndex\|this.emit\|selectCurrent" index.js` to read behavior.
+2. **Decide how the model syncs in.** Check whether the renderable exposes a **property setter**
+   (like `SelectRenderable.selectedIndex`, silent) → ride the prop path, no `watch`. If it only has
+   **`setX()` methods** (like `TabSelectRenderable.setSelectedIndex()`, and there's no `selectedIndex`
+   option/setter) → seed on `onMounted` and drive changes with a `watch` on the prop. Confirm the setter
+   that fires events (`setSelectedIndex` emits `selectionChanged`) vs. the silent one, and guard the
+   listener (`if (index !== props.modelValue)`) so it can't loop.
+3. **Copy the closest sibling.** `Select` is the template for list/`v-model`+`select` widgets. Mirror its
+   `props`/`emits`/`onMounted` shape; narrow `options` to a local option type; `Omit` native options you
+   manage (`options`, and `selectedIndex` if the prop path doesn't apply).
+4. **Files to touch (all of them):** `src/components/<Name>.ts` + co-located `.spec.ts` (tests **first**,
+   watch them fail); host tag in **both** `nodeOps.createElement`'s switch + `TuiElementTag`, and vite
+   `HOST_TAGS`; export component + types from `src/index.ts`; a `playground/src/pages/<name>.vue` page +
+   a `Sidebar.vue` nav entry (routes are file-based via `vue-router/auto-routes`).
+5. **Sizing (fixed-width renderables like `TabSelect`):** a native renderable given a **numeric**
+   `width` ≥ its container overflows the border (its inner fills/underline bleed past). Use a
+   **percentage/flex width** (`width="100%"`) — it resolves against the box _interior_ (border + padding
+   aware, e.g. a `width:60` `padding:1` bordered box → `56`), so the renderable clamps to it and never
+   overflows, at any terminal size. Percentages work because `Box` is real flexbox (`Select` uses `40%`).
+6. **Run:** `NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' pnpm exec vitest run src/components/<Name>.spec.ts`,
+   then `pnpm test:types` + `pnpm lint`. In specs, `test.mockInput.pressArrow('left'|'right'|'up'|'down')`
+   / `pressEnter()` drive keyboard nav; check the renderable's default keybindings in `index.js`
+   (`defaultTabSelectKeybindings`) for which keys move it.
+
 #### Building a component
 
 - **Default to stateful `defineComponent`s.** Only a stateful component has a
