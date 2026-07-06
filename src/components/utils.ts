@@ -210,31 +210,35 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 
 /**
  * To type the argument of {@link setupRenderableEvents}. Each event may carry a
- * payload — the {@link LifecycleEvent} we emit for it.
+ * payload — the {@link EventSynthetic} we emit for it.
  *
  * @internal
  */
 type EmitFn<Events extends string> = UnionToIntersection<
-  Events extends any ? (event: Events, payload: LifecycleEvent) => void : never
+  Events extends any ? (event: Events, payload: EventSynthetic) => void : never
 >
 
 /**
- * The payload emitted with `focus`/`blur`/`destroyed`. OpenTUI gives us no event
- * object for these, but Vue's `v-on` flow modifiers (`@blur.stop`,
- * `@destroyed.prevent`, …) compile to guards that call `preventDefault()` /
- * `stopPropagation()` on the payload — so we hand them a no-op event shape
- * rather than let them dereference `undefined`.
+ * Fake event object to satisfy Vue's `v-on` flow modifiers without crashing,
+ * and emitting easier to debug errors
  *
  * @internal
  */
-export interface LifecycleEvent {
-  preventDefault(): void
-  stopPropagation(): void
+export class EventSynthetic {
+  preventDefault(): void {
+    // TODO: dev only warn that .prevent is not supported in this event
+  }
+  stopPropagation(): void {
+    // TODO: dev only warn that .stop is not supported in this event
+  }
 }
 
-function createLifecycleEvent(): LifecycleEvent {
-  return { preventDefault() {}, stopPropagation() {} }
-}
+/**
+ * Created once and shared because it's just a stub
+ *
+ * @internal
+ */
+const FAKE_LIFECYCLE_EVENT = new EventSynthetic()
 
 /**
  * Attach RenderableEvents listeners to a component's `emit` function. Should
@@ -252,9 +256,9 @@ export function setupRenderableEvents(
   { autofocus }: RenderableEventProps = {},
 ): void {
   // NOTE: it could be worth to not add event listeners if the corresponding emit is not defined but then it wouldn't be reactive
-  el.on(RenderableEvents.FOCUSED, () => emit('focus', createLifecycleEvent()))
-  el.on(RenderableEvents.BLURRED, () => emit('blur', createLifecycleEvent()))
-  el.on(RenderableEvents.DESTROYED, () => emit('destroyed', createLifecycleEvent()))
+  el.on(RenderableEvents.FOCUSED, () => emit('focus', FAKE_LIFECYCLE_EVENT))
+  el.on(RenderableEvents.BLURRED, () => emit('blur', FAKE_LIFECYCLE_EVENT))
+  el.on(RenderableEvents.DESTROYED, () => emit('destroyed', FAKE_LIFECYCLE_EVENT))
   if (autofocus) queueAutofocus(el)
 }
 
