@@ -5,26 +5,36 @@
 import { Box, onKeyDown, onMounted, onUnmounted, ref, Text } from 'vue-termui'
 import { Audio, type AudioSound } from '@opentui/core'
 import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
+import GlassUrl from '../assets/sounds/Glass.wav'
+import PopUrl from '../assets/sounds/Pop.wav'
+import TinkUrl from '../assets/sounds/Tink.wav'
+import SubmarineUrl from '../assets/sounds/Submarine.wav'
+import FunkUrl from '../assets/sounds/Funk.wav'
+import HeroUrl from '../assets/sounds/Hero.wav'
+import PingUrl from '../assets/sounds/Ping.wav'
+import BottleUrl from '../assets/sounds/Bottle.wav'
+import FrogUrl from '../assets/sounds/Frog.wav'
 
-// Resolve a sound file on disk. In dev `import.meta.url` is the file:// URL of
-// this .vue source, so this reads straight from src/assets. In build Vite
-// rewrites the expression: the sounds are emitted to dist/assets and resolved
-// relative to the bundle (the vue-termui plugin sets a relative `base`).
-function soundPath(file: string): string {
-  return fileURLToPath(new URL(`../assets/sounds/${file}`, import.meta.url))
+// Static asset imports: Vite emits each imported file and rewrites the import
+// to its URL. In build that URL is file:// — the vue-termui plugin sets a
+// relative `base`, so it resolves against the bundle. In dev it is the served
+// path (`/src/assets/…`), root-relative to the project, i.e. the cwd.
+function soundPath(url: string): string {
+  return url.startsWith('file:') ? fileURLToPath(url) : join(process.cwd(), url)
 }
 
-// key → sound file (in src/assets/sounds). Pressing the key plays that sound.
+// key → sound URL. Pressing the key plays that sound.
 const pads = [
-  { key: 'a', name: 'Glass', file: 'Glass.wav' },
-  { key: 's', name: 'Pop', file: 'Pop.wav' },
-  { key: 'd', name: 'Tink', file: 'Tink.wav' },
-  { key: 'f', name: 'Submarine', file: 'Submarine.wav' },
-  { key: 'g', name: 'Funk', file: 'Funk.wav' },
-  { key: 'h', name: 'Hero', file: 'Hero.wav' },
-  { key: 'j', name: 'Ping', file: 'Ping.wav' },
-  { key: 'k', name: 'Bottle', file: 'Bottle.wav' },
-  { key: 'l', name: 'Frog', file: 'Frog.wav' },
+  { key: 'a', name: 'Glass', url: GlassUrl },
+  { key: 's', name: 'Pop', url: PopUrl },
+  { key: 'd', name: 'Tink', url: TinkUrl },
+  { key: 'f', name: 'Submarine', url: SubmarineUrl },
+  { key: 'g', name: 'Funk', url: FunkUrl },
+  { key: 'h', name: 'Hero', url: HeroUrl },
+  { key: 'j', name: 'Ping', url: PingUrl },
+  { key: 'k', name: 'Bottle', url: BottleUrl },
+  { key: 'l', name: 'Frog', url: FrogUrl },
 ] as const
 
 const status = ref('loading sounds…')
@@ -46,7 +56,7 @@ onMounted(async () => {
   }
 
   const loaded = await Promise.all(
-    pads.map(async (pad) => [pad.key, await audio!.loadSoundFile(soundPath(pad.file))] as const),
+    pads.map(async (pad) => [pad.key, await audio!.loadSoundFile(soundPath(pad.url))] as const),
   )
   for (const [key, sound] of loaded) {
     if (sound) sounds.set(key, sound)
