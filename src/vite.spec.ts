@@ -143,11 +143,7 @@ describe('vueTermui plugin config', () => {
     expect(build.rolldownOptions.output.entryFileNames).toBe('[name].js')
   })
 
-  // With the default `base: '/'`, built asset references become root-absolute
-  // (`/assets/x-<hash>.wav`), which Node resolves to `file:///assets/…` — the
-  // filesystem root. A relative base resolves them against `import.meta.url`,
-  // next to the emitted bundle. Inlined `data:` URIs would break consumers
-  // that need a real file path (`fileURLToPath`), so assets are always files.
+  // Default `base: '/'` makes Node resolve asset URLs to `file:///assets/…`.
   it('emits assets as files resolved relative to the bundle', () => {
     const config = baseConfig()
     expect(config.base).toBe('./')

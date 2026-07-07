@@ -6,11 +6,8 @@ import { Box, onKeyDown, onMounted, onUnmounted, ref, Text } from 'vue-termui'
 import { Audio, type AudioSound } from '@opentui/core'
 import { fileURLToPath } from 'node:url'
 
-// Resolve a sound on disk (https://vite.dev/guide/assets#new-url-url-import-meta-url).
-// In dev `import.meta.url` is the file:// URL of this source, so this reads
-// straight from src/assets. In a build Vite rewrites the expression: the sounds
-// are emitted to dist/assets and resolved relative to the bundle (the
-// vue-termui plugin sets a relative `base`).
+// Reads from src/assets in dev; in a build Vite rewrites this to the emitted
+// dist/assets file (https://vite.dev/guide/assets#new-url-url-import-meta-url).
 function soundPath(name: string): string {
   return fileURLToPath(new URL(`../assets/sounds/${name}.wav`, import.meta.url))
 }
