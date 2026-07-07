@@ -143,6 +143,13 @@ describe('vueTermui plugin config', () => {
     expect(build.rolldownOptions.output.entryFileNames).toBe('[name].js')
   })
 
+  // Default `base: '/'` makes Node resolve asset URLs to `file:///assets/…`.
+  it('emits assets as files resolved relative to the bundle', () => {
+    const config = baseConfig()
+    expect(config.base).toBe('./')
+    expect(config.build.assetsInlineLimit).toBe(0)
+  })
+
   // `env -S` splits the line into words; without it, Linux passes
   // "node --experimental-ffi …" to `env` as a single argument.
   it('prepends a shebang so the entry works as a package.json bin', () => {

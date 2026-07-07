@@ -203,6 +203,9 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
           // through `rolldownOptions.external` below).
           optimizeDeps: { exclude: ['@opentui/core'] },
           ssr: { optimizeDeps: { exclude: ['@opentui/core'] } },
+          // No server root in a terminal app: a relative base makes built
+          // asset URLs resolve next to the bundle instead of `file:///assets`.
+          base: './',
           build: {
             // Node runs the output directly; no syntax down-leveling, and
             // top-level `await` in the entry must survive.
@@ -214,6 +217,9 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             // its error path would crash on those globals. Disabling it leaves
             // dynamic imports as plain `import()`.
             modulePreload: false,
+            // Native APIs (e.g. `@opentui/core` audio) need real file paths,
+            // not `data:` URIs — never inline assets.
+            assetsInlineLimit: 0,
             rolldownOptions: {
               input: 'src/main.ts',
               // Inline every dep so the output is a self-contained entry (and

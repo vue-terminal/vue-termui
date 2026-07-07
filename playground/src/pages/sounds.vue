@@ -5,28 +5,24 @@
 import { Box, onKeyDown, onMounted, onUnmounted, ref, Text } from 'vue-termui'
 import { Audio, type AudioSound } from '@opentui/core'
 import { fileURLToPath } from 'node:url'
-import { resolve } from 'node:path'
 
-// Resolve a sound file on disk. Under Vite's SSR module runner `import.meta.url`
-// is a file:// URL pointing at this .vue file, so we resolve relative to it;
-// if that's ever not a file URL, fall back to the project cwd.
-function soundPath(file: string): string {
-  return import.meta.url.startsWith('file:')
-    ? fileURLToPath(new URL(`../assets/sounds/${file}`, import.meta.url))
-    : resolve(process.cwd(), 'src/assets/sounds', file)
+// Reads from src/assets in dev; in a build Vite rewrites this to the emitted
+// dist/assets file (https://vite.dev/guide/assets#new-url-url-import-meta-url).
+function soundPath(name: string): string {
+  return fileURLToPath(new URL(`../assets/sounds/${name}.wav`, import.meta.url))
 }
 
-// key → sound file (in src/assets/sounds). Pressing the key plays that sound.
+// key → sound (in src/assets/sounds). Pressing the key plays that sound.
 const pads = [
-  { key: 'a', name: 'Glass', file: 'Glass.wav' },
-  { key: 's', name: 'Pop', file: 'Pop.wav' },
-  { key: 'd', name: 'Tink', file: 'Tink.wav' },
-  { key: 'f', name: 'Submarine', file: 'Submarine.wav' },
-  { key: 'g', name: 'Funk', file: 'Funk.wav' },
-  { key: 'h', name: 'Hero', file: 'Hero.wav' },
-  { key: 'j', name: 'Ping', file: 'Ping.wav' },
-  { key: 'k', name: 'Bottle', file: 'Bottle.wav' },
-  { key: 'l', name: 'Frog', file: 'Frog.wav' },
+  { key: 'a', name: 'Glass' },
+  { key: 's', name: 'Pop' },
+  { key: 'd', name: 'Tink' },
+  { key: 'f', name: 'Submarine' },
+  { key: 'g', name: 'Funk' },
+  { key: 'h', name: 'Hero' },
+  { key: 'j', name: 'Ping' },
+  { key: 'k', name: 'Bottle' },
+  { key: 'l', name: 'Frog' },
 ] as const
 
 const status = ref('loading sounds…')
@@ -48,7 +44,7 @@ onMounted(async () => {
   }
 
   const loaded = await Promise.all(
-    pads.map(async (pad) => [pad.key, await audio!.loadSoundFile(soundPath(pad.file))] as const),
+    pads.map(async (pad) => [pad.key, await audio!.loadSoundFile(soundPath(pad.name))] as const),
   )
   for (const [key, sound] of loaded) {
     if (sound) sounds.set(key, sound)
