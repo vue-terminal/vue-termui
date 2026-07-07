@@ -17,6 +17,7 @@
     // Other Outputs
     "sourceMap": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,

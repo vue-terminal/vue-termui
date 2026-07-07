@@ -1,18 +1,66 @@
 <script setup lang="ts">
-import { fg, t } from '@opentui/core'
-import { Box, Text } from 'vue-termui'
+import type { TextChunk } from '@opentui/core'
+import { bold, fg, StyledText } from '@opentui/core'
+import { Box, computed, onUnmounted, ref, Text } from 'vue-termui'
+import { buildFrames, type Seg, WHITE } from './logo-frames'
 
-// Isometric cube: green for the edges, pink for the faces.
-const GREEN = '#42b883'
-const PINK = '#ff6af0'
+const FRAME_MS = 80
 
-const line1 = t`${fg(PINK)(' _________')}`
-const line2 = t`${fg(GREEN)('/')}${fg(PINK)('\\__\\__\\__\\')}`
-const line3 = t`${fg(GREEN)('\\/__/')}${fg(PINK)('\\__\\')}${fg(GREEN)('_/')}`
-const line4 = t`    ${fg(GREEN)('\\/__/')}`
+function toStyled(segs: Seg[]): StyledText {
+  return new StyledText(
+    segs.map((seg) => {
+      let chunk: TextChunk = fg(seg.color ?? WHITE)(seg.text)
+      if (seg.bold) chunk = bold(chunk)
+      return chunk
+    }),
+  )
+}
 
-const labelVue = t`[${fg(GREEN)('V')}]ue`
-const labelTermUI = t`[${fg(GREEN)('T')}]ermUI`
+const frames = buildFrames().map((frame) => frame.map(toStyled))
+
+const frame = ref(0)
+const paused = ref(false)
+let timer: ReturnType<typeof setInterval> | undefined
+
+function play() {
+  clearInterval(timer)
+  paused.value = false
+  timer = setInterval(() => {
+    if (frame.value < frames.length - 1) {
+      frame.value++
+    } else {
+      clearInterval(timer)
+    }
+  }, FRAME_MS)
+}
+
+function replay() {
+  frame.value = 0
+  play()
+}
+
+function togglePause() {
+  if (paused.value) {
+    play()
+  } else {
+    clearInterval(timer)
+    paused.value = true
+  }
+}
+
+/** Moves `delta` frames (clamped) and pauses playback. */
+function step(delta: number) {
+  clearInterval(timer)
+  paused.value = true
+  frame.value = Math.min(Math.max(frame.value + delta, 0), frames.length - 1)
+}
+
+play()
+onUnmounted(() => clearInterval(timer))
+
+defineExpose({ replay, togglePause, step })
+
+const lines = computed(() => frames[frame.value]!)
 </script>
 
 <template>
@@ -26,13 +74,6 @@ const labelTermUI = t`[${fg(GREEN)('T')}]ermUI`
     justifyContent="center"
     alignItems="flex-start"
   >
-    <Text :content="line1" />
-    <Text :content="line2" />
-    <Text :content="line3" />
-    <Text :content="line4" />
-    <Box alignSelf="flex-end" flexDirection="column" alignItems="flex-end" width="100%">
-      <Text bold fg="#ffffff" :content="labelVue" />
-      <Text bold fg="#ffffff" :content="labelTermUI" />
-    </Box>
+    <Text v-for="(line, i) in lines" :key="i" :content="line" />
   </Box>
 </template>
