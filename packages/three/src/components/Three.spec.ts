@@ -38,34 +38,40 @@ describe('Three', () => {
     test.renderer.destroy()
   })
 
-  it('applies the camera and renderer options', { timeout: 30_000 }, async () => {
-    const test = await createTestRenderer({ width: 16, height: 8 })
-    const scene = new Scene()
-    const camera = new PerspectiveCamera(45, 1, 0.1, 100)
-    mountApp(test.renderer, () =>
-      h(Three, {
-        scene,
-        camera,
-        rendererOptions: { superSample: SuperSampleType.NONE },
-      }),
-    )
-    await nextTick()
+  // Skipped on CI: renderOnce lazily creates a real GPU device, which can
+  // native-crash the worker on GPU-less runners (see WGPURenderer.spec.ts).
+  it.skipIf(process.env.CI)(
+    'applies the camera and renderer options',
+    { timeout: 30_000 },
+    async () => {
+      const test = await createTestRenderer({ width: 16, height: 8 })
+      const scene = new Scene()
+      const camera = new PerspectiveCamera(45, 1, 0.1, 100)
+      mountApp(test.renderer, () =>
+        h(Three, {
+          scene,
+          camera,
+          rendererOptions: { superSample: SuperSampleType.NONE },
+        }),
+      )
+      await nextTick()
 
-    const box = test.renderer.root.getChildren()[0] as BoxRenderable
-    const renderable = box.getChildren()[0] as ThreeRenderable
-    expect(renderable.getActiveCamera()).toBe(camera)
+      const box = test.renderer.root.getChildren()[0] as BoxRenderable
+      const renderable = box.getChildren()[0] as ThreeRenderable
+      expect(renderable.getActiveCamera()).toBe(camera)
 
-    // the frame callback initializes the engine lazily, then renders '█' cells
-    await vi.waitFor(
-      async () => {
-        await test.renderOnce()
-        expect(test.captureCharFrame()).toContain('█')
-      },
-      { timeout: 20_000, interval: 50 },
-    )
+      // the frame callback initializes the engine lazily, then renders '█' cells
+      await vi.waitFor(
+        async () => {
+          await test.renderOnce()
+          expect(test.captureCharFrame()).toContain('█')
+        },
+        { timeout: 20_000, interval: 50 },
+      )
 
-    test.renderer.destroy()
-  })
+      test.renderer.destroy()
+    },
+  )
 
   it('destroys the renderable on unmount', async () => {
     const test = await createTestRenderer({ width: 16, height: 8 })
