@@ -48,8 +48,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vitest --ui",
-    "docs": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs": "pnpm --filter @vue-termui/docs dev",
+    "docs:build": "pnpm --filter @vue-termui/docs build",
     "play": "pnpm --filter playground dev",
     "test": "pnpm run lint && pnpm run fmt --check && pnpm run build && pnpm run test:cov && pnpm run test:types",
     "test:cov": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vitest run --coverage",
@@ -91,7 +91,6 @@
     "tsdown": "^0.22.3",
     "typescript": "~6.0.3",
     "vite": "^8.0.16",
-    "vitepress": "^1.6.3",
     "vitest": "^4.1.4",
     "vue": "^3.5.32",
     "vue-tsc": "^3.3.6"

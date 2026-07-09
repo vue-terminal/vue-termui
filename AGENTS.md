@@ -200,3 +200,11 @@ Thin reactive wrappers over the renderer; all clean up via `onScopeDispose`.
 
 Built with tsdown (`tsdown.config.ts`), outputs ESM to `dist/`. oxc toolchain:
 oxlint for linting, oxfmt for formatting.
+
+## Docs deploy (Vercel)
+
+Docs are a workspace package (`docs/package.json`, no `engines`) because Vercel
+reads the nearest `package.json` above the project Root Directory and hard-fails
+on `engines.node >=26.3.0` (max supported: 24.x) before install/build commands
+run. Vercel project Root Directory MUST be `docs`; build settings pinned in
+`docs/vercel.json`. Keep `engines` out of `docs/package.json`.

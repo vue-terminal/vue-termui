@@ -87,9 +87,6 @@ importers:
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0)
-      vitepress:
-        specifier: ^1.6.3
-        version: 1.6.4(@algolia/client-search@5.55.0)(@types/node@26.0.0)(lightningcss@1.32.0)(postcss@8.5.15)(search-insights@2.17.3)(typescript@6.0.3)
       vitest:
         specifier: ^4.1.4
         version: 4.1.4(@types/node@26.0.0)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(happy-dom@20.8.9)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))
@@ -99,6 +96,15 @@ importers:
       vue-tsc:
         specifier: ^3.3.6
         version: 3.3.6(typescript@6.0.3)
+
+  docs:
+    devDependencies:
+      vitepress:
+        specifier: ^1.6.3
+        version: 1.6.4(@algolia/client-search@5.55.0)(@types/node@26.0.0)(lightningcss@1.32.0)(postcss@8.5.15)(search-insights@2.17.3)(typescript@6.0.3)
+      vue:
+        specifier: ^3.5.32
+        version: 3.5.32(typescript@6.0.3)
 
   packages/create-vue-termui:
     devDependencies:
