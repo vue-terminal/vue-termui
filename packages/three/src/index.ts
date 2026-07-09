@@ -1,3 +1,7 @@
+// Color type used across ThreeCliRendererOptions (e.g. `backgroundColor`), so
+// apps don't have to reach into @opentui/core (a private dependency).
+export { RGBA } from '@opentui/core'
+
 export { loadWebGPU, setupWebGPU } from './webgpu'
 export type { WebGPUModule } from './webgpu'
 export { registerBunFfiHooks } from './ffi/register'
