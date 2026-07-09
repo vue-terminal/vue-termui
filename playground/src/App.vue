@@ -25,6 +25,11 @@ const renderer = useRenderer()
 // in order and wraps around; OpenTUI doesn't cycle focus on Tab itself.
 const { focusNext, focusPrevious } = useFocusManager()
 onKeyDown((key) => {
+  if (key.name === 'c' && key.shift) {
+    renderer.console.toggle()
+    return
+  }
+
   if (key.name !== 'tab') return
   // TODO: it probably depends, probably allowing .stop modifier on nested children
   // currently, this listener goes first
@@ -44,7 +49,6 @@ renderer.configureDebugOverlay({
 onMounted(() => {
   console.log('App mounted')
   renderer.setTerminalTitle(`VueTermUI Playground - ${new Date().toLocaleString()}`)
-  renderer.console.show()
 })
 
 const removeGuard = router.beforeEach((to, from) => {
