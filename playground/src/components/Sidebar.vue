@@ -57,6 +57,7 @@ const items = [
   { label: 'Notifications', to: '/demos/notifications' },
   { label: 'Terminal title', to: '/demos/terminal-title' },
   { label: 'Text selection', to: '/demos/text-selection' },
+  { label: 'Fractal (3D)', to: '/demos/fractal' },
 ] as const
 
 // Public instances of each SidebarLink, collected via function refs.
