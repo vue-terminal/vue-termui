@@ -1,0 +1,74 @@
+// @vitest-environment node
+import { RGBA } from '@opentui/core'
+import { createTestRenderer } from '@opentui/core/testing'
+import { Scene } from 'three'
+import { describe, expect, it } from 'vitest'
+import { SuperSampleType, ThreeCliRenderer } from './WGPURenderer'
+
+// OptimizedBuffer fg/bg hold 4 entries per cell with 0-255 channel values
+const RED = RGBA.fromValues(1, 0, 0, 1)
+
+describe('ThreeCliRenderer', () => {
+  it(
+    'draws the clear color into the buffer without supersampling',
+    { timeout: 30_000 },
+    async () => {
+      const test = await createTestRenderer({ width: 16, height: 8 })
+      const engine = new ThreeCliRenderer(test.renderer, {
+        width: 16,
+        height: 8,
+        superSample: SuperSampleType.NONE,
+        backgroundColor: RED,
+      })
+      await engine.init()
+
+      const buffer = test.renderer.nextRenderBuffer
+      await engine.drawScene(new Scene(), buffer, 0)
+
+      const { char, fg } = buffer.buffers
+      expect(String.fromCodePoint(char[0]!)).toBe('█')
+      expect(fg[0]!).toBeGreaterThan(230)
+      expect(fg[1]!).toBeLessThan(25)
+
+      engine.destroy()
+      test.renderer.destroy()
+    },
+  )
+
+  it(
+    'renders through the GPU supersampling compute path by default',
+    { timeout: 30_000 },
+    async () => {
+      const test = await createTestRenderer({ width: 16, height: 8 })
+      const engine = new ThreeCliRenderer(test.renderer, {
+        width: 16,
+        height: 8,
+        backgroundColor: RED,
+      })
+      await engine.init()
+
+      const buffer = test.renderer.nextRenderBuffer
+      await engine.drawScene(new Scene(), buffer, 0)
+
+      const { bg } = buffer.buffers
+      expect(bg[0]!).toBeGreaterThan(230)
+      expect(bg[1]!).toBeLessThan(25)
+
+      engine.destroy()
+      test.renderer.destroy()
+    },
+  )
+
+  it('resizes the render target with the output size', { timeout: 30_000 }, async () => {
+    const test = await createTestRenderer({ width: 16, height: 8 })
+    const engine = new ThreeCliRenderer(test.renderer, { width: 16, height: 8 })
+    await engine.init()
+
+    engine.setSize(24, 12)
+    const buffer = test.renderer.nextRenderBuffer
+    await engine.drawScene(new Scene(), buffer, 0)
+
+    engine.destroy()
+    test.renderer.destroy()
+  })
+})
