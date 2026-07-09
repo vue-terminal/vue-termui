@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "types": ["node", "@webgpu/types"],
+    "rootDir": ".",
+    "composite": true,
+    "declaration": true,
+    "isolatedModules": true,
+    "isolatedDeclarations": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./.tsc-types/src",
+    "noEmit": false
+  },
+  "include": ["src/**/*"]
+}
