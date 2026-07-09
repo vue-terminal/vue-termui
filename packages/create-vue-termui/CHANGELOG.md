@@ -1,3 +1,15 @@
+# [0.2.0](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.1.1...create-vue-termui@0.2.0) (2026-07-09)
+
+### Bug Fixes
+
+- disable the debug console in production ([f61579f](https://github.com/vue-terminal/vue-termui/commit/f61579f558e8251a733c0545b2be7a8a2026ca0c))
+- no nested Text ([d5e66a5](https://github.com/vue-terminal/vue-termui/commit/d5e66a5dfce52358dda5b785974a6f1a3739e7d0))
+
+### Features
+
+- externalize more to apply build-time improvements ([9cb4cb2](https://github.com/vue-terminal/vue-termui/commit/9cb4cb275bef858a6c727cd82bf7464d06ced721))
+- initial template animation ([57abfcc](https://github.com/vue-terminal/vue-termui/commit/57abfccf60dd0e7c4473466699b5b30b834a419c))
+
 ## [0.1.1](https://github.com/vue-terminal/vue-termui/compare/create-vue-termui@0.1.0...create-vue-termui@0.1.1) (2026-07-06)
 
 No changes

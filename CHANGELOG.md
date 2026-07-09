@@ -1,3 +1,34 @@
+# [0.2.0](https://github.com/vue-terminal/vue-termui/compare/v0.1.0...v0.2.0) (2026-07-09)
+
+### Bug Fixes
+
+- box border ([a816e2b](https://github.com/vue-terminal/vue-termui/commit/a816e2bc439fcd1a1516873991d35570468f2375))
+- **events:** don't crash when a modifier is used on a lifecycle emit ([d420904](https://github.com/vue-terminal/vue-termui/commit/d42090423428a6918ca375da156b9b21096ef45c))
+- **vite:** resolve built asset URLs relative to the bundle ([#57](https://github.com/vue-terminal/vue-termui/issues/57)) ([bdc47d5](https://github.com/vue-terminal/vue-termui/commit/bdc47d524deb2a99a6401d8573c2752c846e2093))
+
+### Code Refactoring
+
+- namespace host tags under tui- ([bf8fb8b](https://github.com/vue-terminal/vue-termui/commit/bf8fb8bfac753cd26e88a2c9782bc594ca15d1a6))
+
+### Features
+
+- add ScrollBox component ([f79d396](https://github.com/vue-terminal/vue-termui/commit/f79d396beb1963c185efcae591f33c3a1480ac6e))
+- add TabSelect component ([ac1f643](https://github.com/vue-terminal/vue-termui/commit/ac1f643e3b36c9b824f5fb84a020694aaa82232a))
+- **Box:** apply event modifiers to renderable listeners ([3c8d815](https://github.com/vue-terminal/vue-termui/commit/3c8d8157f1dc72e1a52cb8d055f3d750745cac8e))
+- **components:** apply event modifiers across renderable components ([8dc6932](https://github.com/vue-terminal/vue-termui/commit/8dc69326f3c4416f1448a04e5f26ef68a7d55f65))
+- error on nested Text ([4f0b869](https://github.com/vue-terminal/vue-termui/commit/4f0b8690cd8f8dfeda0b616af356ecbc6f806396))
+- externalize more to apply build-time improvements ([9cb4cb2](https://github.com/vue-terminal/vue-termui/commit/9cb4cb275bef858a6c727cd82bf7464d06ced721))
+- **utils:** add TUI event-modifier resolver ([75546cd](https://github.com/vue-terminal/vue-termui/commit/75546cd975eac8a0b071373384581fa6dc72bcd0))
+- **vite:** encode v-on modifiers for terminal events ([43c9830](https://github.com/vue-terminal/vue-termui/commit/43c983026c236dcd1f1075b4a9cf77881b424ef1))
+
+### Performance Improvements
+
+- simpler synthenic events ([da896c9](https://github.com/vue-terminal/vue-termui/commit/da896c9a3928165b688958b8f4ae5d2bdf763706))
+
+### BREAKING CHANGES
+
+- host tags are now prefixed with `tui-` (e.g. `<box>` → `<tui-box>`).
+
 # 0.1.0 (2026-07-03)
 
 - feat(markdown)!: require syntaxStyle prop ([c4f294a](https://github.com/vue-terminal/vue-termui/commit/c4f294ac1dd9958cd1bf1d6a74cebf887118d25e))
