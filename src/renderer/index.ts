@@ -266,7 +266,14 @@ export async function createApp(
   rendererOptions?: CliRendererConfig,
 ): Promise<App<Renderable>> {
   disposePreviousDevApp()
-  const renderer = await createCliRenderer(rendererOptions)
+  const renderer = await createCliRenderer({
+    ...rendererOptions,
+    // catch logs that could break rendering
+    consoleMode: rendererOptions?.consoleMode ?? 'console-overlay',
+    // this gets inlined when bundling for prod and avoids showing the debug console in prod
+    openConsoleOnError:
+      rendererOptions?.openConsoleOnError ?? process.env.NODE_ENV !== 'production',
+  })
   return createTuiApp(renderer, rootComponent, rootProps)
 }
 

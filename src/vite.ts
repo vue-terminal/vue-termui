@@ -244,10 +244,6 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
               },
             },
           },
-
-          // TODO: find a way to forward vite errors and logs to opentui
-          // clearScreen: false,
-          // customLogger: console,
         }
       },
     },
