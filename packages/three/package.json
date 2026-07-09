@@ -1,0 +1,68 @@
+{
+  "name": "@vue-termui/three",
+  "version": "0.0.0",
+  "description": "Three.js WebGPU renderer for vue-termui",
+  "keywords": [
+    "vue",
+    "terminal",
+    "tui",
+    "three",
+    "webgpu",
+    "3d",
+    "vue-termui"
+  ],
+  "homepage": "https://github.com/vue-terminal/vue-termui/tree/main/packages/three#readme",
+  "bugs": {
+    "url": "https://github.com/vue-terminal/vue-termui/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Eduardo San Martin Morote",
+    "email": "posva13@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vue-terminal/vue-termui.git",
+    "directory": "packages/three"
+  },
+  "funding": "https://github.com/sponsors/posva",
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.4.1",
+    "bun-webgpu": "0.1.7",
+    "jimp": "1.6.1"
+  },
+  "peerDependencies": {
+    "three": "^0.177.0",
+    "vue-termui": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@types/three": "0.177.0",
+    "@webgpu/types": "^0.1.60",
+    "three": "0.177.0",
+    "tsdown": "^0.22.3",
+    "typescript": "~6.0.3",
+    "vue-termui": "workspace:*"
+  },
+  "engines": {
+    "node": ">=26.3.0"
+  }
+}
