@@ -2,14 +2,7 @@ import { defineConfig } from 'vitest/config'
 import Vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [Vue()],
-
   test: {
-    include: ['{src,packages/three/src}/**/*.{test,spec}.ts'],
-    environment: 'happy-dom',
-    typecheck: {
-      enabled: true,
-    },
     coverage: {
       enabled: true,
       provider: 'v8',
@@ -17,5 +10,29 @@ export default defineConfig({
       include: ['src', 'packages/three/src'],
       exclude: ['**/src/index.ts', '**/*.test-d.ts', '**/__tests__/**'],
     },
+
+    projects: [
+      {
+        plugins: [Vue()],
+        test: {
+          name: 'core',
+          include: ['src/**/*.{test,spec}.ts'],
+          environment: 'node',
+          typecheck: {
+            enabled: true,
+          },
+        },
+      },
+      {
+        test: {
+          name: 'three',
+          include: ['packages/three/src/**/*.{test,spec}.ts'],
+          environment: 'node',
+          typecheck: {
+            enabled: true,
+          },
+        },
+      },
+    ],
   },
 })
