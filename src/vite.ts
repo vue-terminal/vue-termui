@@ -195,9 +195,14 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
           // `@opentui/core` is the native FFI renderer and ships tree-sitter
           // `.scm` query assets that esbuild/rolldown cannot parse. It must stay
           // external/native: never pre-bundle it in dev (build externalizes it
-          // through `rolldownOptions.external` below).
-          optimizeDeps: { exclude: ['@opentui/core'] },
-          ssr: { optimizeDeps: { exclude: ['@opentui/core'] } },
+          // through `rolldownOptions.external` below). Same for the 3D stack
+          // (see the `external` note below).
+          optimizeDeps: { exclude: ['@opentui/core', '@vue-termui/three', 'bun-webgpu', 'three'] },
+          ssr: {
+            optimizeDeps: {
+              exclude: ['@opentui/core', '@vue-termui/three', 'bun-webgpu', 'three'],
+            },
+          },
           // No server root in a terminal app: a relative base makes built
           // asset URLs resolve next to the bundle instead of `file:///assets`.
           base: './',
@@ -222,12 +227,23 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
               // dead-code-eliminating dev-only guards — e.g. vue-termui's
               // nested-`<Text>` warning — in a production build). Only what
               // cannot be bundled stays external, resolved from node_modules
-              // at runtime: Node builtins and `@opentui/core`, the native FFI
-              // renderer, which ships tree-sitter `.scm` query assets that
-              // esbuild/rolldown cannot parse.
+              // at runtime:
+              // - Node builtins.
+              // - `@opentui/core`, the native FFI renderer, which ships
+              //   tree-sitter `.scm` query assets that esbuild/rolldown cannot
+              //   parse.
+              // - The 3D stack: `@vue-termui/three` must resolve `bun-webgpu`
+              //   (its bun:ffi module hook + the native Dawn dylib) from its
+              //   own node_modules, and `three` must stay external so the app
+              //   and the renderer share a single three instance (TSL nodes
+              //   from a second bundled copy would not be understood).
               external: (id: string) =>
                 id === '@opentui/core' ||
                 id.startsWith('@opentui/core/') ||
+                id === '@vue-termui/three' ||
+                id === 'bun-webgpu' ||
+                id === 'three' ||
+                id.startsWith('three/') ||
                 id.startsWith('node:') ||
                 NODE_BUILTINS.has(id),
               output: {
