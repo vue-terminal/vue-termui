@@ -1,4 +1,5 @@
 import { builtinModules } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
 
@@ -195,14 +196,10 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
           // `@opentui/core` is the native FFI renderer and ships tree-sitter
           // `.scm` query assets that esbuild/rolldown cannot parse. It must stay
           // external/native: never pre-bundle it in dev (build externalizes it
-          // through `rolldownOptions.external` below). Same for the 3D stack
-          // (see the `external` note below).
-          optimizeDeps: { exclude: ['@opentui/core', '@vue-termui/three', 'bun-webgpu', 'three'] },
-          ssr: {
-            optimizeDeps: {
-              exclude: ['@opentui/core', '@vue-termui/three', 'bun-webgpu', 'three'],
-            },
-          },
+          // through `rolldownOptions.external` below). `bun-webgpu` (used by
+          // `@vue-termui/three`) is native FFI too.
+          optimizeDeps: { exclude: ['@opentui/core', 'bun-webgpu'] },
+          ssr: { optimizeDeps: { exclude: ['@opentui/core', 'bun-webgpu'] } },
           // No server root in a terminal app: a relative base makes built
           // asset URLs resolve next to the bundle instead of `file:///assets`.
           base: './',
@@ -225,25 +222,20 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
               // Inline every dep so the output is a self-contained entry (and
               // so the bundler replaces `process.env.NODE_ENV` everywhere,
               // dead-code-eliminating dev-only guards — e.g. vue-termui's
-              // nested-`<Text>` warning — in a production build). Only what
-              // cannot be bundled stays external, resolved from node_modules
-              // at runtime:
-              // - Node builtins.
-              // - `@opentui/core`, the native FFI renderer, which ships
-              //   tree-sitter `.scm` query assets that esbuild/rolldown cannot
-              //   parse.
-              // - The 3D stack: `@vue-termui/three` must resolve `bun-webgpu`
-              //   (its bun:ffi module hook + the native Dawn dylib) from its
-              //   own node_modules, and `three` must stay external so the app
-              //   and the renderer share a single three instance (TSL nodes
-              //   from a second bundled copy would not be understood).
+              // nested-`<Text>` warning — in a production build). Inlining is
+              // also what keeps the runtime single-instance: everything that
+              // touches `@vue/runtime-core` (`vue-termui`, `@vue-termui/three`,
+              // `vue-router`, …) dedupes inside the one bundle, where a mixed
+              // bundled/external graph would load a second runtime-core and
+              // break vnode/provide-inject interop. Only what cannot be bundled
+              // stays external, resolved from node_modules at runtime: Node
+              // builtins and `@opentui/core`, the native FFI renderer, which
+              // ships tree-sitter `.scm` query assets that esbuild/rolldown
+              // cannot parse. (`bun-webgpu` is handled by the
+              // `vue-termui:native-externals` plugin below.)
               external: (id: string) =>
                 id === '@opentui/core' ||
                 id.startsWith('@opentui/core/') ||
-                id === '@vue-termui/three' ||
-                id === 'bun-webgpu' ||
-                id === 'three' ||
-                id.startsWith('three/') ||
                 id.startsWith('node:') ||
                 NODE_BUILTINS.has(id),
               output: {
@@ -261,6 +253,25 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
             },
           },
         }
+      },
+    },
+
+    {
+      // `bun-webgpu` (the WebGPU FFI used by `@vue-termui/three`) cannot be
+      // bundled: it dlopens a native Dawn library resolved relative to its own
+      // package. A bare external would break too — under pnpm's isolated
+      // node_modules it is only resolvable from `@vue-termui/three`, not from
+      // the app's `dist/`. Resolve it at build time and emit the absolute file
+      // URL as the external id, so the bundle imports the real module directly.
+      // Build-only: in dev the module runner already imports it natively.
+      name: 'vue-termui:native-externals',
+      apply: 'build',
+      enforce: 'pre',
+      async resolveId(id, importer, options) {
+        if (id !== 'bun-webgpu') return
+        const resolved = await this.resolve(id, importer, { ...options, skipSelf: true })
+        if (!resolved) return
+        return { id: pathToFileURL(resolved.id).href, external: true }
       },
     },
 
