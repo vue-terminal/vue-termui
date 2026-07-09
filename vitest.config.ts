@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [Vue()],
 
   test: {
-    include: ['src/**/*.{test,spec}.ts'],
+    include: ['{src,packages/three/src}/**/*.{test,spec}.ts'],
     environment: 'happy-dom',
     typecheck: {
       enabled: true,
@@ -14,7 +14,7 @@ export default defineConfig({
       enabled: true,
       provider: 'v8',
       reporter: ['text', 'lcovonly', 'html'],
-      include: ['src'],
+      include: ['src', 'packages/three/src'],
       exclude: ['**/src/index.ts', '**/*.test-d.ts', '**/__tests__/**'],
     },
   },
