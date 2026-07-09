@@ -1,5 +1,8 @@
 import { existsSync } from 'node:fs'
-import { registerHooks } from 'node:module'
+// Namespace import on purpose: Bun does not implement `registerHooks`, and a
+// named import would fail ESM validation at load time even though the Bun
+// path never calls it.
+import nodeModule from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as bunFfiShim from './bun-ffi'
@@ -43,7 +46,7 @@ export function registerBunFfiHooks(): void {
   if (registered || process.versions.bun) return
   registered = true
   ;(globalThis as Record<PropertyKey, unknown>)[SHIM_GLOBAL] = bunFfiShim
-  registerHooks({
+  nodeModule.registerHooks({
     resolve(specifier, context, nextResolve) {
       if (specifier === 'bun:ffi') {
         return { url: SHIM_URL, shortCircuit: true }
