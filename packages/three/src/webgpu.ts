@@ -63,6 +63,14 @@ export function setupWebGPU(libPath?: string): Promise<WebGPUModule> {
         configurable: true,
       })
     }
+    // three's internal Animation loop drives itself with
+    // `self.requestAnimationFrame`; Bun has both globals, Node has neither.
+    // The timers are unref'd so an idle loop never keeps the process alive.
+    const g = globalThis as Record<string, unknown>
+    g.self ??= globalThis
+    g.requestAnimationFrame ??= (callback: (time: number) => void) =>
+      setTimeout(() => callback(performance.now()), 16).unref()
+    g.cancelAnimationFrame ??= (id: NodeJS.Timeout) => clearTimeout(id)
     await webgpu.setupGlobals({
       libPath: libPath ?? (process.versions.bun ? undefined : resolveWebGPULibPath()),
     })
