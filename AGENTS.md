@@ -194,7 +194,10 @@ Thin reactive wrappers over the renderer; all clean up via `onScopeDispose`.
 ### @vue-termui/three (`packages/three/`)
 
 Three.js WebGPU scenes rendered into the terminal — a Node port of
-`@opentui/three` (which is Bun-only).
+`@opentui/three` (which is Bun-only). Bun still works: the hooks no-op there
+and bun-webgpu runs natively over the real `bun:ffi` (`bun dist/main.js` runs a
+built app; never import `node:module`'s `registerHooks` as a named import —
+Bun lacks it and fails ESM validation at load time).
 
 - **How it runs on Node**: `bun-webgpu` (Dawn over `bun:ffi`) is loaded through
   `node:module` `registerHooks` (`src/ffi/register.ts`) that rewrite its
