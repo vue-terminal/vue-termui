@@ -133,12 +133,12 @@ export default defineConfig({
           link: '/components/',
           items: [
             { text: 'Overview', link: '/components/' },
-            { text: '<Box>', link: '/components/box' },
-            { text: '<Text>', link: '/components/text' },
-            { text: '<Newline>', link: '/components/newline' },
-            { text: '<Input>', link: '/components/input' },
-            { text: '<Select>', link: '/components/select' },
-            { text: '<ProgressBar>', link: '/components/progress-bar' },
+            { text: '&lt;Box&gt;', link: '/components/box' },
+            { text: '&lt;Text&gt;', link: '/components/text' },
+            { text: '&lt;Newline&gt;', link: '/components/newline' },
+            { text: '&lt;Input&gt;', link: '/components/input' },
+            { text: '&lt;Select&gt;', link: '/components/select' },
+            { text: '&lt;ProgressBar&gt;', link: '/components/progress-bar' },
           ],
         },
         {
