@@ -3,7 +3,18 @@
 // DOM <a>). The links are real OpenTUI focusables; ↑/↓ move focus between them
 // and Enter pushes the focused route. Esc returns focus to the sidebar from
 // whatever page widget grabbed it (e.g. a focused Input or Select).
-import { Box, Newline, nextTick, onKeyDown, onMounted, ref, Text, useExit } from 'vue-termui'
+import {
+  Box,
+  Newline,
+  nextTick,
+  onKeyDown,
+  onMounted,
+  ref,
+  ScrollBox,
+  Text,
+  useExit,
+  useTemplateRef,
+} from 'vue-termui'
 import { useRouter } from 'vue-router'
 import SidebarLink from './SidebarLink.vue'
 
@@ -27,11 +38,36 @@ const items = [
   { label: 'Soundboard', to: '/sounds' },
   { label: 'Form', to: '/demos/form' },
   { label: 'Bouncing box', to: '/demos/bouncing-box' },
-  { label: 'Quit', action: 'exit' },
+  // Pages ported from opentui's packages/examples.
+  { label: 'Input', to: '/demos/input' },
+  { label: 'Input + Select', to: '/demos/input-select-layout' },
+  { label: 'Select showcase', to: '/demos/select-showcase' },
+  { label: 'Tab showcase', to: '/demos/tab-select-showcase' },
+  { label: 'Simple layout', to: '/demos/simple-layout' },
+  { label: 'Positioning', to: '/demos/relative-positioning' },
+  { label: 'Nested z-index', to: '/demos/nested-zindex' },
+  { label: 'Opacity', to: '/demos/opacity' },
+  { label: 'Transparency', to: '/demos/transparency' },
+  { label: 'Styled text', to: '/demos/styled-text' },
+  { label: 'Text truncation', to: '/demos/text-truncation' },
+  { label: 'ScrollBox mouse', to: '/demos/scrollbox-mouse' },
+  { label: 'Scroll overlay', to: '/demos/scrollbox-overlay' },
+  { label: 'Sticky scroll', to: '/demos/sticky-scroll' },
+  { label: 'Keypress debug', to: '/demos/keypress-debug' },
+  { label: 'Focus restore', to: '/demos/focus-restore' },
+  { label: 'Notifications', to: '/demos/notifications' },
+  { label: 'Terminal title', to: '/demos/terminal-title' },
+  { label: 'Text selection', to: '/demos/text-selection' },
 ] as const
 
 // Public instances of each SidebarLink, collected via function refs.
-const links = ref<Array<{ focus: () => void; focused: boolean } | null>>([])
+const links = ref<
+  Array<{ focus: () => void; focused: boolean; element: { id: string } | null } | null>
+>([])
+
+// The nav list no longer fits a terminal, so it scrolls; keep the focused link
+// visible whenever focus moves.
+const nav = useTemplateRef('nav')
 
 function indexOfFocused(): number {
   return links.value.findIndex((link) => link?.focused)
@@ -39,7 +75,11 @@ function indexOfFocused(): number {
 
 function focusAt(index: number): void {
   const count = items.length
-  links.value[((index % count) + count) % count]?.focus()
+  const link = links.value[((index % count) + count) % count]
+  link?.focus()
+  if (link?.element) {
+    nav.value?.$el.scrollChildIntoView(link.element.id)
+  }
 }
 
 onMounted(async () => {
@@ -66,13 +106,6 @@ onKeyDown((key) => {
     focusAt(current + 1)
   } else if (key.name === 'up') {
     focusAt(current - 1)
-  } else if (key.name === 'return') {
-    const item = items[current]
-    if ('action' in item && item.action === 'exit') {
-      exit()
-    } else if ('to' in item) {
-      router.push(item.to)
-    }
   }
 })
 </script>
@@ -89,12 +122,18 @@ onKeyDown((key) => {
   >
     <Text bold fg="#42b883">vue-termui</Text>
     <Newline />
-    <SidebarLink
-      v-for="(item, i) in items"
-      :key="item.label"
-      :ref="(el) => (links[i] = el as any)"
-      :label="item.label"
-    />
+    <!-- The list outgrew the terminal: scroll it, but keep it out of the Tab
+         cycle (links are the focusables; focusAt scrolls them into view). -->
+    <ScrollBox ref="nav" :focusable="false" :flexGrow="1" :flexShrink="1">
+      <SidebarLink
+        v-for="(item, i) in items"
+        :key="item.label"
+        :ref="(el) => (links[i] = el as any)"
+        :label="item.label"
+        @selected="router.push(item.to)"
+      />
+      <SidebarLink @selected="exit()" label="Quit" />
+    </ScrollBox>
     <Newline />
     <Text fg="#666666">↑/↓ move · ⏎ open</Text>
     <Text fg="#666666">⇥ / ⇧⇥ cycle focus</Text>
