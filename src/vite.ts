@@ -1,4 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { builtinModules } from 'node:module'
+import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import vue, { type Options as VuePluginOptions } from '@vitejs/plugin-vue'
 import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevServer } from 'vite'
@@ -30,6 +32,35 @@ const DEFAULT_ENTRY = '/src/main.ts'
  * (like `node:test`) are not listed in `builtinModules`.
  */
 const NODE_BUILTINS: ReadonlySet<string> = new Set(builtinModules)
+
+/**
+ * Node ESM entry (`exports["."].import`) of the package containing `entryFile`,
+ * for packages whose default vite (browser-flavored) resolution picks a build
+ * that cannot run in Node. Falls back to `entryFile` when the package or its
+ * exports map doesn't have the expected shape.
+ */
+function nodeEsmEntry(packageName: string, entryFile: string): string {
+  for (let dir = dirname(entryFile); dir !== dirname(dir); dir = dirname(dir)) {
+    const packageJsonPath = join(dir, 'package.json')
+    if (!existsSync(packageJsonPath)) continue
+    try {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+        name?: string
+        exports?: Record<string, { import?: { default?: string } | string }>
+      }
+      if (packageJson.name !== packageName) continue
+      const importEntry = packageJson.exports?.['.']?.import
+      const relative = typeof importEntry === 'string' ? importEntry : importEntry?.default
+      if (relative) {
+        const entry = join(dir, relative)
+        if (existsSync(entry)) return entry
+      }
+    } catch {
+      // unreadable package.json: keep walking up
+    }
+  }
+  return entryFile
+}
 
 /**
  * Forces `@vitejs/plugin-vue` to compile **client** render functions (with HMR)
@@ -257,21 +288,27 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
     },
 
     {
-      // `bun-webgpu` (the WebGPU FFI used by `@vue-termui/three`) cannot be
-      // bundled: it dlopens a native Dawn library resolved relative to its own
-      // package. A bare external would break too — under pnpm's isolated
-      // node_modules it is only resolvable from `@vue-termui/three`, not from
-      // the app's `dist/`. Resolve it at build time and emit the absolute file
-      // URL as the external id, so the bundle imports the real module directly.
-      // Build-only: in dev the module runner already imports it natively.
+      // Some deps of `@vue-termui/three` cannot be bundled and must resolve at
+      // runtime from their real on-disk location — a bare external would break
+      // too, because under pnpm's isolated node_modules they are only
+      // resolvable from `@vue-termui/three`, not from the app's `dist/`.
+      // Resolve them at build time and emit the absolute file URL as the
+      // external id, so the bundle imports the real module directly:
+      // - `bun-webgpu`: native FFI, dlopens a Dawn library found relative to
+      //   its own package.
+      // - `jimp`: ships a browser build that vite's client resolver would pick
+      //   (and fail on); its node ESM entry is read from its exports map so
+      //   Node resolves the whole jimp graph natively at runtime.
+      // Build-only: in dev the module runner already imports them natively.
       name: 'vue-termui:native-externals',
       apply: 'build',
       enforce: 'pre',
       async resolveId(id, importer, options) {
-        if (id !== 'bun-webgpu') return
+        if (id !== 'bun-webgpu' && id !== 'jimp') return
         const resolved = await this.resolve(id, importer, { ...options, skipSelf: true })
         if (!resolved) return
-        return { id: pathToFileURL(resolved.id).href, external: true }
+        const entry = id === 'jimp' ? nodeEsmEntry('jimp', resolved.id) : resolved.id
+        return { id: pathToFileURL(entry).href, external: true }
       },
     },
 
