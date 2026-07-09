@@ -16,6 +16,7 @@ pnpm lint                                  # oxlint
 pnpm lint:fix                              # oxlint with auto-fix
 pnpm test:types                            # tsc type checking
 pnpm --filter playground dev               # run the playground (OpenTUI)
+pnpm --filter playground play              # build + run; pass a route: node dist/main.js /demos/fractal
 ```
 
 ## Runtime
@@ -41,8 +42,11 @@ Doc comments: say what a thing is _for_, not how it works — short and stable o
 
 - Root package `vue-termui` is the core library. `src/index.ts` re-exports from
   `src/*.ts`. Tests co-located as `*.spec.ts`; type tests as `*.test-d.ts`.
+- `packages/three/` is `@vue-termui/three`: three.js WebGPU scenes rendered
+  into the terminal (see its section below).
 - `playground/` is a workspace package depending on the core via `workspace:*`.
-  It imports **only** from `vue-termui` (no direct `@opentui/core` or `vue`).
+  It imports **only** from `vue-termui` (no direct `@opentui/core` or `vue`);
+  3D pages may also import `@vue-termui/three` and `three`.
 - `old/` holds the previous monorepo, kept for reference while migrating.
 
 ### Custom renderer (`src/renderer/`)
@@ -186,6 +190,38 @@ Thin reactive wrappers over the renderer; all clean up via `onScopeDispose`.
   plain ref never binds. A function passes through untouched and forwards through
   component wrappers (`<Box :ref>`) in both SFCs and render fns. Read the element
   via the separate `element` ref if needed.
+
+### @vue-termui/three (`packages/three/`)
+
+Three.js WebGPU scenes rendered into the terminal — a Node port of
+`@opentui/three` (which is Bun-only).
+
+- **How it runs on Node**: `bun-webgpu` (Dawn over `bun:ffi`) is loaded through
+  `node:module` `registerHooks` (`src/ffi/register.ts`) that rewrite its
+  `bun:ffi` imports to a `node:ffi` shim (`src/ffi/bun-ffi.ts`, needs
+  `--experimental-ffi`) and resolve its platform package's `.ts` entry (which
+  Node refuses to load from node_modules) to the native dylib path. Pointer
+  model: Bun pointers are numbers, node:ffi's are bigints — the shim converts
+  at every boundary. `setupWebGPU()` installs `navigator.gpu`, the `GPU*`
+  constructors and a `requestAnimationFrame` polyfill (three's internal
+  `Animation` loop needs it).
+- **Ports** (keep close to upstream for diffability): `canvas.ts` (CLICanvas +
+  supersampling, WGSL inlined as a TS template), `WGPURenderer.ts`
+  (ThreeCliRenderer), `ThreeRenderable.ts`.
+- **Vue layer**: `Three` component (a `tui-box` filled with a `ThreeRenderable`
+  via `useRenderer()`; props `scene`/`camera`/`rendererOptions`/`autoAspect`)
+  and `onFrame(cb)` (per-frame callback with effect-scope cleanup). Both import
+  Vue APIs from `vue-termui` (peer dep) — never from `vue`.
+- **Build/bundling invariant**: in app builds the 3D stack is **bundled** (so
+  it shares the bundle's single `@vue/runtime-core` and `three`); only
+  `bun-webgpu` stays external, resolved to an **absolute file URL** at build
+  time by the `vue-termui:native-externals` plugin in `src/vite.ts` (a bare
+  external would be unresolvable from the app under pnpm's isolated
+  node_modules). Externalizing `@vue-termui/three` instead loads a second
+  runtime-core and breaks provide/inject (`useRenderer() must be called…`).
+- Tests need the FFI env var like the core suite; the WGPU specs create real
+  GPU devices (Metal/Vulkan required). Root `vitest.config.ts` includes
+  `packages/three/src`.
 
 ### Authoring & DX tooling
 
