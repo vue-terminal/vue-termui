@@ -62,46 +62,47 @@ export type TuiComponent<Props, El extends BaseRenderable> = DefineComponent<
 >
 
 /**
- * Converts a prop to an optional boolean value. Allows passing down undefined to preserver defaults
- * while considering empty strings like a true value.
+ * Coerce a prop into a value ready to forward to a renderable, following HTML
+ * boolean-attribute semantics while preserving richer values:
+ *
+ * - `undefined` → `undefined`, so callers (e.g. {@link optionalProp}) can omit
+ *   the key and keep the renderable's own default.
+ * - `''` (a bare attribute like `<Box border />`) → `true`.
+ * - `false` → `false`, `true` → `true`.
+ * - anything else (incl. `null`, a `border` sides array or a border-style
+ *   string) is returned unchanged, so props that accept more than a boolean
+ *   still work.
  *
  * @internal
  */
-export function propToOptionalBoolean(prop: unknown): boolean | undefined {
-  return prop == null ? undefined : !(prop === false)
+export function propToOptionalBoolean<T>(
+  prop: T,
+): Exclude<T, '' | undefined> | boolean | undefined {
+  if (prop === undefined) return undefined
+  if (prop === '') return true
+  return prop as Exclude<T, '' | undefined>
 }
 
 /**
- * Extract only the keys of `T` whose values are optional booleans. Used by
- {@link optionalBooleanProps} to ensure we only pick the right props off a
- component's props object.
+ * Pick the given props off `source`, coerce each with
+ * {@link propToOptionalBoolean}, and return an object containing *only* the keys
+ * whose value survived coercion (everything but `undefined`).
  *
- * @internal
- */
-export type OptionalBooleanKeys<T> = {
-  [K in keyof T]-?: boolean extends T[K] ? K : never
-}[keyof T]
-
-/**
- * Pick the given optional-boolean props off `source`, coerce them with
- * {@link propToOptionalBoolean}, and return an object containing *only* the
- * keys the author actually set.
- *
- * OpenTUI's boolean setters (`focusable`, `showDescription`, …) are plain
+ * OpenTUI's setters (`focusable`, `showDescription`, `border`, …) are plain
  * assignments with no `undefined` guard, so spreading an unset prop as
  * `key: undefined` resets a renderable whose default is `true` (e.g.
  * `focusable` on `Input`/`Select`) down to `undefined`. Omitting the key
- * instead preserves each renderable's own default; an explicit `false` still
- * opts out and an empty-string attribute (`<Input focusable />`) reads as
- * `true`.
+ * instead preserves each renderable's own default; an empty-string attribute
+ * (`<Input focusable />`) reads as `true`, and non-boolean values (a `border`
+ * sides array, a style string) pass through unchanged.
  *
  * @internal
  */
-export function optionalBooleanProps<T extends object, K extends OptionalBooleanKeys<T>>(
+export function optionalBooleanProps<T extends object, K extends keyof T>(
   source: T,
   keys: readonly K[],
-): { [P in K]?: boolean } {
-  const result: { [P in K]?: boolean } = {}
+): { [P in K]?: Exclude<T[P], '' | undefined> | boolean } {
+  const result: { [P in K]?: Exclude<T[P], '' | undefined> | boolean } = {}
   for (const key of keys) {
     const value = propToOptionalBoolean(source[key])
     if (value !== undefined) result[key] = value

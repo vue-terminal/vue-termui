@@ -1,5 +1,13 @@
 import { type BoxRenderable, type BoxOptions } from '@opentui/core'
-import { computed, defineComponent, h, onMounted, shallowRef, type VNode } from '@vue/runtime-core'
+import {
+  computed,
+  defineComponent,
+  h,
+  onMounted,
+  shallowRef,
+  type PropType,
+  type VNode,
+} from '@vue/runtime-core'
 import {
   type RenderableEventProps,
   renderableEmits,
@@ -37,6 +45,8 @@ export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
   name: 'Box',
   inheritAttrs: false,
   props: {
+    // allows any values
+    border: null as unknown as PropType<BoxProps['border']>,
     ...renderableProps,
   },
   emits: {
@@ -73,7 +83,7 @@ export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
             'borderColor',
             (isDescendantFocused.value ? attrs.focusedBorderColor : null) ?? attrs.borderColor,
           ),
-          ...optionalBooleanProps(props, ['autofocus', 'focusable']),
+          ...optionalBooleanProps(props, ['border', 'autofocus', 'focusable']),
           ref: box,
         },
         slots.default?.(),

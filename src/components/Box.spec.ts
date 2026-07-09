@@ -49,6 +49,40 @@ describe('Box', () => {
     expect(box.backgroundColor.equals(parseColor('#ff0000'))).toBe(true)
   })
 
+  describe('border', () => {
+    async function mountBox(props: Record<string, unknown>): Promise<BoxRenderable> {
+      render(
+        h(Box, props, () => []),
+        test.renderer.root,
+      )
+      await test.renderOnce()
+      return test.renderer.root.getChildren()[0] as BoxRenderable
+    }
+
+    it('leaves border unset when the prop is absent so the renderable keeps its default', async () => {
+      const control = new BoxRenderable(test.renderer.root.ctx, {})
+      expect((await mountBox({})).border).toBe(control.border)
+      expect((await mountBox({ border: undefined })).border).toBe(control.border)
+    })
+
+    it('keeps the border inferred from borderStyle when no explicit border is passed', async () => {
+      // OpenTUI infers a border when a style is set; a stray `border: false`
+      // from an absent prop would defeat that.
+      const box = await mountBox({ borderStyle: 'rounded' })
+      expect(box.border).toBe(true)
+    })
+
+    it('reads a bare `border` attribute as true', async () => {
+      const box = await mountBox({ border: '' })
+      expect(box.border).toBe(true)
+    })
+
+    it('forwards an explicit false and an array of sides', async () => {
+      expect((await mountBox({ border: false })).border).toBe(false)
+      expect((await mountBox({ border: ['top', 'bottom'] })).border).toEqual(['top', 'bottom'])
+    })
+  })
+
   // The `focusedBorderColor` behavior needs OpenTUI's focus routing plus the
   // app-level `useCurrentFocusedElement()` provider, so these mount a real app
   // via `createTuiApp` onto the shared renderer (the bare `render` above has no
