@@ -119,6 +119,20 @@
 }
 
 /**
+ * Component: Code blocks
+ * VitePress ignores the Shiki theme's own background, so match them here:
+ * catppuccin-latte (light) and laserwave (dark).
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-code-block-bg: #eff1f5;
+}
+
+.dark {
+  --vp-code-block-bg: #27212e;
+}
+
+/**
  * Component: Algolia / local search
  * -------------------------------------------------------------------------- */
 

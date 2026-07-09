@@ -31,8 +31,8 @@ export default defineConfig({
 
   markdown: {
     theme: {
-      dark: 'one-dark-pro',
-      light: 'github-light',
+      dark: 'laserwave',
+      light: 'catppuccin-latte',
     },
   },
 
