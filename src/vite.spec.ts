@@ -121,18 +121,21 @@ describe('vueTermui plugin config', () => {
     return fn as (tag: string) => boolean
   }
 
-  it('returns the config, dev, and vue plugins in that order', () => {
+  it('returns the config, native-externals, dev, and vue plugins in that order', () => {
     expect(vueTermui().map((p) => p.name)).toEqual([
       'vue-termui:config',
+      'vue-termui:native-externals',
       'vue-termui:dev',
       'vite:vue',
     ])
   })
 
-  it('keeps @opentui/core out of dep optimization in both environments', () => {
+  it('keeps the native FFI packages out of dep optimization in both environments', () => {
     const config = baseConfig()
-    expect(config.optimizeDeps.exclude).toContain('@opentui/core')
-    expect(config.ssr.optimizeDeps.exclude).toContain('@opentui/core')
+    for (const id of ['@opentui/core', 'bun-webgpu']) {
+      expect(config.optimizeDeps.exclude).toContain(id)
+      expect(config.ssr.optimizeDeps.exclude).toContain(id)
+    }
   })
 
   it('configures a Node-friendly build (esnext, no module preload, single entry)', () => {
@@ -170,6 +173,13 @@ describe('vueTermui plugin config', () => {
     ['fs', true],
     ['fs/promises', true],
     ['vue-router/auto-routes', false],
+    // the 3D stack bundles like any other dep so it shares the bundle's single
+    // @vue/runtime-core and three instances (bun-webgpu is externalized by the
+    // vue-termui:native-externals resolveId hook, not here)
+    ['@vue-termui/three', false],
+    ['three', false],
+    ['three/webgpu', false],
+    ['bun-webgpu', false],
     ['\0some-virtual', false],
     ['virtual:generated', false],
     ['./relative', false],
