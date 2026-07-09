@@ -60,6 +60,9 @@ const items = [
   { label: 'Fractal (3D)', to: '/demos/fractal' },
   { label: 'Draggable cube (3D)', to: '/demos/draggable-cube' },
   { label: 'Shader cube (3D)', to: '/demos/shader-cube' },
+  { label: 'Texture loading (3D)', to: '/demos/texture' },
+  { label: 'Static sprite (3D)', to: '/demos/static-sprite' },
+  { label: 'Sprite particles (3D)', to: '/demos/sprite-particles' },
 ] as const
 
 // Public instances of each SidebarLink, collected via function refs.
