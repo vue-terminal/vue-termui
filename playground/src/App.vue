@@ -73,14 +73,30 @@ const focusedElement = useCurrentFocusedElement()
 </script>
 
 <template>
-  <Box flexDirection="row" :padding="1" :gap="1">
-    <Sidebar />
-    <Box :flexGrow="1">
-      <Box flexDirection="column" :gap="1">
-        <Text>App shell: a fixed sidebar on the left and the routed page on the right.</Text>
-        <Text>Focused element {{ focusedElement?.id }}</Text>
-        <RouterView />
+  <Box>
+    <Box flexDirection="row" :padding="1" :gap="1">
+      <Sidebar />
+      <Box :flexGrow="1">
+        <Box flexDirection="column" :gap="1">
+          <Text>App shell: a fixed sidebar on the left and the routed page on the right.</Text>
+          <Text>Focused element {{ focusedElement?.id }}</Text>
+          <RouterView />
+        </Box>
       </Box>
+    </Box>
+    <Box
+      flexDirection="row"
+      :gap="1"
+      alignItems="flex-end"
+      :border="['top']"
+      borderColor="#42b883"
+      :paddingLeft="2"
+    >
+      <Text>↹ cycle focus</Text>
+      <Text dim>|</Text>
+      <Text>⇧c console</Text>
+      <Text dim>|</Text>
+      <Text>⌃c exit</Text>
     </Box>
   </Box>
 </template>

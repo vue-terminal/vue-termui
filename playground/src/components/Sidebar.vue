@@ -5,7 +5,6 @@
 // whatever page widget grabbed it (e.g. a focused Input or Select).
 import {
   Box,
-  Newline,
   nextTick,
   onKeyDown,
   onMounted,
@@ -113,15 +112,14 @@ onKeyDown((key) => {
 <template>
   <Box
     flexDirection="column"
-    :width="22"
-    :flexShrink="0"
-    borderColor="red"
-    borderStyle="rounded"
-    :padding="1"
-    focusedBorderColor="blue"
+    :maxWidth="32"
+    borderColor="#666666"
+    borderStyle="heavy"
+    title=" Vue TermUI "
+    titleColor="white"
+    titleAlignment="center"
+    focusedBorderColor="#ff6af0"
   >
-    <Text bold fg="#42b883">vue-termui</Text>
-    <Newline />
     <!-- The list outgrew the terminal: scroll it, but keep it out of the Tab
          cycle (links are the focusables; focusAt scrolls them into view). -->
     <ScrollBox ref="nav" :focusable="false" :flexGrow="1" :flexShrink="1">
@@ -134,10 +132,9 @@ onKeyDown((key) => {
       />
       <SidebarLink @selected="exit()" label="Quit" />
     </ScrollBox>
-    <Newline />
-    <Text fg="#666666">↑/↓ move · ⏎ open</Text>
-    <Text fg="#666666">⇥ / ⇧⇥ cycle focus</Text>
-    <Text fg="#666666">Esc focus nav</Text>
-    <Text fg="#666666">⏎ Quit to exit</Text>
+    <Box flexDirection="column" :gap="1" alignItems="flex-end" :border="['top']" :paddingRight="2">
+      <Text fg="#666666">↑/↓ select</Text>
+      <Text fg="#666666">⏎ open</Text>
+    </Box>
   </Box>
 </template>
