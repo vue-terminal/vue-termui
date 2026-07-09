@@ -30,18 +30,19 @@ class AnchorRenderable extends VRenderable {
 }
 
 /**
- * Host element tags understood by the renderer. These are intentionally
- * lowercase and internal; public component names are layered on top.
+ * Host element tags understood by the renderer. They live in the reserved
+ * `tui-` namespace so generic names (`box`, `text`, `select`) stay free for user
+ * components; public component names (`<Box>`, `<Text>`) are layered on top.
  */
 export type TuiElementTag =
-  | 'box'
-  | 'text'
-  | 'input'
-  | 'textarea'
-  | 'select'
-  | 'tab-select'
-  | 'markdown'
-  | 'scroll-box'
+  | 'tui-box'
+  | 'tui-text'
+  | 'tui-input'
+  | 'tui-textarea'
+  | 'tui-select'
+  | 'tui-tab-select'
+  | 'tui-markdown'
+  | 'tui-scroll-box'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -58,10 +59,10 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
 
   const makeAnchor = (): AnchorRenderable => new AnchorRenderable(ctx)
 
-  // Text nodes (`TextNodeRenderable`) are only valid inside a `<text>`. Vue,
+  // Text nodes (`TextNodeRenderable`) are only valid inside a `<tui-text>`. Vue,
   // however, creates Fragment boundary anchors as empty text nodes and inserts
   // them into whatever container holds the fragment — so `v-for`, multi-root
-  // components and `<RouterView>` routinely place text nodes inside a `<box>`,
+  // components and `<RouterView>` routinely place text nodes inside a `<tui-box>`,
   // where `Box.add` rejects them (they have no layout node). For those, we keep
   // an invisible layout anchor as a stand-in and map between the two so all tree
   // operations stay consistent. Per-app maps (this closure) avoid cross-app leaks.
@@ -112,22 +113,22 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
   return {
     createElement(tag, _namespace, _isCustomizedBuiltIn, props) {
       // NOTE: props are ignored here because Vue calls patchProp sync right
-      // after — except for `<markdown>`, whose renderable *requires* a
+      // after — except for `<tui-markdown>`, whose renderable *requires* a
       // `syntaxStyle` at construction (it cannot be patched in later).
       switch (tag) {
-        case 'box':
+        case 'tui-box':
           return new BoxRenderable(ctx, {})
-        case 'text':
+        case 'tui-text':
           return new TextRenderable(ctx, {})
-        case 'input':
+        case 'tui-input':
           return new InputRenderable(ctx, {})
-        case 'textarea':
+        case 'tui-textarea':
           return new TextareaRenderable(ctx, {})
-        case 'select':
+        case 'tui-select':
           return new SelectRenderable(ctx, {})
-        case 'tab-select':
+        case 'tui-tab-select':
           return new TabSelectRenderable(ctx, {})
-        case 'scroll-box':
+        case 'tui-scroll-box':
           // `scrollX`/`scrollY` are constructor-only: they pick the content's
           // min/max size constraints and have no setters, so they must be read
           // here instead of riding the patchProp path. `undefined` keeps the
@@ -136,10 +137,10 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
             scrollX: propToOptionalBoolean(props?.scrollX),
             scrollY: propToOptionalBoolean(props?.scrollY),
           })
-        case 'markdown': {
+        case 'tui-markdown': {
           // `MarkdownRenderable` requires a `syntaxStyle` up front, so read it
           // from the props here rather than deferring to patchProp. The
-          // `<Markdown>` component declares it required; a bare `<markdown>`
+          // `<Markdown>` component declares it required; a bare `<tui-markdown>`
           // without one is a usage error we surface eagerly.
           const syntaxStyle = props?.syntaxStyle
           if (!syntaxStyle) {
@@ -201,7 +202,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
         return
       }
 
-      // A text node inside a `<text>` is real content; anywhere else it needs a
+      // A text node inside a `<tui-text>` is real content; anywhere else it needs a
       // layout stand-in so OpenTUI can place it in the layout tree.
       const node =
         child instanceof TextNodeRenderable && !(parent instanceof TextRenderable)

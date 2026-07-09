@@ -33,7 +33,7 @@ import type { VNode } from '@vue/runtime-core'
 // come from the same `@vue/runtime-core` the renderer uses, and the DOM guard
 // helpers (`withKeys`/`withModifiers`) from `@vue/runtime-dom`.
 const VUE_HELPERS = { ...RuntimeCore, withKeys, withModifiers }
-const HOST_TAGS = new Set(['box', 'text', 'input', 'textarea', 'select', 'markdown'])
+const isHostTag = (tag: string): boolean => tag.startsWith('tui-')
 
 // Compile a template the way the library's Vite plugin does. Modifiers are left
 // to Vue's own `withKeys`/`withModifiers` (no custom transform) — they work
@@ -51,7 +51,7 @@ function compileRender(template: string): (...args: unknown[]) => unknown {
     prefixIdentifiers: true,
     hoistStatic: false,
     cacheHandlers: false,
-    isCustomElement: (tag) => HOST_TAGS.has(tag),
+    isCustomElement: isHostTag,
     nodeTransforms: [],
   })
   return new Function('Vue', code)(VUE_HELPERS) as (...args: unknown[]) => unknown

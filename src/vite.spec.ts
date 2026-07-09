@@ -34,7 +34,7 @@ describe('vueTermui dev HMR', () => {
 import { ref } from 'vue'
 const n = ref(${initial})
 </script>
-<template><box><text>${label} {{ n }}</text></box></template>
+<template><tui-box><tui-text>${label} {{ n }}</tui-text></tui-box></template>
 `
 
   /**
@@ -180,11 +180,14 @@ describe('vueTermui plugin config', () => {
     expect(external(id)).toBe(expected)
   })
 
-  it('registers the host tags as custom elements', () => {
+  it('registers the tui- namespaced host tags as custom elements', () => {
     const isCE = isCustomElement()
-    for (const tag of ['box', 'text', 'input', 'textarea', 'select']) {
+    for (const tag of ['tui-box', 'tui-text', 'tui-input', 'tui-textarea', 'tui-select']) {
       expect(isCE(tag), tag).toBe(true)
     }
+    // Bare (unprefixed) names are free again — they resolve as components.
+    expect(isCE('box')).toBe(false)
+    expect(isCE('text')).toBe(false)
     expect(isCE('div')).toBe(false)
     expect(isCE('MyComponent')).toBe(false)
   })
@@ -194,7 +197,7 @@ describe('vueTermui plugin config', () => {
       vue: { template: { compilerOptions: { isCustomElement: (tag) => tag === 'my-widget' } } },
     })
     expect(isCE('my-widget')).toBe(true) // user tag
-    expect(isCE('box')).toBe(true) // host tag still wins
+    expect(isCE('tui-box')).toBe(true) // host tag still wins
     expect(isCE('div')).toBe(false) // neither
   })
 

@@ -28,7 +28,7 @@ describe('useRendererEvent', () => {
               calls++
             })
           }
-          return () => h('box')
+          return () => h('tui-box')
         },
       }),
     )
@@ -65,7 +65,7 @@ describe('useRendererEvent', () => {
           useRendererEvent(CliRenderEvents.FOCUSED_RENDERABLE, () => {
             b++
           })
-          return () => h('box')
+          return () => h('tui-box')
         },
       }),
     )

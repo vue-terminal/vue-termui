@@ -15,7 +15,7 @@ describe('screen composables', () => {
       defineComponent({
         setup() {
           onResize((w, h) => sizes.push([w, h]))
-          return () => h('text', null, 'x')
+          return () => h('tui-text', null, 'x')
         },
       }),
     )
@@ -46,7 +46,7 @@ describe('screen composables', () => {
           return () => {
             captured.width = width.value
             captured.height = height.value
-            return h('text', null, `${width.value}x${height.value}`)
+            return h('tui-text', null, `${width.value}x${height.value}`)
           }
         },
       }),
@@ -71,7 +71,7 @@ describe('screen composables', () => {
       defineComponent({
         setup() {
           useTitle(title)
-          return () => h('text', null, 'x')
+          return () => h('tui-text', null, 'x')
         },
       }),
     )

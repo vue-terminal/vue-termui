@@ -30,10 +30,10 @@ describe('focus composables', () => {
           // A non-focusable box sits between the two focusable ones; cycling
           // must skip it and keep tree order (first → third → wrap).
           return () =>
-            h('box', null, [
-              h('box', { focusable: true }),
-              h('box', { focusable: false }),
-              h('box', { focusable: true }),
+            h('tui-box', null, [
+              h('tui-box', { focusable: true }),
+              h('tui-box', { focusable: false }),
+              h('tui-box', { focusable: true }),
             ])
         },
       }),
@@ -129,7 +129,7 @@ describe('focus composables', () => {
         setup() {
           manager = useFocusManager()
           // Not a single focusable element in the tree.
-          return () => h('box', null, [h('box'), h('text', null, 'x')])
+          return () => h('tui-box', null, [h('tui-box'), h('tui-text', null, 'x')])
         },
       }),
     )
@@ -159,10 +159,10 @@ describe('focus composables', () => {
           // The middle box is focusable but hidden; cycling must skip it just
           // like a non-focusable one.
           return () =>
-            h('box', null, [
-              h('box', { focusable: true }),
-              h('box', { focusable: true, visible: false }),
-              h('box', { focusable: true }),
+            h('tui-box', null, [
+              h('tui-box', { focusable: true }),
+              h('tui-box', { focusable: true, visible: false }),
+              h('tui-box', { focusable: true }),
             ])
         },
       }),
@@ -196,9 +196,9 @@ describe('focus composables', () => {
           // A focusable element that itself contains a focusable child, then a
           // focusable sibling. Depth-first tab order is outer → inner → sibling.
           return () =>
-            h('box', null, [
-              h('box', { focusable: true }, [h('box', { focusable: true })]),
-              h('box', { focusable: true }),
+            h('tui-box', null, [
+              h('tui-box', { focusable: true }, [h('tui-box', { focusable: true })]),
+              h('tui-box', { focusable: true }),
             ])
         },
       }),
@@ -242,7 +242,7 @@ describe('focus composables', () => {
         setup() {
           a = useCurrentFocusedElement()
           b = useCurrentFocusedElement()
-          return () => h('box', { focusable: true })
+          return () => h('tui-box', { focusable: true })
         },
       }),
     )
@@ -278,7 +278,7 @@ describe('focus composables', () => {
         defineComponent({
           setup() {
             focused = useCurrentFocusedElement()
-            return () => h('box', { focusable: true })
+            return () => h('tui-box', { focusable: true })
           },
         }),
       ),

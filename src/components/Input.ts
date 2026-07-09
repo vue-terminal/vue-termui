@@ -108,7 +108,7 @@ export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent(
     })
 
     return (): VNode =>
-      h('input', {
+      h('tui-input', {
         // native options and listeners
         ...attrs,
         ...optionalBooleanProps(props, ['focusable']),

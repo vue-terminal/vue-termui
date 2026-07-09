@@ -16,7 +16,7 @@ describe('app lifecycle', () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'hi') }),
+      defineComponent({ render: () => h('tui-text', null, 'hi') }),
     )
     app.mount()
 
@@ -35,7 +35,7 @@ describe('app lifecycle', () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'hi') }),
+      defineComponent({ render: () => h('tui-text', null, 'hi') }),
     )
     app.mount()
     test.renderer.destroy()
@@ -47,7 +47,7 @@ describe('app lifecycle', () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 4 })
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'hi') }),
+      defineComponent({ render: () => h('tui-text', null, 'hi') }),
     )
     app.mount()
 
@@ -65,7 +65,7 @@ describe('app lifecycle', () => {
       defineComponent({
         setup() {
           exit = useExit()
-          return () => h('text', null, 'hi')
+          return () => h('tui-text', null, 'hi')
         },
       }),
     )

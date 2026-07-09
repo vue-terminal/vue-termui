@@ -38,14 +38,14 @@ const Link = defineComponent({
     expose({ focus: () => el.value?.focus(), focused })
     return () =>
       h(
-        'box',
+        'tui-box',
         {
           ref: (c: unknown) => {
             el.value = (c as Renderable | null) ?? null
           },
           focusable: true,
         },
-        [h('text', null, `${focused.value ? '>' : ' '} ${props.label}`)],
+        [h('tui-text', null, `${focused.value ? '>' : ' '} ${props.label}`)],
       )
   },
 })
@@ -77,7 +77,7 @@ describe('sidebar focus navigation', () => {
         })
         return () =>
           h(
-            'box',
+            'tui-box',
             { flexDirection: 'column' },
             routes.map((route, i) =>
               h(Link, {

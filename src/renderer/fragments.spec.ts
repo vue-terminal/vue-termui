@@ -10,8 +10,8 @@ import type { VNode } from '@vue/runtime-core'
 /**
  * Vue creates Fragment boundary anchors as empty text nodes (`createText('')`)
  * and inserts them into the surrounding container — so `v-for`, multi-root
- * components and `<RouterView>` all put text nodes inside a `<box>`. Text nodes
- * are only valid inside a `<text>` in OpenTUI, so the renderer must place an
+ * components and `<RouterView>` all put text nodes inside a `<tui-box>`. Text
+ * nodes are only valid inside a `<tui-text>` in OpenTUI, so the renderer must place an
  * invisible layout anchor in their stead instead of crashing in `Box.add`.
  */
 describe('nodeOps fragments', () => {
@@ -29,11 +29,11 @@ describe('nodeOps fragments', () => {
       setup() {
         const items = ['a', 'b', 'c']
         return () =>
-          h('box', { flexDirection: 'column' }, [
+          h('tui-box', { flexDirection: 'column' }, [
             h(
               Fragment,
               null,
-              items.map((label) => h('text', { key: label }, label)),
+              items.map((label) => h('tui-text', { key: label }, label)),
             ),
           ])
       },
@@ -53,12 +53,12 @@ describe('nodeOps fragments', () => {
       setup() {
         return () =>
           h(
-            'box',
+            'tui-box',
             { flexDirection: 'column' },
             h(
               Fragment,
               null,
-              items.value.map((label) => h('text', { key: label }, label)),
+              items.value.map((label) => h('tui-text', { key: label }, label)),
             ),
           )
       },

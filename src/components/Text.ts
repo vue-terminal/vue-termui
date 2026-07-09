@@ -69,7 +69,7 @@ function toAttributes(props: TextProps): number {
  */
 export const Text: FunctionalComponent<TextProps> = (props, { slots, attrs }) =>
   h(
-    'text',
+    'tui-text',
     {
       attributes: toAttributes(props),
       ...attrs,
@@ -81,7 +81,7 @@ Text.displayName = 'Text'
 Text.inheritAttrs = false
 // Runtime prop declaration so the boolean props are coerced (e.g. `<Text bold>`
 // → `true`) and the color/wrap props are extracted instead of falling through
-// as attributes onto the host `<text>` element.
+// as attributes onto the host `<tui-text>` element.
 Text.props = {
   bold: Boolean,
   dim: Boolean,

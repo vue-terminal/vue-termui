@@ -52,7 +52,7 @@ export const Markdown: FunctionalComponent<MarkdownProps> = (props, { attrs }) =
   // through as attrs so they only reach the renderable when actually set,
   // leaving unset options at the renderable's defaults.
 
-  return h('markdown', {
+  return h('tui-markdown', {
     ...attrs,
     // Coerce and forward each optional boolean only when set, so an unset prop
     // keeps the renderable's own default — e.g. `conceal` stays `true`, and

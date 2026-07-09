@@ -69,7 +69,7 @@ export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
 
     return (): VNode =>
       h(
-        'box',
+        'tui-box',
         {
           ...attrs,
           /*

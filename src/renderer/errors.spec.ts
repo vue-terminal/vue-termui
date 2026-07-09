@@ -77,7 +77,7 @@ describe('renderer error handling', () => {
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'hi') }),
+      defineComponent({ render: () => h('tui-text', null, 'hi') }),
     )
     app.mount()
     await nextTick()

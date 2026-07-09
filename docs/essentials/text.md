@@ -110,6 +110,6 @@ To insert blank lines between blocks of text, use [`<Newline>`](../components/ne
 
 ## Plain host tag
 
-`<Text>` compiles down to a `<text>` host element. You _can_ write that directly, but the component gives you typed props and attribute coercion, so prefer `<Text>` in your apps.
+`<Text>` compiles down to a `<tui-text>` host element. You _can_ write that directly, but the component gives you typed props and attribute coercion, so prefer `<Text>` in your apps.
 
 See the full [`<Text>` reference](../components/text) for the complete prop list.

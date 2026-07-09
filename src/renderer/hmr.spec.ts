@@ -30,14 +30,14 @@ describe('renderer HMR rerender', () => {
       __hmrId: 'hmr-spec-comp',
       setup: () => ({ n: ref(0) }),
       render(this: { n: number }) {
-        return h('text', null, `v1 ${this.n}`)
+        return h('tui-text', null, `v1 ${this.n}`)
       },
     })
     hmr!.createRecord('hmr-spec-comp', Comp)
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('box', null, [h(Comp)]) }),
+      defineComponent({ render: () => h('tui-box', null, [h(Comp)]) }),
     )
     app.mount()
     await nextTick()
@@ -53,7 +53,7 @@ describe('renderer HMR rerender', () => {
 
     // Template-only edit: swap ONLY the render function.
     hmr!.rerender('hmr-spec-comp', function (this: { n: number }) {
-      return h('text', null, `v2 ${this.n}`)
+      return h('tui-text', null, `v2 ${this.n}`)
     })
     await nextTick()
     await test.renderOnce()

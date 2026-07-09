@@ -53,8 +53,8 @@ describe('render scheduling', () => {
     // flag clears — so it can never be swallowed. Guard that deferred request and
     // its coalescing here (the synchronous-only behavior left nothing deferred).
     const ops = createNodeOps(test.renderer)
-    const box = ops.createElement('box')
-    const text = ops.createElement('text')
+    const box = ops.createElement('tui-box')
+    const text = ops.createElement('tui-text')
     ops.insert(text, box)
     ops.insert(box, test.renderer.root)
     await Promise.resolve()
@@ -83,7 +83,7 @@ describe('render scheduling', () => {
     const label = ref('first')
     const App = defineComponent({
       setup() {
-        return () => h('box', null, [h('text', null, label.value)])
+        return () => h('tui-box', null, [h('tui-text', null, label.value)])
       },
     })
     render(h(App), test.renderer.root)
@@ -126,24 +126,24 @@ describe('render scheduling', () => {
             if (key.name === 'x') bEl.value?.focus()
           })
           return () =>
-            h('box', null, [
+            h('tui-box', null, [
               h(
-                'box',
+                'tui-box',
                 {
                   ref: (c: unknown) => {
                     aEl.value = (c as Renderable | null) ?? null
                   },
                 },
-                [h('text', null, aFocused.value ? 'A:on' : 'A:off')],
+                [h('tui-text', null, aFocused.value ? 'A:on' : 'A:off')],
               ),
               h(
-                'box',
+                'tui-box',
                 {
                   ref: (c: unknown) => {
                     bEl.value = (c as Renderable | null) ?? null
                   },
                 },
-                [h('text', null, bFocused.value ? 'B:on' : 'B:off')],
+                [h('tui-text', null, bFocused.value ? 'B:on' : 'B:off')],
               ),
             ])
         },

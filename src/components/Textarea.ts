@@ -107,7 +107,7 @@ export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineC
     })
 
     return (): VNode =>
-      h('textarea', {
+      h('tui-textarea', {
         // native options and listeners
         ...attrs,
         ...optionalBooleanProps(props, ['focusable']),

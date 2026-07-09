@@ -13,7 +13,7 @@ export interface NewlineProps {
 }
 
 /**
- * Inserts one or more line breaks. Renders a `<text>` node whose content is
+ * Inserts one or more line breaks. Renders a `<tui-text>` node whose content is
  * `count` newline characters — handy for spacing rows of text apart.
  *
  * @example
@@ -24,7 +24,7 @@ export interface NewlineProps {
  * ```
  */
 export const Newline: FunctionalComponent<NewlineProps> = (props) =>
-  h('text', '\n'.repeat(props.count ?? 1))
+  h('tui-text', '\n'.repeat(props.count ?? 1))
 
 Newline.displayName = 'Newline'
 Newline.props = {

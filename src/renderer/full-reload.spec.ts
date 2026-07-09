@@ -32,7 +32,7 @@ describe('disposePreviousDevApp', () => {
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'v1') }),
+      defineComponent({ render: () => h('tui-text', null, 'v1') }),
     )
     app.mount()
 
@@ -82,7 +82,7 @@ describe('start location capture', () => {
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'v1') }),
+      defineComponent({ render: () => h('tui-text', null, 'v1') }),
     )
     // vue-router sets `$router` on install; fake the shape the capture reads.
     app.config.globalProperties.$router = { currentRoute: { value: { fullPath: '/select' } } }
@@ -100,7 +100,7 @@ describe('start location capture', () => {
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'v1') }),
+      defineComponent({ render: () => h('tui-text', null, 'v1') }),
     )
     app.mount()
 
@@ -116,7 +116,7 @@ describe('start location capture', () => {
 
     const app = createTuiApp(
       test.renderer,
-      defineComponent({ render: () => h('text', null, 'v1') }),
+      defineComponent({ render: () => h('tui-text', null, 'v1') }),
     )
     // A foreign or partially-initialized `$router` with no `currentRoute`.
     app.config.globalProperties.$router = {}

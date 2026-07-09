@@ -44,11 +44,11 @@ describe('Markdown', () => {
     const nodeOps = createNodeOps(test.renderer)
     // The renderable requires a `syntaxStyle`, so the host element cannot be
     // created without one — fail loudly instead of silently seeding a default.
-    expect(() => nodeOps.createElement('markdown', undefined, undefined, null)).toThrow(
+    expect(() => nodeOps.createElement('tui-markdown', undefined, undefined, null)).toThrow(
       /syntaxStyle/i,
     )
     expect(() =>
-      nodeOps.createElement('markdown', undefined, undefined, { syntaxStyle }),
+      nodeOps.createElement('tui-markdown', undefined, undefined, { syntaxStyle }),
     ).not.toThrow()
   })
 

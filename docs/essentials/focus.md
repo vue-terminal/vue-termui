@@ -14,7 +14,7 @@ Any element joins the focus system just by being `focusable`. Interactive compon
 <script setup lang="ts">
 import { Box, Text, computed, shallowRef, useCurrentFocusedElement } from 'vue-termui'
 
-// The backing OpenTUI renderable. Bound to a host `<box>` the ref receives the
+// The backing OpenTUI renderable. Bound to a host `<tui-box>` the ref receives the
 // renderable directly; bound to the `<Box>` component, unwrap its `$el`.
 const el = shallowRef<any>(null)
 const currentFocused = useCurrentFocusedElement()

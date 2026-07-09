@@ -16,7 +16,7 @@ describe('onKeyDown', () => {
       defineComponent({
         setup() {
           onKeyDown((event) => seen.push(event))
-          return () => h('text', null, 'listening')
+          return () => h('tui-text', null, 'listening')
         },
       }),
     )
@@ -38,7 +38,7 @@ describe('onKeyDown', () => {
       defineComponent({
         setup() {
           onKeyDown(() => count++)
-          return () => h('text', null, 'listening')
+          return () => h('tui-text', null, 'listening')
         },
       }),
     )
@@ -66,7 +66,7 @@ describe('onKeyDown', () => {
           const stop = onKeyDown(() => count++)
           // Remove immediately; no key should ever be counted.
           stop()
-          return () => h('text', null, 'listening')
+          return () => h('tui-text', null, 'listening')
         },
       }),
     )

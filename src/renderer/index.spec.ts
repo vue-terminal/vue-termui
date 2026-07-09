@@ -11,7 +11,7 @@ describe('createTuiApp', () => {
     const label = ref('alive')
     const App = defineComponent({
       setup() {
-        return () => h('text', null, label.value)
+        return () => h('tui-text', null, label.value)
       },
     })
 

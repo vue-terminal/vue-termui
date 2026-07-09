@@ -9,20 +9,14 @@ import { type HotPayload, isRunnableDevEnvironment, type Plugin, type ViteDevSer
 // leaks is plugin-vue emitting `ssrRender`, undone by `forceClientCompile` below.
 
 /**
- * Renderer host tags. They are neither DOM/SVG elements nor components, so the
- * SFC compiler must leave them as plain element vnodes (`createElementVNode('box', …)`)
- * instead of trying to resolve them as components.
+ * Reserved namespace for renderer host tags (`tui-box`, `tui-text`, …). They are
+ * neither DOM/SVG elements nor components, so the SFC compiler must leave them as
+ * plain element vnodes (`createElementVNode('tui-box', …)`) instead of trying to
+ * resolve them as components. Matching by prefix (rather than an explicit set)
+ * reserves the whole `tui-` namespace for the renderer and keeps generic names
+ * like `box`/`text`/`select` free for user components.
  */
-const HOST_TAGS: ReadonlySet<string> = new Set([
-  'box',
-  'text',
-  'input',
-  'textarea',
-  'select',
-  'tab-select',
-  'markdown',
-  'scroll-box',
-])
+const TUI_TAG_PREFIX = 'tui-'
 
 /**
  * Default app entry, resolved from the project root.
@@ -116,9 +110,10 @@ function bridgeHmrEventsToRunner(server: ViteDevServer): void {
  */
 export interface VueTermuiOptions {
   /**
-   * Options forwarded to `@vitejs/plugin-vue`. The `box`/`text` host tags are
-   * always treated as custom elements; an `isCustomElement` provided here is
-   * merged on top (it can recognise additional tags).
+   * Options forwarded to `@vitejs/plugin-vue`. The `tui-` host tags
+   * (`tui-box`, `tui-text`, …) are always treated as custom elements; an
+   * `isCustomElement` provided here is merged on top (it can recognise
+   * additional tags).
    */
   vue?: VuePluginOptions
 
@@ -138,7 +133,7 @@ export interface VueTermuiOptions {
 /**
  * Vite plugin that turns a project into a vue-termui terminal app.
  *
- * - Runs `@vitejs/plugin-vue` with the `box`/`text` host tags registered and
+ * - Runs `@vitejs/plugin-vue` with the `tui-` host tags registered and
  *   forced to compile client render functions (so HMR works in the dev server's
  *   runnable `ssr` environment instead of emitting `ssrRender`).
  * - In dev (`vite`), launches the app in-process with HMR: the entry runs in the
@@ -186,7 +181,7 @@ export function vueTermui(options: VueTermuiOptions = {}): Plugin[] {
       compilerOptions: {
         ...options.vue?.template?.compilerOptions,
         isCustomElement: (tag: string) =>
-          HOST_TAGS.has(tag) || (userIsCustomElement?.(tag) ?? false),
+          tag.startsWith(TUI_TAG_PREFIX) || (userIsCustomElement?.(tag) ?? false),
       },
     },
   })

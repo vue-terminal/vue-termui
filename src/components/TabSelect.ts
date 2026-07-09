@@ -164,7 +164,7 @@ export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defi
     )
 
     return (): VNode =>
-      h('tab-select', {
+      h('tui-tab-select', {
         // native options and listeners (width, tabWidth, colors, keyBindings, …)
         ...attrs,
         // Coerce and forward each optional boolean only when set, so an unset

@@ -19,13 +19,13 @@ import { Box, Text, Newline, Input, Select, ProgressBar } from 'vue-termui'
 
 ## Host tags
 
-Under the hood, components compile to lowercase **host tags** that the renderer understands directly: `<box>`, `<text>`, `<input>` and `<select>`. These work in templates too, but the components give you typed props, sensible defaults, and prop coercion — so prefer the components in app code.
+Under the hood, components compile to **host tags** in the reserved `tui-` namespace that the renderer understands directly: `<tui-box>`, `<tui-text>`, `<tui-input>` and `<tui-select>`. The `tui-` prefix keeps generic names like `box` or `select` free for your own components. These host tags work in templates too, but the components give you typed props, sensible defaults, and prop coercion — so prefer the components in app code.
 
 ```vue-html
 <!-- equivalent, but prefer <Box> / <Text> -->
-<box>
-  <text>hello</text>
-</box>
+<tui-box>
+  <tui-text>hello</tui-text>
+</tui-box>
 ```
 
 ## No auto-import

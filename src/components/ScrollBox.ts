@@ -89,7 +89,7 @@ export const ScrollBox: TuiComponent<ScrollBoxProps, ScrollBoxRenderable> = defi
 
     return (): VNode =>
       h(
-        'scroll-box',
+        'tui-scroll-box',
         {
           // native options and listeners
           ...attrs,

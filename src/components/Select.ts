@@ -133,7 +133,7 @@ export const Select: TuiComponent<SelectProps, SelectRenderable> = defineCompone
     })
 
     return (): VNode =>
-      h('select', {
+      h('tui-select', {
         // native options and listeners
         ...attrs,
         // Coerce and forward each optional boolean only when set, so an unset

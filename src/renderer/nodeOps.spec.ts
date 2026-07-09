@@ -26,7 +26,7 @@ describe('nodeOps', () => {
 
     const App = defineComponent({
       setup() {
-        return () => h('box', null, [h('text', null, 'Hello vue-termui')])
+        return () => h('tui-box', null, [h('tui-text', null, 'Hello vue-termui')])
       },
     })
 
@@ -42,7 +42,7 @@ describe('nodeOps', () => {
 
     const App = defineComponent({
       setup() {
-        return () => h('box', null, [h('text', null, label.value)])
+        return () => h('tui-box', null, [h('tui-text', null, label.value)])
       },
     })
 
@@ -69,7 +69,10 @@ describe('nodeOps', () => {
     // one (keeping the surrounding content) and points at the `content` prop.
     const App = defineComponent({
       setup() {
-        return () => h('box', null, [h('text', null, ['Press ', h('text', null, 'q'), ' to quit'])])
+        return () =>
+          h('tui-box', null, [
+            h('tui-text', null, ['Press ', h('tui-text', null, 'q'), ' to quit']),
+          ])
       },
     })
 
@@ -84,7 +87,7 @@ describe('nodeOps', () => {
 
   it('warns when setText targets a non-text node', () => {
     const nodeOps = createNodeOps(test.renderer)
-    const box = nodeOps.createElement('box', undefined, undefined, undefined)
+    const box = nodeOps.createElement('tui-box', undefined, undefined, undefined)
 
     nodeOps.setText(box, 'nope')
 
@@ -93,7 +96,7 @@ describe('nodeOps', () => {
 
   it('warns when setElementText targets a non-text node', () => {
     const nodeOps = createNodeOps(test.renderer)
-    const box = nodeOps.createElement('box', undefined, undefined, undefined)
+    const box = nodeOps.createElement('tui-box', undefined, undefined, undefined)
 
     nodeOps.setElementText(box, 'nope')
 
