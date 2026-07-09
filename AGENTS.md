@@ -210,7 +210,10 @@ Bun lacks it and fails ESM validation at load time).
   `Animation` loop needs it).
 - **Ports** (keep close to upstream for diffability): `canvas.ts` (CLICanvas +
   supersampling, WGSL inlined as a TS template), `WGPURenderer.ts`
-  (ThreeCliRenderer), `ThreeRenderable.ts`.
+  (ThreeCliRenderer), `ThreeRenderable.ts`, `TextureUtils`/`SpriteUtils`/
+  `SpriteResourceManager`/`animation/*` (sprites & particles; pure three/jimp).
+  `jimp` is externalized by file URL in app builds like `bun-webgpu` — vite's
+  client resolver would pick its browser build.
 - **Vue layer**: `Three` component (a `tui-box` filled with a `ThreeRenderable`
   via `useRenderer()`; props `scene`/`camera`/`rendererOptions`/`autoAspect`)
   and `onFrame(cb)` (per-frame callback with effect-scope cleanup). Both import
