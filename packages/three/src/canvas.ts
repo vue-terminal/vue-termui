@@ -30,6 +30,10 @@ interface MappedRangePtrBuffer extends GPUBuffer {
 export class CLICanvas {
   private device: GPUDevice
   private readbackBuffer: GPUBuffer | null = null
+  // readback buffer currently used by an in-flight frame (copy + mapAsync);
+  // destroying it mid-map aborts the mapping, so retirement is deferred to
+  // the frame holding it
+  private inFlightReadbackBuffer: GPUBuffer | null = null
   private width: number
   private height: number
   private gpuCanvasContext: GPUCanvasContextMock
@@ -373,7 +377,9 @@ export class CLICanvas {
   }
 
   private updateReadbackBuffer(renderWidth: number, renderHeight: number): void {
-    this.readbackBuffer?.destroy()
+    if (this.readbackBuffer && this.readbackBuffer !== this.inFlightReadbackBuffer) {
+      this.readbackBuffer.destroy()
+    }
     const bytesPerPixel = 4 // RGBA8 or BGRA8
     const unalignedBytesPerRow = renderWidth * bytesPerPixel
     const alignedBytesPerRow = Math.ceil(unalignedBytesPerRow / 256) * 256
@@ -403,6 +409,7 @@ export class CLICanvas {
       throw new Error('Readback buffer not found')
     }
 
+    this.inFlightReadbackBuffer = textureBuffer
     try {
       const bytesPerPixel = 4 // RGBA8 or BGRA8
       const unalignedBytesPerRow = this.width * bytesPerPixel
@@ -469,6 +476,12 @@ export class CLICanvas {
       }
     } finally {
       textureBuffer.unmap()
+      this.inFlightReadbackBuffer = null
+      // a toggle/resize during mapAsync replaced this.readbackBuffer and left
+      // this one to us
+      if (textureBuffer !== this.readbackBuffer) {
+        textureBuffer.destroy()
+      }
     }
   }
 }

@@ -65,6 +65,40 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
     },
   )
 
+  it(
+    'survives toggling supersampling while a readback map is in flight',
+    { timeout: 30_000 },
+    async () => {
+      const test = await createTestRenderer({ width: 16, height: 8 })
+      const engine = new ThreeCliRenderer(test.renderer, {
+        width: 16,
+        height: 8,
+        superSample: SuperSampleType.NONE,
+        backgroundColor: RED,
+      })
+      await engine.init()
+
+      // keypress-style toggle lands while mapAsync is pending; it must not
+      // destroy the buffer under the mapping (WGPU aborts the map otherwise)
+      const canvas = (engine as unknown as { canvas: { readbackBuffer: GPUBuffer } }).canvas
+      const readback = canvas.readbackBuffer
+      const originalMapAsync = readback.mapAsync.bind(readback)
+      readback.mapAsync = (...args: Parameters<GPUBuffer['mapAsync']>) => {
+        const pending = originalMapAsync(...args)
+        engine.toggleSuperSampling()
+        return pending
+      }
+
+      const buffer = test.renderer.nextRenderBuffer
+      await expect(engine.drawScene(new Scene(), buffer, 0)).resolves.toBeUndefined()
+      // next frame renders through the new mode with the replacement buffer
+      await engine.drawScene(new Scene(), buffer, 0)
+
+      engine.destroy()
+      test.renderer.destroy()
+    },
+  )
+
   it('resizes the render target with the output size', { timeout: 30_000 }, async () => {
     const test = await createTestRenderer({ width: 16, height: 8 })
     const engine = new ThreeCliRenderer(test.renderer, { width: 16, height: 8 })

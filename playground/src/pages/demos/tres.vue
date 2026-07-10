@@ -115,6 +115,7 @@ onKeyDown((key) => {
       :height="sceneHeight"
       @mouse-down.left.stop="startCameraControl($event, 'orbit')"
       @mouse-down.right.stop="startCameraControl($event, 'pan')"
+      @mouse-down.middle.stop="startCameraControl($event, 'pan')"
       @mouse-drag.stop="updateCameraControl"
       @mouse-drag-end="stopCameraControl"
       @mouse-scroll.stop="zoomCamera"
