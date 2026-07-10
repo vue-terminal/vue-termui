@@ -46,7 +46,8 @@ Doc comments: say what a thing is _for_, not how it works — short and stable o
   into the terminal (see its section below).
 - `playground/` is a workspace package depending on the core via `workspace:*`.
   It imports **only** from `vue-termui` (no direct `@opentui/core` or `vue`);
-  3D pages may also import `@vue-termui/three` and `three`.
+  3D pages may also import `@vue-termui/three`, `three` and `@tresjs/core`
+  (see the TresJS bullet in the three section).
 - `old/` holds the previous monorepo, kept for reference while migrating.
 
 ### Custom renderer (`src/renderer/`)
@@ -86,6 +87,10 @@ Doc comments: say what a thing is _for_, not how it works — short and stable o
 - `Text` folds its boolean style props (`bold`, `italic`, `underline`, `dim`,
   `strikethrough`, `inverse`, `blink`) into OpenTUI's single `attributes`
   bitmask; `fg`/`bg`/`wrap` map to `fg`/`bg`/`wrapMode`. Content is the slot.
+  Defaults `flexShrink: 0` (overridable): a flex-squeezed `TextRenderable`
+  still paints every wrapped row, drawing over the sibling below it — in a
+  height-constrained column, wrapped Texts corrupted their neighbors (chars
+  showing through spaces) before this default.
 
 #### Adding a new native component (research recipe)
 
@@ -218,6 +223,14 @@ Bun lacks it and fails ESM validation at load time).
   via `useRenderer()`; props `scene`/`camera`/`rendererOptions`/`autoAspect`)
   and `onFrame(cb)` (per-frame callback with effect-scope cleanup). Both import
   Vue APIs from `vue-termui` (peer dep) — never from `vue`.
+- **`autoAspect` re-syncs every frame** (epsilon-guarded): the terminal answers
+  OpenTUI's pixel-size query asynchronously after setup/resize, so
+  `cliRenderer.resolution` (real cell metrics) is null at mount and the aspect
+  falls back to assuming 1:2 cells — a one-shot computation stays subtly
+  stretched (~8% in Ghostty). Supersampling (`SuperSampleType`, default `GPU` —
+  the WGSL compute shader) packs 2×2 px per cell as quadrant glyphs;
+  `renderable.renderer.toggleSuperSampling()` cycles NONE→CPU→GPU (the
+  texture + tres demos bind it to `U`).
 - **Build/bundling invariant**: in app builds the 3D stack is **bundled** (so
   it shares the bundle's single `@vue/runtime-core` and `three`); only
   `bun-webgpu` stays external, resolved to an **absolute file URL** at build
@@ -228,6 +241,28 @@ Bun lacks it and fails ESM validation at load time).
 - Tests need the FFI env var like the core suite; the WGPU specs create real
   GPU devices (Metal/Vulkan required). Root `vitest.config.ts` includes
   `packages/three/src`.
+- **TresJS works in the terminal, unpatched** (`/demos/tres`, adapter:
+  `playground/src/components/TresTerminal.vue`). `<TresCanvasContext>` (from
+  `@tresjs/core`) runs Tres's custom Vue renderer over the slot to build the
+  scene graph; `<Three>` draws it. Tres only touches its `canvas` prop for
+  sizing (`parentElement.offsetWidth/Height`, read once on mount by
+  `useElementSize`) and pointer listeners/capture, so a stub object suffices;
+  its `renderer` prop is a factory, replaced by a no-op shell whose
+  `domElement` must have nonzero `width`/`height` (gates the `ready` event →
+  slot mount) and which must carry `shadowMap` (the Boolean `shadows` prop
+  coerces to `false`, not `undefined`, and is written unconditionally). Camera
+  and scene flow out of the `ready` context (`context.camera.activeCamera` is
+  reactive); Tres's camera manager writes an aspect derived from the stub
+  sizes, but `autoAspect`'s per-frame re-sync overrides it. Requires the single
+  `@vue/runtime-core` instance (Tres imports `vue`, which shares the same
+  runtime-core in dev-external and bundled builds — slot vnodes cross renderer
+  boundaries). Caveats: no `window` → `@vueuse` `useRafFn` never starts, so
+  Tres's own loop and `useLoop` are dead (animate with `onFrame`); pointer
+  events never fire. Tres tags compile as custom elements via the playground
+  vite config's `isCustomElement` (whitelist real components: `TresCanvas`,
+  `TresCanvasContext`, `TresTerminal`). Don't grab Tres objects with
+  `useTemplateRef` — its dev-only readonly proxy blocks per-frame mutation
+  (silently in prod); use a plain `shallowRef` + string ref.
 
 ### Authoring & DX tooling
 
