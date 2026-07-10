@@ -4,6 +4,7 @@ import {
   LinearSRGBColorSpace,
   NoToneMapping,
   OrthographicCamera,
+  PCFSoftShadowMap,
   PerspectiveCamera,
   Scene,
 } from 'three'
@@ -23,6 +24,11 @@ export interface ThreeCliRendererOptions {
   backgroundColor?: RGBA
   superSample?: SuperSampleType
   alpha?: boolean
+  /**
+   * Enable shadow maps (lights/meshes still need their own
+   * `castShadow`/`receiveShadow`). Defaults to `false`, like three.
+   */
+  shadows?: boolean
   autoResize?: boolean
   libPath?: string
 }
@@ -35,6 +41,7 @@ export class ThreeCliRenderer {
   private superSample: SuperSampleType
   private backgroundColor: RGBA = RGBA.fromValues(0, 0, 0, 1)
   private alpha: boolean = false
+  private shadows: boolean = false
   private libPath?: string
   private threeRenderer?: WebGPURenderer
   private canvas?: CLICanvas
@@ -83,6 +90,7 @@ export class ThreeCliRenderer {
 
     this.backgroundColor = options.backgroundColor ?? RGBA.fromValues(0, 0, 0, 1)
     this.alpha = options.alpha ?? false
+    this.shadows = options.shadows ?? false
     this.libPath = options.libPath
 
     if (process.env.CELL_ASPECT_RATIO) {
@@ -145,6 +153,11 @@ export class ThreeCliRenderer {
 
       this.threeRenderer.toneMapping = NoToneMapping
       this.threeRenderer.outputColorSpace = LinearSRGBColorSpace
+
+      if (this.shadows) {
+        this.threeRenderer.shadowMap.enabled = true
+        this.threeRenderer.shadowMap.type = PCFSoftShadowMap
+      }
 
       this.threeRenderer.setSize(this.renderWidth, this.renderHeight, false)
     } catch (error) {
