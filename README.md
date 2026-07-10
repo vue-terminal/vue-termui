@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://vue-termui.esm.dev" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://vue-termui.esm.dev/logo-big.svg" alt="Vue TermUI logo">
+  <a href="https://vue-termui.dev" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="https://vue-termui.dev/logo-big.svg" alt="Vue TermUI logo">
   </a>
 </p>
 
