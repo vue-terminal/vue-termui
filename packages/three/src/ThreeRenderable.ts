@@ -130,6 +130,10 @@ export class ThreeRenderable extends Renderable {
 
     this.frameCallback = async (deltaTime: number) => {
       if (this.isDestroyed || !this.visible || !this.parent) return
+      // The terminal answers OpenTUI's pixel-size query asynchronously, so the
+      // cell metrics behind the aspect ratio can change after mount/resize;
+      // re-sync every frame (no-op unless the value actually moved).
+      this.updateCameraAspect(this.width, this.height)
       if (!this.scene || !this.frameBuffer) return
       await this.renderToBuffer(this.frameBuffer, deltaTime / 1000)
     }
@@ -176,7 +180,9 @@ export class ThreeRenderable extends Renderable {
 
     const camera = this.engine.getActiveCamera()
     if (camera instanceof PerspectiveCamera) {
-      camera.aspect = this.getAspectRatio(width, height)
+      const aspect = this.getAspectRatio(width, height)
+      if (Math.abs(camera.aspect - aspect) < 1e-6) return
+      camera.aspect = aspect
       camera.updateProjectionMatrix()
     }
   }
