@@ -252,8 +252,13 @@ Bun lacks it and fails ESM validation at load time).
   slot mount) and which must carry `shadowMap` (the Boolean `shadows` prop
   coerces to `false`, not `undefined`, and is written unconditionally). Camera
   and scene flow out of the `ready` context (`context.camera.activeCamera` is
-  reactive); Tres's camera manager writes an aspect derived from the stub
-  sizes, but `autoAspect`'s per-frame re-sync overrides it. Requires the single
+  reactive — but **`toRaw` it**: Tres keeps cameras in a deep ref, so the
+  value is a reactive proxy, and autoAspect's per-frame `camera.aspect` write
+  through it re-triggers Tres's camera watcher, which writes its stub-derived
+  aspect back — a per-frame ping-pong the terminal loses. The stub also
+  reports `offsetWidth: 0` so Tres's aspect management disables itself
+  (`aspectRatio` falsy) while nonzero `offsetHeight` avoids the "canvas has no
+  area" warning. Requires the single
   `@vue/runtime-core` instance (Tres imports `vue`, which shares the same
   runtime-core in dev-external and bundled builds — slot vnodes cross renderer
   boundaries). Caveats: no `window` → `@vueuse` `useRafFn` never starts, so
