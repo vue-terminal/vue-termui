@@ -15,6 +15,21 @@ export default defineConfig({
       importMode: 'sync',
       dts: 'typed-router.d.ts',
     }),
-    vueTermui(),
+    vueTermui({
+      vue: {
+        template: {
+          compilerOptions: {
+            // TresJS scene tags are host elements of Tres's own custom
+            // renderer (mounted by <TresCanvasContext>), not components.
+            // Mirrors @tresjs/core's templateCompilerOptions.
+            // (TresTerminal is our real component wrapping the context.)
+            isCustomElement: (tag) =>
+              (/^Tres[A-Z]/.test(tag) &&
+                !['TresCanvas', 'TresCanvasContext', 'TresTerminal'].includes(tag)) ||
+              tag === 'primitive',
+          },
+        },
+      },
+    }),
   ],
 })

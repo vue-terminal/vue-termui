@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@opentui/core": "^0.4.1",
+    "@tresjs/core": "^5.8.3",
     "@vue-termui/three": "workspace:*",
     "three": "0.177.0",
     "vue-router": "^5.1.0",
