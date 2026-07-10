@@ -64,6 +64,7 @@ const items = [
   { label: 'Static sprite (3D)', to: '/demos/static-sprite' },
   { label: 'Sprite particles (3D)', to: '/demos/sprite-particles' },
   { label: 'TresJS scene (3D)', to: '/demos/tres' },
+  { label: 'Domino tiles', to: '/demos/dominos' },
 ] as const
 
 // Public instances of each SidebarLink, collected via function refs.
