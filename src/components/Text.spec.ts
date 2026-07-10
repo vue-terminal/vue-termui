@@ -98,4 +98,27 @@ describe('Text', () => {
     expect(text).toBeInstanceOf(TextRenderable)
     expect(test.captureCharFrame()).toContain('Press q to quit')
   })
+
+  it('keeps its wrapped height under flex height pressure', async () => {
+    // In a height-constrained column, flex shrink used to squeeze a wrapped
+    // Text below its measured height while it still painted every wrapped
+    // row, corrupting the sibling underneath (chars showing through spaces).
+    render(
+      h('tui-box', { flexDirection: 'column' }, [
+        h(
+          Text,
+          null,
+          () => 'TresJS — declarative three.js components rendered by @vue-termui/three',
+        ),
+        h(Text, null, () => 'Space: toggle spin (on) · C: cycle color'),
+        h('tui-box', { border: true, height: 10 }),
+      ]),
+      test.renderer.root,
+    )
+    await test.renderOnce()
+
+    const frame = test.captureCharFrame()
+    expect(frame).toContain('components rendered by @vue-termui/three')
+    expect(frame).toContain('Space: toggle spin (on) · C: cycle color')
+  })
 })
