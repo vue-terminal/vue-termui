@@ -13,7 +13,7 @@
 import { TresCanvasContext, type TresContext, type TresRenderer } from '@tresjs/core'
 import { Three, type ThreeProps, type ThreeRenderable } from '@vue-termui/three'
 import type { OrthographicCamera, PerspectiveCamera } from 'three'
-import { computed, shallowRef, type PropType } from 'vue-termui'
+import { computed, shallowRef, toRaw, type PropType } from 'vue-termui'
 
 defineOptions({ inheritAttrs: false })
 
@@ -29,10 +29,11 @@ const stub = {
   // nonzero after the renderer initializes.
   width: 1,
   height: 1,
-  // measured by useElementSize via parentElement (self-referenced below);
-  // nonzero avoids the "canvas has no area" warning. The real aspect ratio is
-  // re-applied from the terminal cell grid by ThreeRenderable's autoAspect.
-  offsetWidth: 800,
+  // measured by useElementSize via parentElement (self-referenced below).
+  // Width 0 makes Tres's aspectRatio falsy so its camera manager never writes
+  // camera.aspect — the terminal cell grid is the truth and ThreeRenderable's
+  // autoAspect owns it. Height nonzero avoids the "canvas has no area" warning.
+  offsetWidth: 0,
   offsetHeight: 500,
   parentElement: null as unknown,
   addEventListener: noop,
@@ -58,9 +59,15 @@ function createStubRenderer(): TresRenderer {
 
 const context = shallowRef<TresContext | null>(null)
 const scene = computed(() => context.value?.scene.value ?? null)
-const camera = computed(
-  () =>
+// toRaw: Tres keeps cameras in a deep ref, so activeCamera.value is a reactive
+// proxy. Handing that proxy to <Three> makes autoAspect's per-frame
+// `camera.aspect` write re-trigger Tres's camera watcher (it tracks the fields
+// through updateProjectionMatrix), which writes its own aspect back — a
+// per-frame ping-pong the terminal loses. The raw camera bypasses tracking.
+const camera = computed(() =>
+  toRaw(
     context.value?.camera.activeCamera.value as PerspectiveCamera | OrthographicCamera | undefined,
+  ),
 )
 
 function onReady(ctx: TresContext) {
