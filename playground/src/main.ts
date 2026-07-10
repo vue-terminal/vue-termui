@@ -1,6 +1,6 @@
 // Imported first: mirrors console output + uncaught errors into
 // playground/logs/*.log before any other module runs (see ./logging).
-import './logging'
+import { patchConsole } from './logging'
 import { createApp } from 'vue-termui'
 import App from './App.vue'
 import { router } from './router'
@@ -13,6 +13,9 @@ const app = await createApp(App, null, {
     events: true,
   },
 })
+// createApp swapped console for OpenTUI's overlay capture; re-own it so
+// console output keeps reaching the log files (still chains to the overlay).
+patchConsole()
 
 app.use(router)
 // memory history has no initial route; VUE_TERMUI_START_LOCATION defaults to '/',
