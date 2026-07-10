@@ -72,6 +72,9 @@ export const Text: FunctionalComponent<TextProps> = (props, { slots, attrs }) =>
     'tui-text',
     {
       attributes: toAttributes(props),
+      // A flex-squeezed TextRenderable still paints every wrapped row, drawing
+      // over the sibling below it; refuse to shrink (overridable via attrs).
+      flexShrink: 0,
       ...attrs,
     },
     slots.default?.(),
