@@ -110,6 +110,32 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
     })
   }
 
+  // WORKAROUND: OpenTUI setters don't treat `null`/`undefined` as "reset to
+  // default" — they store it as-is or silently ignore it. When a prop is
+  // unset, read the default off a throwaway pristine instance of the same
+  // renderable class, cached so each (class, key) pays the construction once.
+  const classDefaults = new Map<Function, Map<string, unknown>>()
+  const defaultValue = (el: BaseRenderable, key: string): unknown => {
+    let defaults = classDefaults.get(el.constructor)
+    if (!defaults) {
+      defaults = new Map()
+      classDefaults.set(el.constructor, defaults)
+    }
+    // `has()`, not a nullish check: defaults are often `false` or `0`
+    if (!defaults.has(key)) {
+      const Ctor = el.constructor as new (ctx: RenderContext, options: object) => BaseRenderable
+      // Markdown needs a `syntaxStyle` to construct meaningfully; reuse the
+      // element's own (unsetting `syntaxStyle` itself is then a no-op).
+      const pristine = new Ctor(
+        ctx,
+        el instanceof MarkdownRenderable ? { syntaxStyle: el.syntaxStyle } : {},
+      )
+      defaults.set(key, (pristine as unknown as Record<string, unknown>)[key])
+      pristine.destroyRecursively()
+    }
+    return defaults.get(key)
+  }
+
   return {
     createElement(tag, _namespace, _isCustomizedBuiltIn, props) {
       // NOTE: props are ignored here because Vue calls patchProp sync right
@@ -247,14 +273,22 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
       // arrive as an array, but a renderable holds a single handler per event —
       // collapse them into one dispatcher that runs each, like Vue's DOM
       // "invokers" do.
-      const value =
-        Array.isArray(nextValue) && /^on[A-Z]/.test(key)
+      const isEventHandler = /^on[A-Z]/.test(key)
+      let value =
+        Array.isArray(nextValue) && isEventHandler
           ? (...args: unknown[]): void => {
               for (const handler of nextValue) {
                 if (typeof handler === 'function') handler(...args)
               }
             }
           : nextValue
+
+      // Unsetting restores the class default. Event props skip it: they are
+      // set-only accessors where nullish already means "remove the handler".
+      if (!isEventHandler && value == null) {
+        value = defaultValue(el, key)
+      }
+
       ;(el as unknown as Record<string, unknown>)[key] = value
       scheduleRender()
     },

@@ -1,10 +1,12 @@
 // @vitest-environment node
 import { createRenderer } from '@vue/runtime-core'
+import { SyntaxStyle } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNodeOps } from './nodeOps'
 import { mockConsoleError, mockConsoleWarn } from '../__tests__/mock-console'
+import type { BoxRenderable, MarkdownRenderable, TextRenderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 
 describe('nodeOps', () => {
@@ -101,5 +103,100 @@ describe('nodeOps', () => {
     nodeOps.setElementText(box, 'nope')
 
     expect('[vue-termui] setElementText called on non-text node').toHaveBeenWarned()
+  })
+
+  describe('patchProp reset to default', () => {
+    it('restores the pristine value when a prop is patched to undefined', () => {
+      const nodeOps = createNodeOps(test.renderer)
+      const box = nodeOps.createElement('tui-box', undefined, undefined, undefined) as BoxRenderable
+
+      nodeOps.patchProp(box, 'border', null, true)
+      expect(box.border).toBe(true)
+
+      nodeOps.patchProp(box, 'border', true, undefined)
+      expect(box.border).toBe(false)
+    })
+
+    it('restores the pristine value when a prop is patched to null', () => {
+      // `overflow`'s setter silently ignores nullish values, so without the
+      // restore the last value would stick forever
+      const nodeOps = createNodeOps(test.renderer)
+      const box = nodeOps.createElement('tui-box', undefined, undefined, undefined) as BoxRenderable
+
+      nodeOps.patchProp(box, 'overflow', null, 'hidden')
+      expect(box.overflow).toBe('hidden')
+
+      nodeOps.patchProp(box, 'overflow', 'hidden', null)
+      expect(box.overflow).toBe('visible')
+    })
+
+    it('restores defaults across elements of the same class', () => {
+      const nodeOps = createNodeOps(test.renderer)
+      const a = nodeOps.createElement('tui-text', undefined, undefined, undefined) as TextRenderable
+      const b = nodeOps.createElement('tui-text', undefined, undefined, undefined) as TextRenderable
+
+      nodeOps.patchProp(a, 'attributes', null, 1)
+      nodeOps.patchProp(b, 'attributes', null, 2)
+      nodeOps.patchProp(a, 'attributes', 1, undefined)
+      nodeOps.patchProp(b, 'attributes', 2, undefined)
+
+      expect(a.attributes).toBe(0)
+      expect(b.attributes).toBe(0)
+    })
+
+    it('restores defaults on <tui-markdown>, whose renderable needs a syntaxStyle to construct', () => {
+      const nodeOps = createNodeOps(test.renderer)
+      const syntaxStyle = SyntaxStyle.fromStyles({ default: { fg: '#ffffff' } })
+      const md = nodeOps.createElement('tui-markdown', undefined, undefined, {
+        syntaxStyle,
+      }) as MarkdownRenderable
+
+      nodeOps.patchProp(md, 'content', null, '# hi')
+      expect(md.content).toBe('# hi')
+
+      nodeOps.patchProp(md, 'content', '# hi', undefined)
+      expect(md.content).toBe('')
+      expect(md.syntaxStyle).toBe(syntaxStyle)
+    })
+
+    it('clears event handlers instead of restoring them', () => {
+      const nodeOps = createNodeOps(test.renderer)
+      const box = nodeOps.createElement('tui-box', undefined, undefined, undefined)
+      const handler = vi.fn()
+      // event props are set-only accessors backed by this internal store
+      const listeners = (box as unknown as { _mouseListeners: Record<string, unknown> })
+        ._mouseListeners
+
+      nodeOps.patchProp(box, 'onMouseDown', null, handler)
+      expect(listeners.down).toBe(handler)
+
+      nodeOps.patchProp(box, 'onMouseDown', handler, undefined)
+      expect(listeners.down).toBeUndefined()
+    })
+
+    it('restores defaults when a bound prop becomes undefined', async () => {
+      const { render } = createRenderer(createNodeOps(test.renderer))
+      const border = ref<boolean | undefined>(true)
+      let el: BoxRenderable | undefined
+
+      const App = defineComponent({
+        setup() {
+          return () =>
+            h('tui-box', {
+              border: border.value,
+              ref: (r: unknown) => (el = r as BoxRenderable),
+            })
+        },
+      })
+
+      render(h(App), test.renderer.root)
+      await test.renderOnce()
+      expect(el!.border).toBe(true)
+
+      border.value = undefined
+      await nextTick()
+      await test.renderOnce()
+      expect(el!.border).toBe(false)
+    })
   })
 })
