@@ -10,8 +10,14 @@
 // Orbit controls are hand-rolled: cientos' <OrbitControls> rides DOM pointer
 // events that never fire in a TTY, so the viewport Box's mouse-drag/scroll
 // events drive the camera over a spherical orbit around the target instead.
-import { RGBA, type ThreeRenderable } from '@vue-termui/three'
-import { Spherical, Vector3, type PerspectiveCamera } from 'three'
+import { onFrame, RGBA, type ThreeRenderable } from '@vue-termui/three'
+import {
+  DoubleSide,
+  Spherical,
+  Vector3,
+  type DirectionalLight,
+  type PerspectiveCamera,
+} from 'three'
 import { Box, computed, onKeyDown, shallowRef, Text, useTerminalSize } from 'vue-termui'
 import TresTerminal from '../../components/TresTerminal.vue'
 import type { MouseEvent } from '@opentui/core'
@@ -102,6 +108,31 @@ function zoomCamera(event: MouseEvent) {
 onKeyDown((key) => {
   if (key.name === 'u') tres.value?.renderable?.renderer.toggleSuperSampling()
 })
+
+// Tres's useLoop never fires in a TTY (see TresTerminal.vue) — onFrame drives
+// the orbit instead. Plain shallowRef + string ref for the same readonly-proxy
+// reason as the camera above.
+const orbitLight = shallowRef<DirectionalLight | null>(null)
+// radius clears everything: tallest geometry tops out at ~6.75 (cone at y=6)
+// under the circle's apex, and at y=0 the circle sits at z=±8, past the 10x10
+// plane's edge
+const LIGHT_ORBIT_RADIUS = 8
+const LIGHT_ORBIT_X = 2
+const LIGHT_ORBIT_SPEED = 0.8 // rad/s
+let lightAngle = 0
+
+// circle in the YZ plane (around the X axis): the light passes over the plane
+// then under it, so the scene pulses between lit and dark
+onFrame((deltaMs) => {
+  const light = orbitLight.value
+  if (!light) return
+  lightAngle += (deltaMs / 1000) * LIGHT_ORBIT_SPEED
+  light.position.set(
+    LIGHT_ORBIT_X,
+    Math.cos(lightAngle) * LIGHT_ORBIT_RADIUS,
+    Math.sin(lightAngle) * LIGHT_ORBIT_RADIUS,
+  )
+})
 </script>
 
 <template>
@@ -147,7 +178,19 @@ onKeyDown((key) => {
           <TresMeshToonMaterial color="#D3FC8A" />
         </TresMesh>
         <TresAmbientLight :intensity="0.75" />
-        <TresDirectionalLight :position="[0, 2, 4]" :intensity="2" cast-shadow />
+        <TresDirectionalLight
+          ref="orbitLight"
+          :position="[LIGHT_ORBIT_X, LIGHT_ORBIT_RADIUS, 0]"
+          :intensity="2"
+          cast-shadow
+        >
+          <!-- unlit marker showing where the light is; child of the light so it
+          follows the orbit for free -->
+          <TresMesh>
+            <TresPlaneGeometry :args="[1, 1]" />
+            <TresMeshBasicMaterial color="#FFDD55" :side="DoubleSide" />
+          </TresMesh>
+        </TresDirectionalLight>
       </TresTerminal>
     </Box>
   </Box>
