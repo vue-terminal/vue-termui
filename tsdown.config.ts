@@ -1,7 +1,17 @@
 import { defineConfig } from 'tsdown'
 import type { UserConfig } from 'tsdown'
+import pkg from './package.json' with { type: 'json' }
+
+const banner = `
+/*!
+ * ${pkg.name} v${pkg.version}
+ * (c) ${new Date().getFullYear()} Eduardo San Martin Morote
+ * @license MIT
+ */
+`.trim()
 
 const commonOptions = {
+  banner,
   sourcemap: true,
   format: ['esm'],
   deps: {
