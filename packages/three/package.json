@@ -45,7 +45,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.1",
+    "@opentui/core": "^0.4.3",
     "bun-webgpu": "0.1.7",
     "jimp": "1.6.1"
   },
@@ -54,11 +54,11 @@
     "vue-termui": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.1.1",
     "@types/three": "0.177.0",
     "@webgpu/types": "^0.1.60",
     "three": "0.177.0",
-    "tsdown": "^0.22.3",
+    "tsdown": "^0.22.7",
     "typescript": "~6.0.3",
     "vue-termui": "workspace:*"
   },

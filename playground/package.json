@@ -10,7 +10,7 @@
     "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.1",
+    "@opentui/core": "^0.4.3",
     "@tresjs/core": "^5.8.3",
     "@vue-termui/three": "workspace:*",
     "three": "0.177.0",
@@ -18,12 +18,12 @@
     "vue-termui": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
-    "@vitejs/plugin-vue": "^6.0.7",
+    "@types/node": "^26.1.1",
+    "@vitejs/plugin-vue": "^6.0.8",
     "@vueuse/core": "^14.3.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.16",
-    "vue": "^3.5.32"
+    "vite": "^8.1.4",
+    "vue": "^3.5.39"
   },
   "engines": {
     "node": ">=26.3.0"

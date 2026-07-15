@@ -42,8 +42,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
-    "@types/node": "^26.0.0",
-    "tsdown": "^0.22.3"
+    "@types/node": "^26.1.1",
+    "tsdown": "^0.22.7"
   },
   "engines": {
     "node": ">=26.3.0"
