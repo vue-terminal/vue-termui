@@ -17,6 +17,28 @@ export function loadWebGPU(): Promise<WebGPUModule> {
   return webgpuModule
 }
 
+/**
+ * Installs the browser globals three/webgpu expects but Node lacks. Idempotent
+ * (only fills globals that are still undefined) and free of native
+ * dependencies, so it is safe to call before the GPU device exists.
+ */
+export function installBrowserGlobals(): void {
+  const g = globalThis as Record<string, unknown>
+  // three's internal Animation loop drives itself with
+  // `self.requestAnimationFrame`; Bun has both globals, Node has neither.
+  // The timers are unref'd so an idle loop never keeps the process alive.
+  g.self ??= globalThis
+  g.requestAnimationFrame ??= (callback: (time: number) => void) =>
+    setTimeout(() => callback(performance.now()), 16).unref()
+  g.cancelAnimationFrame ??= (id: NodeJS.Timeout) => clearTimeout(id)
+  // three references these WebCodecs/DOM types in unguarded `instanceof`
+  // checks (Textures.getSize on VideoFrame for every texture, since 0.180;
+  // NodeSampler.setupUV on ImageBitmap). Our images are never such instances,
+  // so empty-class stubs make the checks resolve to false instead of throwing.
+  g.VideoFrame ??= class VideoFrame {}
+  g.ImageBitmap ??= class ImageBitmap {}
+}
+
 let globalsReady: Promise<WebGPUModule> | undefined
 
 /**
@@ -37,14 +59,7 @@ export function setupWebGPU(libPath?: string): Promise<WebGPUModule> {
         configurable: true,
       })
     }
-    // three's internal Animation loop drives itself with
-    // `self.requestAnimationFrame`; Bun has both globals, Node has neither.
-    // The timers are unref'd so an idle loop never keeps the process alive.
-    const g = globalThis as Record<string, unknown>
-    g.self ??= globalThis
-    g.requestAnimationFrame ??= (callback: (time: number) => void) =>
-      setTimeout(() => callback(performance.now()), 16).unref()
-    g.cancelAnimationFrame ??= (id: NodeJS.Timeout) => clearTimeout(id)
+    installBrowserGlobals()
     await webgpu.setupGlobals({ libPath })
     return webgpu
   }))
