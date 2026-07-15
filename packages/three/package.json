@@ -50,14 +50,14 @@
     "jimp": "1.6.1"
   },
   "peerDependencies": {
-    "three": "^0.178.0",
+    "three": "^0.179.1",
     "vue-termui": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "@types/three": "0.178.0",
+    "@types/three": "0.179.0",
     "@webgpu/types": "^0.1.60",
-    "three": "0.178.0",
+    "three": "0.179.1",
     "tsdown": "^0.22.7",
     "typescript": "~6.0.3",
     "vue-termui": "workspace:*"
