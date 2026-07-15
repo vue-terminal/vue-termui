@@ -18,7 +18,8 @@ import {
   floor,
   mod,
 } from 'three/tsl'
-import { MeshBasicNodeMaterial, NodeMaterial } from 'three/webgpu'
+import { MeshBasicNodeMaterial, NodeMaterial, type Node } from 'three/webgpu'
+import type { ShaderNodeObject } from 'three/tsl'
 import type { SpriteResource, InstanceManager } from '../SpriteResourceManager'
 
 export interface ParticleEffectParameters {
@@ -206,7 +207,10 @@ export class SpriteParticleGenerator {
     const cosZ = cos(rotationAmount.z)
     const sinZ = sin(rotationAmount.z)
 
-    const rotationMatrix = mat3(
+    // @types/three types mat3() only for 9 numbers or a single node, but the
+    // runtime builds a JoinNode from 9 node args. Widen the signature to match.
+    const mat3n = mat3 as unknown as (...args: Node[]) => ShaderNodeObject<Node>
+    const rotationMatrix = mat3n(
       cosY.mul(cosZ),
       cosY.mul(sinZ).negate(),
       sinY,
@@ -229,7 +233,7 @@ export class SpriteParticleGenerator {
     const scaledPosition = rotatedVertexPosition.mul(currentScale)
     const finalPosition = scaledPosition.add(currentPosition)
 
-    let opacity = float(1.0)
+    let opacity: ShaderNodeObject<Node> = float(1.0)
     if (this.baseConfig.fadeOut) {
       const fadeStart = float(0.7)
       const fadeProgress = max(
