@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { Terminal } from '@xterm/xterm'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { CanvasAddon } from '@xterm/addon-canvas'
@@ -43,10 +43,13 @@ let themeObserver: MutationObserver | undefined
 
 // The cast is a fixed grid, so rather than scroll on small screens (or CSS-stretch
 // and blur the blocks), we shrink the font to fit narrow containers. We never grow
-// past the native size. Font metrics are linear in size, so we measure the grid's
-// natural width once at the base size and derive the fit from it.
+// past the native size. Font metrics are linear in size, so we measure a single
+// column's width once at the base size — a font constant — and derive the grid's
+// natural width as `cols × cellWidthBase`. Deriving it (instead of re-measuring the
+// DOM) keeps the fit correct when the grid changes: the terminal's font is usually
+// mid-shrink, so a fresh measurement would read the shrunken width and overshoot.
 const BASE_FONT_SIZE = 14
-let baseWidth = 0
+let cellWidthBase = 0
 
 const duration = computed(() => castData.value?.duration ?? 0)
 const progress = computed(() =>
@@ -178,23 +181,32 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-// Grabs the character grid's pixel width (`.xterm-screen`), which is the fixed
-// cols × cell size — not xterm's full-width root element. Retries until the
+function cols(): number {
+  const w = castData.value?.header.width ?? 0
+  return w > 0 ? w : 80
+}
+
+// Learn the per-column pixel width from `.xterm-screen` (the fixed cols × cell
+// grid, not xterm's full-width root). Must run while the font is at its base size,
+// so it's called once at startup before any fit() shrinks it. Retries until the
 // renderer has laid out, then does the first fit.
-function measureAndFit(attempt = 0): void {
+function measureBase(attempt = 0): void {
   const screen = term?.element?.querySelector<HTMLElement>('.xterm-screen')
-  baseWidth = screen?.offsetWidth ?? 0
-  if (baseWidth <= 0 && attempt < 5) {
-    requestAnimationFrame(() => measureAndFit(attempt + 1))
+  const width = screen?.offsetWidth ?? 0
+  if (width <= 0 && attempt < 5) {
+    requestAnimationFrame(() => measureBase(attempt + 1))
     return
   }
+  cellWidthBase = width / cols()
   fit()
 }
 
 function fit(): void {
-  if (!term || !viewport.value || baseWidth <= 0) return
+  if (!term || !viewport.value || cellWidthBase <= 0) return
   const available = viewport.value.clientWidth
   if (available <= 0) return
+  // Grid width at the base font size, derived from the measured column width.
+  const baseWidth = cols() * cellWidthBase
   // Only ever shrink to fit — cap at the native size so it never upscales.
   const size = Math.min(BASE_FONT_SIZE, Math.max(5, (BASE_FONT_SIZE * available) / baseWidth))
   if (Math.abs(size - (term.options.fontSize ?? BASE_FONT_SIZE)) > 0.1) {
@@ -219,6 +231,41 @@ function applyTheme(): void {
   }
   if (term) term.options.theme = theme
 }
+
+// Play a new cast without remounting: match the terminal to its grid, replay from
+// the start, and keep the playhead where it was (clamped to the new, possibly
+// shorter, duration). The player owns none of this content — a parent that swaps
+// the `cast` prop (e.g. to preview an edit) drives it through here.
+function applyCast(next: Cast): void {
+  castData.value = next
+  if (!term) return
+  const wasPlaying = playing.value
+  pause()
+  term.resize(
+    next.header.width > 0 ? next.header.width : 80,
+    next.header.height > 0 ? next.header.height : 24,
+  )
+  term.reset()
+  writtenIndex = 0
+  const target = Math.min(elapsed.value, next.duration)
+  writeUpTo(target)
+  elapsed.value = target
+  anchorElapsed = target
+  anchorWall = performance.now()
+  // The new grid may have a different column count; refit from the measured column
+  // width (a constant — no DOM re-measure, which would misread the shrunken font).
+  fit()
+  if (wasPlaying) play()
+}
+
+// React when the parent swaps in a different cast object. (Before the terminal
+// exists, storing it is enough — start() reads castData.)
+watch(
+  () => props.cast,
+  (next) => {
+    if (next) applyCast(next)
+  },
+)
 
 async function resolveCast(): Promise<Cast | null> {
   if (castData.value) return castData.value
@@ -282,7 +329,7 @@ async function start(): Promise<void> {
     }
   }
 
-  measureAndFit()
+  measureBase()
   resizeObserver = new ResizeObserver(() => fit())
   if (viewport.value) resizeObserver.observe(viewport.value)
 
