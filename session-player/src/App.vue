@@ -1,30 +1,34 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import SessionPlayer from '@/components/SessionPlayer.vue'
-import { type Cast, parseCast } from '@/player/cast'
+import SessionPlayer from '@vue-termui/docs/player'
+import { type Cast, parseCast } from '@vue-termui/docs/cast'
 
 interface Recording {
   id: string
   name: string
-  cast: Cast
+  // Bundled recordings pass a URL the player fetches lazily; dropped files are
+  // already parsed in memory.
+  src?: string
+  cast?: Cast
   local?: boolean
 }
 
 // Auto-discover every recorded session bundled under src/casts. Each .cast is
-// produced by the asciinema recorder (session-player/scripts/record.sh).
+// produced by the asciinema recorder (session-player/scripts/record.sh). Using
+// `?url` keeps them out of the bundle — the player fetches each one on demand.
 const modules = import.meta.glob('./casts/*.cast', {
-  query: '?raw',
+  query: '?url',
   import: 'default',
   eager: true,
 })
 
 const bundled: Recording[] = Object.entries(modules)
-  .map(([path, raw]) => {
+  .map(([path, url]) => {
     const name = path
       .split('/')
       .pop()!
       .replace(/\.cast$/, '')
-    return { id: name, name, cast: parseCast(raw as string) }
+    return { id: name, name, src: url as string }
   })
   .sort((a, b) => a.name.localeCompare(b.name))
 
@@ -109,7 +113,7 @@ function onDrop(event: DragEvent): void {
         </button>
       </nav>
 
-      <SessionPlayer v-if="current" :key="current.id" :cast="current.cast" />
+      <SessionPlayer v-if="current" :key="current.id" :src="current.src" :cast="current.cast" />
     </template>
 
     <section v-else class="empty">
