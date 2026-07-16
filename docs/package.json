@@ -7,7 +7,15 @@
     "build": "vitepress build .",
     "preview": "vitepress preview ."
   },
+  "exports": {
+    "./player": "./.vitepress/theme/components/SessionPlayer.vue",
+    "./cast": "./.vitepress/theme/components/cast.ts"
+  },
   "devDependencies": {
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@xterm/addon-canvas": "^0.7.0",
+    "@xterm/addon-webgl": "^0.19.0",
+    "@xterm/xterm": "^6.0.0",
     "vitepress": "^1.6.3",
     "vue": "^3.5.39"
   },

@@ -157,3 +157,25 @@ kbd {
   border-radius: 6px;
   box-shadow: inset 0 -1px 0 var(--vp-c-divider);
 }
+
+/**
+ * Session player
+ * Map the reusable player's tokens onto the VitePress theme so it matches docs
+ * (light & dark) automatically.
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --player-bg: var(--vp-code-block-bg);
+  --player-border: var(--vp-c-divider);
+  --player-fg: var(--vp-c-text-1);
+  --player-control-bg: var(--vp-c-bg-soft);
+  --player-control-border: var(--vp-c-divider);
+  --player-control-hover-bg: var(--vp-c-bg-mute);
+  --player-accent: var(--vp-c-brand-1);
+  --player-accent-fg: var(--vp-c-bg);
+  --player-terminal-bg: var(--vp-code-block-bg);
+  --player-terminal-fg: var(--vp-c-text-1);
+  --player-error-fg: var(--vp-c-danger-1);
+  --player-error-bg: var(--vp-c-danger-soft);
+  --player-error-border: var(--vp-c-danger-2);
+}
