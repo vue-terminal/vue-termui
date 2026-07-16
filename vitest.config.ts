@@ -33,6 +33,14 @@ export default defineConfig({
           },
         },
       },
+      {
+        plugins: [Vue()],
+        test: {
+          name: 'session-player',
+          include: ['session-player/src/**/*.{test,spec}.ts'],
+          environment: 'node',
+        },
+      },
     ],
   },
 })
