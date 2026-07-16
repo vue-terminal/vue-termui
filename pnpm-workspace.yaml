@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - playground
+  - session-player
   - docs
 ignoreWorkspaceRootCheck: true
 strictPeerDependencies: false
