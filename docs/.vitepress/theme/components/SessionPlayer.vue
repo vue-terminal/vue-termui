@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
 import { Terminal } from '@xterm/xterm'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { CanvasAddon } from '@xterm/addon-canvas'
-import type { Cast } from '@/player/cast'
+// Self-contained styles + font so the component is drop-in anywhere (docs, app).
+import '@xterm/xterm/css/xterm.css'
+import '@fontsource/jetbrains-mono/latin-400.css'
+import '@fontsource/jetbrains-mono/latin-700.css'
+import { type Cast, parseCast } from './cast'
 
-const { cast } = defineProps<{ cast: Cast }>()
+// Pass a parsed `cast`, or a `src` URL that is fetched lazily when the player
+// scrolls into view (so casts aren't loaded until needed).
+const props = defineProps<{ cast?: Cast; src?: string }>()
 
+const root = useTemplateRef<HTMLDivElement>('root')
 const mount = useTemplateRef<HTMLDivElement>('mount')
 const viewport = useTemplateRef<HTMLDivElement>('viewport')
+
+const castData = shallowRef<Cast | null>(props.cast ?? null)
+const loadError = ref('')
 
 const playing = ref(false)
 const elapsed = ref(0)
@@ -26,42 +36,21 @@ let writtenIndex = 0
 let rafId = 0
 let anchorWall = 0
 let anchorElapsed = 0
+let started = false
+let resizeObserver: ResizeObserver | undefined
+let visibilityObserver: IntersectionObserver | undefined
+let themeObserver: MutationObserver | undefined
 
 // The cast is a fixed grid, so rather than scroll on small screens (or CSS-stretch
-// and blur the blocks), we shrink the font to fit narrow containers. We never
-// grow past the native size — the terminal just centers with room to spare on
-// wide screens. Font metrics are linear in size, so we measure the grid's natural
-// width once at the base size and derive the fit from it.
+// and blur the blocks), we shrink the font to fit narrow containers. We never grow
+// past the native size. Font metrics are linear in size, so we measure the grid's
+// natural width once at the base size and derive the fit from it.
 const BASE_FONT_SIZE = 14
 let baseWidth = 0
-let resizeObserver: ResizeObserver | undefined
 
-// Grabs the character grid's pixel width (`.xterm-screen`), which is the fixed
-// cols × cell size — not xterm's full-width root element. Retries until the
-// renderer has laid out, then does the first fit.
-function measureAndFit(attempt = 0): void {
-  const screen = term?.element?.querySelector<HTMLElement>('.xterm-screen')
-  baseWidth = screen?.offsetWidth ?? 0
-  if (baseWidth <= 0 && attempt < 5) {
-    requestAnimationFrame(() => measureAndFit(attempt + 1))
-    return
-  }
-  fit()
-}
-
-function fit(): void {
-  if (!term || !viewport.value || baseWidth <= 0) return
-  const available = viewport.value.clientWidth
-  if (available <= 0) return
-  // Only ever shrink to fit — cap at the native size so it never upscales.
-  const size = Math.min(BASE_FONT_SIZE, Math.max(5, (BASE_FONT_SIZE * available) / baseWidth))
-  if (Math.abs(size - (term.options.fontSize ?? BASE_FONT_SIZE)) > 0.1) {
-    term.options.fontSize = size
-  }
-}
-
+const duration = computed(() => castData.value?.duration ?? 0)
 const progress = computed(() =>
-  cast.duration > 0 ? Math.min(elapsed.value / cast.duration, 1) : 0,
+  duration.value > 0 ? Math.min(elapsed.value / duration.value, 1) : 0,
 )
 
 function formatTime(seconds: number): string {
@@ -72,7 +61,7 @@ function formatTime(seconds: number): string {
 }
 
 function writeUpTo(target: number): void {
-  const events = cast.events
+  const events = castData.value!.events
   while (writtenIndex < events.length && events[writtenIndex]!.time <= target) {
     term!.write(events[writtenIndex]!.data)
     writtenIndex++
@@ -80,12 +69,13 @@ function writeUpTo(target: number): void {
 }
 
 function frame(): void {
+  const events = castData.value!.events
   const now = performance.now()
   elapsed.value = anchorElapsed + ((now - anchorWall) / 1000) * speed.value
   writeUpTo(elapsed.value)
 
-  if (writtenIndex >= cast.events.length) {
-    elapsed.value = cast.duration
+  if (writtenIndex >= events.length) {
+    elapsed.value = duration.value
     if (loop.value) {
       restart()
       rafId = requestAnimationFrame(frame)
@@ -98,9 +88,9 @@ function frame(): void {
 }
 
 function play(): void {
-  if (playing.value || !term) return
+  if (playing.value || !term || !castData.value) return
   // Replaying after the end starts over from the beginning.
-  if (writtenIndex >= cast.events.length) restart()
+  if (writtenIndex >= castData.value.events.length) restart()
   playing.value = true
   anchorWall = performance.now()
   anchorElapsed = elapsed.value
@@ -126,8 +116,8 @@ function restart(): void {
 }
 
 function seek(target: number): void {
-  if (!term) return
-  const clamped = Math.max(0, Math.min(target, cast.duration))
+  if (!term || !castData.value) return
+  const clamped = Math.max(0, Math.min(target, duration.value))
   // Rewinding can't be undone incrementally; reset and replay from the start.
   if (clamped < elapsed.value) {
     term.reset()
@@ -149,17 +139,18 @@ function onScrub(event: Event): void {
 // Move to a state where exactly `n` events have been written. A frame is one
 // output event; stepping back replays from the start (xterm is stateful).
 function goToIndex(n: number): void {
-  if (!term) return
-  const target = Math.max(0, Math.min(n, cast.events.length))
+  if (!term || !castData.value) return
+  const events = castData.value.events
+  const target = Math.max(0, Math.min(n, events.length))
   if (target < writtenIndex) {
     term.reset()
     writtenIndex = 0
   }
   while (writtenIndex < target) {
-    term.write(cast.events[writtenIndex]!.data)
+    term.write(events[writtenIndex]!.data)
     writtenIndex++
   }
-  elapsed.value = writtenIndex > 0 ? cast.events[writtenIndex - 1]!.time : 0
+  elapsed.value = writtenIndex > 0 ? events[writtenIndex - 1]!.time : 0
   anchorWall = performance.now()
   anchorElapsed = elapsed.value
 }
@@ -187,13 +178,72 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
+// Grabs the character grid's pixel width (`.xterm-screen`), which is the fixed
+// cols × cell size — not xterm's full-width root element. Retries until the
+// renderer has laid out, then does the first fit.
+function measureAndFit(attempt = 0): void {
+  const screen = term?.element?.querySelector<HTMLElement>('.xterm-screen')
+  baseWidth = screen?.offsetWidth ?? 0
+  if (baseWidth <= 0 && attempt < 5) {
+    requestAnimationFrame(() => measureAndFit(attempt + 1))
+    return
+  }
+  fit()
+}
+
+function fit(): void {
+  if (!term || !viewport.value || baseWidth <= 0) return
+  const available = viewport.value.clientWidth
+  if (available <= 0) return
+  // Only ever shrink to fit — cap at the native size so it never upscales.
+  const size = Math.min(BASE_FONT_SIZE, Math.max(5, (BASE_FONT_SIZE * available) / baseWidth))
+  if (Math.abs(size - (term.options.fontSize ?? BASE_FONT_SIZE)) > 0.1) {
+    term.options.fontSize = size
+  }
+}
+
 const fontFamily = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
 
-onMounted(async () => {
-  // xterm measures glyph width when it opens, so wait for the webfont to load
-  // first — otherwise it measures the fallback and every cell is misaligned.
-  if (document.fonts?.load) await document.fonts.load('14px "JetBrains Mono"')
-  // The component may have unmounted while awaiting the font.
+// Terminal colors come from CSS variables so the player matches its host theme
+// (e.g. the docs map --player-terminal-* to VitePress --vp-* tokens). Falls back
+// to the standalone dark palette when unset.
+function readColor(name: string, fallback: string): string {
+  const value = root.value && getComputedStyle(root.value).getPropertyValue(name).trim()
+  return value || fallback
+}
+
+function applyTheme(): void {
+  const theme = {
+    background: readColor('--player-terminal-bg', '#0b0e14'),
+    foreground: readColor('--player-terminal-fg', '#bfbdb6'),
+  }
+  if (term) term.options.theme = theme
+}
+
+async function resolveCast(): Promise<Cast | null> {
+  if (castData.value) return castData.value
+  if (!props.src) return null
+  try {
+    const res = await fetch(props.src)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    castData.value = parseCast(await res.text())
+    return castData.value
+  } catch (err) {
+    loadError.value = `Couldn't load recording: ${err instanceof Error ? err.message : String(err)}`
+    return null
+  }
+}
+
+async function start(): Promise<void> {
+  if (started) return
+  started = true
+
+  const cast = await resolveCast()
+  if (!cast || !mount.value) return
+
+  // xterm measures glyph width when it opens, so wait for the webfont first —
+  // otherwise it measures the fallback and every cell is misaligned.
+  if (document.fonts?.load) await document.fonts.load(`${BASE_FONT_SIZE}px "JetBrains Mono"`)
   if (!mount.value) return
 
   term = new Terminal({
@@ -208,9 +258,12 @@ onMounted(async () => {
     disableStdin: true,
     // Required by the WebGL renderer addon.
     allowProposedApi: true,
-    theme: { background: '#0b0e14', foreground: '#bfbdb6' },
+    theme: {
+      background: readColor('--player-terminal-bg', '#0b0e14'),
+      foreground: readColor('--player-terminal-fg', '#bfbdb6'),
+    },
   })
-  term.open(mount.value!)
+  term.open(mount.value)
 
   // The default DOM renderer draws box-drawing and block-element glyphs (▀ ▄ █,
   // quadrants…) from the font, which leaves seams between cells — very visible on
@@ -229,27 +282,48 @@ onMounted(async () => {
     }
   }
 
-  // Measure the grid's natural width at the base font size (once the renderer has
-  // laid out), then fit and keep fitting as the container resizes.
   measureAndFit()
   resizeObserver = new ResizeObserver(() => fit())
   if (viewport.value) resizeObserver.observe(viewport.value)
 
+  // Re-read the terminal colors when the host toggles light/dark.
+  themeObserver = new MutationObserver(() => applyTheme())
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
   play()
+}
+
+onMounted(() => {
+  if (!root.value) return
+  // Defer the (heavy) terminal + cast fetch until the player is on screen.
+  visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        visibilityObserver?.disconnect()
+        start()
+      }
+    },
+    { rootMargin: '200px' },
+  )
+  visibilityObserver.observe(root.value)
 })
 
 onBeforeUnmount(() => {
   pause()
+  visibilityObserver?.disconnect()
   resizeObserver?.disconnect()
+  themeObserver?.disconnect()
   term?.dispose()
 })
 </script>
 
 <template>
-  <div class="session-player" tabindex="0" @keydown="onKeydown">
+  <div ref="root" class="session-player" tabindex="0" @keydown="onKeydown">
     <div ref="viewport" class="viewport">
       <div ref="mount" class="terminal" />
     </div>
+
+    <p v-if="loadError" class="error">{{ loadError }}</p>
 
     <div class="controls">
       <button class="btn" type="button" title="Restart" @click="restart">⏮</button>
@@ -279,13 +353,13 @@ onBeforeUnmount(() => {
         class="scrubber"
         type="range"
         min="0"
-        :max="cast.duration"
+        :max="duration"
         step="0.01"
         :value="elapsed"
         @input="onScrub"
       />
 
-      <span class="time">{{ formatTime(elapsed) }} / {{ formatTime(cast.duration) }}</span>
+      <span class="time">{{ formatTime(elapsed) }} / {{ formatTime(duration) }}</span>
 
       <select v-model.number="speed" class="speed" title="Playback speed">
         <option v-for="s in speeds" :key="s" :value="s">{{ s }}×</option>
@@ -302,14 +376,14 @@ onBeforeUnmount(() => {
   width: 100%;
   box-sizing: border-box;
   padding: 0.75rem;
-  background: #0b0e14;
-  border: 1px solid #1c2230;
+  background: var(--player-bg, #0b0e14);
+  border: 1px solid var(--player-border, #1c2230);
   border-radius: 8px;
 }
 
 .session-player:focus-visible {
   outline: none;
-  border-color: #2a3142;
+  border-color: var(--player-control-border, #2a3142);
 }
 
 /* Full-width measured box; the terminal centers inside it and is clipped rather
@@ -327,12 +401,21 @@ onBeforeUnmount(() => {
   flex: none;
 }
 
+.error {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  color: var(--player-error-fg, #ffb4b4);
+  background: var(--player-error-bg, #2a1518);
+  border: 1px solid var(--player-error-border, #5a2a2f);
+  border-radius: 6px;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  color: #bfbdb6;
+  color: var(--player-fg, #bfbdb6);
   font:
     13px/1 'JetBrains Mono',
     ui-monospace,
@@ -345,27 +428,27 @@ onBeforeUnmount(() => {
 .btn {
   min-width: 2rem;
   padding: 0.25rem 0.5rem;
-  color: #bfbdb6;
-  background: #131721;
-  border: 1px solid #2a3142;
+  color: var(--player-fg, #bfbdb6);
+  background: var(--player-control-bg, #131721);
+  border: 1px solid var(--player-control-border, #2a3142);
   border-radius: 5px;
   cursor: pointer;
 }
 
 .btn:hover {
-  background: #1c2230;
+  background: var(--player-control-hover-bg, #1c2230);
 }
 
 .btn.active {
-  color: #0b0e14;
-  background: #59c2ff;
-  border-color: #59c2ff;
+  color: var(--player-accent-fg, #0b0e14);
+  background: var(--player-accent, #59c2ff);
+  border-color: var(--player-accent, #59c2ff);
 }
 
 .scrubber {
   flex: 1 1 120px;
   min-width: 0;
-  accent-color: #59c2ff;
+  accent-color: var(--player-accent, #59c2ff);
   cursor: pointer;
 }
 
@@ -375,9 +458,9 @@ onBeforeUnmount(() => {
 }
 
 .speed {
-  color: #bfbdb6;
-  background: #131721;
-  border: 1px solid #2a3142;
+  color: var(--player-fg, #bfbdb6);
+  background: var(--player-control-bg, #131721);
+  border: 1px solid var(--player-control-border, #2a3142);
   border-radius: 5px;
   padding: 0.2rem 0.35rem;
 }
