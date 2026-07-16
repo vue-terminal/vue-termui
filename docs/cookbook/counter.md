@@ -2,6 +2,12 @@
 
 The "hello world" of interactive apps: a number you change with the keyboard. It shows the core loop of any Vue TermUI app — reactive state, a key handler, and a way to quit.
 
+Here's a recording of it running in a real terminal, replayed right here in the browser:
+
+<ClientOnly>
+  <SessionPlayer src="/casts/tres.cast" />
+</ClientOnly>
+
 ```vue
 <script setup lang="ts">
 import { Box, Text, onKeyDown, useExit, ref } from 'vue-termui'
