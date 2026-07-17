@@ -33,6 +33,13 @@ export { ScrollBox } from './components/ScrollBox'
 export type { ScrollBoxProps } from './components/ScrollBox'
 export { ProgressBar } from './components/ProgressBar'
 export type { ProgressBarProps } from './components/ProgressBar'
+export { TextTable, TableRow, TableCell } from './components/TextTable'
+export type {
+  TextTableProps,
+  TableRowProps,
+  TableCellProps,
+  TableStyleProps,
+} from './components/TextTable'
 export { Markdown, SyntaxStyle } from './components/Markdown'
 export type { MarkdownProps, StyleDefinitionInput } from './components/Markdown'
 export type {
