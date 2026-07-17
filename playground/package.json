@@ -14,7 +14,7 @@
     "@tresjs/core": "^5.8.3",
     "@vue-termui/three": "workspace:*",
     "three": "0.180.0",
-    "vue-router": "^5.1.0",
+    "vue-router": "^5.2.0",
     "vue-termui": "workspace:*"
   },
   "devDependencies": {
@@ -22,8 +22,8 @@
     "@vitejs/plugin-vue": "^6.0.8",
     "@vueuse/core": "^14.3.0",
     "typescript": "~6.0.3",
-    "vite": "^8.1.4",
-    "vue": "^3.5.39"
+    "vite": "^8.1.5",
+    "vue": "^3.5.40"
   },
   "engines": {
     "node": ">=26.3.0"

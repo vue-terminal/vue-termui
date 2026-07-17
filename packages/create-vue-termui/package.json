@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "tsdown": "^0.22.7"
+    "tsdown": "^0.22.8"
   },
   "engines": {
     "node": ">=26.3.0"

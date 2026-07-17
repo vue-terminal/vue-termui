@@ -58,7 +58,7 @@
     "@types/three": "0.180.0",
     "@webgpu/types": "^0.1.60",
     "three": "0.180.0",
-    "tsdown": "^0.22.7",
+    "tsdown": "^0.22.8",
     "typescript": "~6.0.3",
     "vue-termui": "workspace:*"
   },
