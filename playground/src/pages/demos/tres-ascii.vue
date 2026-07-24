@@ -1,13 +1,22 @@
 <script setup lang="ts">
 // The TresJS docs demo scene (cone/box/sphere floating over a plane), but
-// drawn through SuperSampleType.ASCII: luminance becomes glyph density, colors
-// only carry the hue. Same hand-rolled orbit controls as tres.vue — cientos'
-// <OrbitControls> rides DOM pointer events that never fire in a TTY. Two
-// departures from tres.vue's look, both for the ramp: phong materials instead
-// of toon (smooth shading gradients feed the ramp; toon's flat bands collapse
-// to a single glyph per face) and a black background instead of teal (empty
-// space must be dark or every idle cell fills with dense glyphs).
-import { onFrame, RGBA, SuperSampleType, type ThreeRenderable } from '@vue-termui/three'
+// drawn through SuperSampleType.ASCII: by default the 'shape' style matches
+// each cell's light distribution against glyph shape vectors (after
+// https://alexharri.com/blog/ascii-rendering); 'ramp' maps luminance to glyph
+// density. Colors only carry the hue either way. Same hand-rolled orbit
+// controls as tres.vue — cientos' <OrbitControls> rides DOM pointer events
+// that never fire in a TTY. Two departures from tres.vue's look: phong
+// materials instead of toon (smooth shading gradients feed the glyphs; toon's
+// flat bands collapse to a single glyph per face) and a black background
+// instead of teal (empty space must be dark or every idle cell fills with
+// dense glyphs).
+import {
+  onFrame,
+  RGBA,
+  SuperSampleType,
+  type AsciiStyle,
+  type ThreeRenderable,
+} from '@vue-termui/three'
 import {
   DoubleSide,
   Spherical,
@@ -28,8 +37,11 @@ const tres = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 const backgroundColor = RGBA.fromValues(0, 0, 0, 1)
 
 const mode = ref<SuperSampleType>(SuperSampleType.ASCII)
-// detailed by default: the bright plane saturates the short classic ramp
-const rampIndex = ref(asciiRamps.findIndex((ramp) => ramp.name === 'detailed'))
+const style = ref<AsciiStyle>('shape')
+const contrast = ref(2)
+// full charset by default: the shape style picks glyphs by ink position, so
+// the more shapes to choose from the better
+const rampIndex = ref(asciiRamps.findIndex((ramp) => ramp.name === 'full'))
 
 // plain shallowRef bound via the string ref: useTemplateRef wraps the value in
 // a dev-only readonly proxy, which blocks mutating the camera on drag
@@ -116,6 +128,12 @@ onKeyDown((key) => {
   } else if (key.name === 'a') {
     rampIndex.value = (rampIndex.value + 1) % asciiRamps.length
     renderer.setAsciiChars(asciiRamps[rampIndex.value]!.chars)
+  } else if (key.name === 's') {
+    style.value = style.value === 'shape' ? 'ramp' : 'shape'
+    renderer.setAsciiStyle(style.value)
+  } else if (key.name === 'c') {
+    contrast.value = (contrast.value % 4) + 1
+    renderer.setAsciiContrast(contrast.value)
   }
 })
 
@@ -147,11 +165,12 @@ onFrame((deltaMs) => {
 
 <template>
   <Box flexDirection="column">
-    <Text>TresJS in ASCII — the declarative scene through the luminance-ramp shader</Text>
+    <Text
+      >TresJS in ASCII — glyphs picked by shape vectors (alexharri.com/blog/ascii-rendering)</Text
+    >
     <Text dim
-      >Drag: orbit · Right drag: pan · Scroll: zoom · M: mode ({{ mode }}) · A: ramp ({{
-        asciiRamps[rampIndex]!.name
-      }})</Text
+      >Drag: orbit · Right drag: pan · Scroll: zoom · M: mode ({{ mode }}) · S: style ({{ style }})
+      · A: chars ({{ asciiRamps[rampIndex]!.name }}) · C: contrast ({{ contrast }})</Text
     >
     <Box
       :border="true"
