@@ -1,14 +1,7 @@
 <script setup lang="ts">
 // donut.c homage: a spinning torus rendered as colored ASCII through the
 // SuperSampleType.ASCII compute shader (luminance → glyph ramp).
-import {
-  DEFAULT_ASCII_RAMP,
-  onFrame,
-  RGBA,
-  SuperSampleType,
-  Three,
-  type ThreeRenderable,
-} from '@vue-termui/three'
+import { onFrame, RGBA, SuperSampleType, Three, type ThreeRenderable } from '@vue-termui/three'
 import {
   AmbientLight,
   Color,
@@ -21,6 +14,7 @@ import {
   TorusGeometry,
 } from 'three'
 import { Box, computed, onKeyDown, ref, Text, useTemplateRef, useTerminalSize } from 'vue-termui'
+import { asciiRamps } from '../../ascii-ramps'
 
 const scene = new Scene()
 
@@ -47,16 +41,6 @@ scene.add(donut)
 const camera = new PerspectiveCamera(45, 1, 0.1, 100)
 camera.position.set(0, 0, 4.2)
 
-// brightest-to-darkest source reversed into ramp order (darkest first)
-const detailedRamp = [...'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ']
-  .reverse()
-  .join('')
-const ramps = [
-  { name: 'classic', chars: DEFAULT_ASCII_RAMP },
-  { name: 'detailed', chars: detailedRamp },
-  { name: 'blocks', chars: ' ░▒▓█' },
-] as const
-
 const three = useTemplateRef<{ renderable: ThreeRenderable | null }>('three')
 const mode = ref<SuperSampleType>(SuperSampleType.ASCII)
 const rampIndex = ref(0)
@@ -70,8 +54,8 @@ onKeyDown((key) => {
     renderer.toggleSuperSampling()
     mode.value = renderer.getSuperSample()
   } else if (key.name === 'a' && renderer) {
-    rampIndex.value = (rampIndex.value + 1) % ramps.length
-    renderer.setAsciiChars(ramps[rampIndex.value]!.chars)
+    rampIndex.value = (rampIndex.value + 1) % asciiRamps.length
+    renderer.setAsciiChars(asciiRamps[rampIndex.value]!.chars)
   }
 })
 
@@ -91,7 +75,7 @@ const sceneHeight = computed(() => Math.max(8, rows.value - 9))
     <Text>ASCII donut — luminance-ramp glyphs from the ASCII compute shader</Text>
     <Text dim
       >Space: rotation ({{ rotating ? 'on' : 'off' }}) | M: mode ({{ mode }}) | A: ramp ({{
-        ramps[rampIndex]!.name
+        asciiRamps[rampIndex]!.name
       }})</Text
     >
     <Three

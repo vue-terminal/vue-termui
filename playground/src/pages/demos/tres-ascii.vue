@@ -1,17 +1,13 @@
 <script setup lang="ts">
-// The TresJS docs demo scene (toon cone/box/sphere floating over a plane), but
+// The TresJS docs demo scene (cone/box/sphere floating over a plane), but
 // drawn through SuperSampleType.ASCII: luminance becomes glyph density, colors
 // only carry the hue. Same hand-rolled orbit controls as tres.vue — cientos'
-// <OrbitControls> rides DOM pointer events that never fire in a TTY. The
-// background is black (unlike tres.vue's teal): empty space must be dark or
-// every idle cell fills with dense glyphs.
-import {
-  DEFAULT_ASCII_RAMP,
-  onFrame,
-  RGBA,
-  SuperSampleType,
-  type ThreeRenderable,
-} from '@vue-termui/three'
+// <OrbitControls> rides DOM pointer events that never fire in a TTY. Two
+// departures from tres.vue's look, both for the ramp: phong materials instead
+// of toon (smooth shading gradients feed the ramp; toon's flat bands collapse
+// to a single glyph per face) and a black background instead of teal (empty
+// space must be dark or every idle cell fills with dense glyphs).
+import { onFrame, RGBA, SuperSampleType, type ThreeRenderable } from '@vue-termui/three'
 import {
   DoubleSide,
   Spherical,
@@ -20,6 +16,7 @@ import {
   type PerspectiveCamera,
 } from 'three'
 import { Box, computed, onKeyDown, ref, shallowRef, Text, useTerminalSize } from 'vue-termui'
+import { asciiRamps } from '../../ascii-ramps'
 import TresTerminal from '../../components/TresTerminal.vue'
 import type { MouseEvent } from '@opentui/core'
 
@@ -30,18 +27,9 @@ const tres = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 
 const backgroundColor = RGBA.fromValues(0, 0, 0, 1)
 
-// brightest-to-darkest source reversed into ramp order (darkest first)
-const detailedRamp = [...'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ']
-  .reverse()
-  .join('')
-const ramps = [
-  { name: 'classic', chars: DEFAULT_ASCII_RAMP },
-  { name: 'detailed', chars: detailedRamp },
-  { name: 'blocks', chars: ' ░▒▓█' },
-] as const
-
 const mode = ref<SuperSampleType>(SuperSampleType.ASCII)
-const rampIndex = ref(0)
+// detailed by default: the bright plane saturates the short classic ramp
+const rampIndex = ref(asciiRamps.findIndex((ramp) => ramp.name === 'detailed'))
 
 // plain shallowRef bound via the string ref: useTemplateRef wraps the value in
 // a dev-only readonly proxy, which blocks mutating the camera on drag
@@ -126,8 +114,8 @@ onKeyDown((key) => {
     renderer.toggleSuperSampling()
     mode.value = renderer.getSuperSample()
   } else if (key.name === 'a') {
-    rampIndex.value = (rampIndex.value + 1) % ramps.length
-    renderer.setAsciiChars(ramps[rampIndex.value]!.chars)
+    rampIndex.value = (rampIndex.value + 1) % asciiRamps.length
+    renderer.setAsciiChars(asciiRamps[rampIndex.value]!.chars)
   }
 })
 
@@ -162,7 +150,7 @@ onFrame((deltaMs) => {
     <Text>TresJS in ASCII — the declarative scene through the luminance-ramp shader</Text>
     <Text dim
       >Drag: orbit · Right drag: pan · Scroll: zoom · M: mode ({{ mode }}) · A: ramp ({{
-        ramps[rampIndex]!.name
+        asciiRamps[rampIndex]!.name
       }})</Text
     >
     <Box
@@ -183,6 +171,7 @@ onFrame((deltaMs) => {
           backgroundColor,
           shadows: true,
           superSample: SuperSampleType.ASCII,
+          asciiChars: asciiRamps[rampIndex]!.chars,
         }"
       >
         <TresPerspectiveCamera
@@ -195,20 +184,20 @@ onFrame((deltaMs) => {
         />
         <TresMesh :position="[-2, 6, 0]" :rotation="[0, Math.PI, 0]" cast-shadow>
           <TresConeGeometry :args="[1, 1.5, 3]" />
-          <TresMeshToonMaterial color="#82DBC5" />
+          <TresMeshPhongMaterial color="#82DBC5" :shininess="40" specular="#DDDDDD" />
         </TresMesh>
         <TresMesh :position="[0, 4, 0]" cast-shadow>
           <TresBoxGeometry :args="[1.5, 1.5, 1.5]" />
-          <TresMeshToonMaterial color="#4F4F4F" />
+          <TresMeshPhongMaterial color="#7F7F7F" :shininess="60" specular="#FFFFFF" />
         </TresMesh>
         <TresMesh :position="[2, 2, 0]" cast-shadow>
           <TresSphereGeometry />
-          <TresMeshToonMaterial color="#FBB03B" />
+          <TresMeshPhongMaterial color="#FBB03B" :shininess="40" specular="#DDDDDD" />
         </TresMesh>
         <TresDirectionalLight :position="[0, 8, 4]" :intensity="0.7" cast-shadow />
         <TresMesh :rotation="[-Math.PI / 2, 0, 0]" receive-shadow>
           <TresPlaneGeometry :args="[10, 10, 10, 10]" />
-          <TresMeshToonMaterial color="#D3FC8A" />
+          <TresMeshPhongMaterial color="#D3FC8A" :shininess="10" specular="#333333" />
         </TresMesh>
         <TresAmbientLight :intensity="0.75" />
         <TresDirectionalLight
