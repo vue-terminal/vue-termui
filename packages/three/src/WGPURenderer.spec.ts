@@ -66,6 +66,44 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
   )
 
   it(
+    'renders through the ASCII compute path with luminance-mapped glyphs',
+    { timeout: 30_000 },
+    async () => {
+      const test = await createTestRenderer({ width: 16, height: 8 })
+      const engine = new ThreeCliRenderer(test.renderer, {
+        width: 16,
+        height: 8,
+        superSample: SuperSampleType.ASCII,
+        backgroundColor: RED,
+      })
+      await engine.init()
+
+      const buffer = test.renderer.nextRenderBuffer
+      await engine.drawScene(new Scene(), buffer, 0)
+
+      const { char, fg, bg } = buffer.buffers
+      // red clear: luminance 0.2126 lands on index 2 of the default ramp
+      expect(String.fromCodePoint(char[0]!)).toBe(':')
+      // hue is brightness-normalized into fg; density comes from the glyph
+      expect(fg[0]!).toBeGreaterThan(230)
+      expect(fg[1]!).toBeLessThan(25)
+      expect(bg[0]!).toBeLessThan(25)
+
+      // full toggle cycle returns to ascii and still renders (the quadrant and
+      // ascii pipelines swap without rebuilding buffers)
+      for (const expected of ['none', 'cpu', 'gpu', 'ascii']) {
+        engine.toggleSuperSampling()
+        expect(engine.getSuperSample()).toBe(expected)
+      }
+      await engine.drawScene(new Scene(), buffer, 0)
+      expect(String.fromCodePoint(char[0]!)).toBe(':')
+
+      engine.destroy()
+      test.renderer.destroy()
+    },
+  )
+
+  it(
     'survives toggling supersampling while a readback map is in flight',
     { timeout: 30_000 },
     async () => {

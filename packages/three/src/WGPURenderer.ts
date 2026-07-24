@@ -23,6 +23,11 @@ export interface ThreeCliRendererOptions {
   focalLength?: number
   backgroundColor?: RGBA
   superSample?: SuperSampleType
+  /**
+   * Glyph ramp for {@link SuperSampleType.ASCII}, darkest to brightest.
+   * Defaults to `' .:-=+*#%@'`.
+   */
+  asciiChars?: string
   alpha?: boolean
   /**
    * Enable shadow maps (lights/meshes still need their own
@@ -39,6 +44,7 @@ export class ThreeCliRenderer {
   private renderWidth: number
   private renderHeight: number
   private superSample: SuperSampleType
+  private asciiChars?: string
   private backgroundColor: RGBA = RGBA.fromValues(0, 0, 0, 1)
   private alpha: boolean = false
   private shadows: boolean = false
@@ -84,6 +90,7 @@ export class ThreeCliRenderer {
     this.outputWidth = options.width
     this.outputHeight = options.height
     this.superSample = options.superSample ?? SuperSampleType.GPU
+    this.asciiChars = options.asciiChars
 
     this.renderWidth = this.outputWidth * (this.superSample !== SuperSampleType.NONE ? 2 : 1)
     this.renderHeight = this.outputHeight * (this.superSample !== SuperSampleType.NONE ? 2 : 1)
@@ -140,6 +147,8 @@ export class ThreeCliRenderer {
       this.renderWidth,
       this.renderHeight,
       this.superSample,
+      undefined,
+      this.asciiChars,
     )
 
     try {
@@ -269,11 +278,30 @@ export class ThreeCliRenderer {
       this.superSample = SuperSampleType.CPU
     } else if (this.superSample === SuperSampleType.CPU) {
       this.superSample = SuperSampleType.GPU
+    } else if (this.superSample === SuperSampleType.GPU) {
+      this.superSample = SuperSampleType.ASCII
     } else {
       this.superSample = SuperSampleType.NONE
     }
     this.canvas!.setSuperSample(this.superSample)
     this.setSize(this.outputWidth, this.outputHeight, true)
+  }
+
+  public getSuperSample(): SuperSampleType {
+    return this.superSample
+  }
+
+  /**
+   * Ramp used by {@link SuperSampleType.ASCII}, darkest to brightest. Takes
+   * effect on the next frame.
+   */
+  public setAsciiChars(asciiChars: string): void {
+    this.asciiChars = asciiChars
+    this.canvas?.setAsciiChars(asciiChars)
+  }
+
+  public getAsciiChars(): string | undefined {
+    return this.canvas?.getAsciiChars() ?? this.asciiChars
   }
 
   public renderStats(buffer: OptimizedBuffer): void {

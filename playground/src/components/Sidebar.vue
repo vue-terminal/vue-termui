@@ -63,6 +63,7 @@ const items = [
   { label: 'Collapsing Grid (shaders.com)', to: '/demos/collapsing-grid' },
   { label: 'Draggable cube (3D)', to: '/demos/draggable-cube' },
   { label: 'Shader cube (3D)', to: '/demos/shader-cube' },
+  { label: 'ASCII donut (3D)', to: '/demos/ascii-donut' },
   { label: 'Texture loading (3D)', to: '/demos/texture' },
   { label: 'Static sprite (3D)', to: '/demos/static-sprite' },
   { label: 'Sprite particles (3D)', to: '/demos/sprite-particles' },

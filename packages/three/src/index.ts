@@ -7,6 +7,7 @@ export type { WebGPUModule } from './webgpu'
 export { registerBunFfiHooks } from './ffi/register'
 
 export { CLICanvas, SuperSampleAlgorithm, SuperSampleType } from './canvas'
+export { DEFAULT_ASCII_RAMP } from './shaders/ascii'
 export { ThreeCliRenderer } from './WGPURenderer'
 export type { ThreeCliRendererOptions } from './WGPURenderer'
 export { ThreeRenderable } from './ThreeRenderable'

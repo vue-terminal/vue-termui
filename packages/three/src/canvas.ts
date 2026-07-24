@@ -1,4 +1,5 @@
 import { RGBA, type OptimizedBuffer } from '@opentui/core'
+import { asciiShader, DEFAULT_ASCII_RAMP } from './shaders/ascii'
 import { supersamplingShader } from './shaders/supersampling'
 import type { WebGPUModule } from './webgpu'
 
@@ -13,6 +14,12 @@ export enum SuperSampleType {
   NONE = 'none',
   GPU = 'gpu',
   CPU = 'cpu',
+  /**
+   * GPU compute path like {@link SuperSampleType.GPU}, but each 2x2 pixel
+   * block becomes a glyph from a luminance ramp instead of a quadrant block
+   * character.
+   */
+  ASCII = 'ascii',
 }
 
 export enum SuperSampleAlgorithm {
@@ -42,8 +49,11 @@ export class CLICanvas {
   public mapAsyncTimeMs: number = 0
   public superSample: SuperSampleType = SuperSampleType.GPU
 
-  // Compute shader super sampling
-  private computePipeline: GPUComputePipeline | null = null
+  // Compute shader super sampling. Pipelines are cached per shader variant
+  // ('quadrant' or 'ascii:<ramp>') so toggling modes or ramps at runtime only
+  // compiles each variant once.
+  private computePipelines = new Map<string, GPUComputePipeline>()
+  private computePipelineLayout: GPUPipelineLayout | null = null
   private computeBindGroupLayout: GPUBindGroupLayout | null = null
   private computeOutputBuffer: GPUBuffer | null = null
   private computeParamsBuffer: GPUBuffer | null = null
@@ -51,6 +61,7 @@ export class CLICanvas {
   private updateScheduled: boolean = false
   private screenshotGPUBuffer: GPUBuffer | null = null
   private superSampleAlgorithm: SuperSampleAlgorithm = SuperSampleAlgorithm.STANDARD
+  private asciiChars: string = DEFAULT_ASCII_RAMP
   private destroyed: boolean = false
 
   constructor(
@@ -60,6 +71,7 @@ export class CLICanvas {
     height: number,
     superSample: SuperSampleType,
     sampleAlgo: SuperSampleAlgorithm = SuperSampleAlgorithm.STANDARD,
+    asciiChars: string = DEFAULT_ASCII_RAMP,
   ) {
     this.device = device
     this.width = width
@@ -71,6 +83,7 @@ export class CLICanvas {
       height,
     )
     this.superSampleAlgorithm = sampleAlgo
+    this.asciiChars = asciiChars
   }
 
   public destroy(): void {
@@ -84,6 +97,18 @@ export class CLICanvas {
 
   public getSuperSampleAlgorithm(): SuperSampleAlgorithm {
     return this.superSampleAlgorithm
+  }
+
+  /**
+   * Ramp used by {@link SuperSampleType.ASCII}, darkest to brightest. Takes
+   * effect on the next frame (new ramps compile a new compute pipeline).
+   */
+  public setAsciiChars(asciiChars: string): void {
+    this.asciiChars = asciiChars
+  }
+
+  public getAsciiChars(): string {
+    return this.asciiChars
   }
 
   getContext(type: string): GPUCanvasContextMock {
@@ -191,13 +216,8 @@ export class CLICanvas {
     this.screenshotGPUBuffer.unmap()
   }
 
-  private async initComputePipeline(): Promise<void> {
-    if (this.computePipeline) return
-
-    const shaderModule = this.device.createShaderModule({
-      label: 'SuperSampling Compute Shader',
-      code: SUPERSAMPLING_COMPUTE_SHADER,
-    })
+  private initComputeCommon(): void {
+    if (this.computePipelineLayout) return
 
     this.computeBindGroupLayout = this.device.createBindGroupLayout({
       label: 'SuperSampling Bind Group Layout',
@@ -220,18 +240,9 @@ export class CLICanvas {
       ],
     })
 
-    const pipelineLayout = this.device.createPipelineLayout({
+    this.computePipelineLayout = this.device.createPipelineLayout({
       label: 'SuperSampling Pipeline Layout',
       bindGroupLayouts: [this.computeBindGroupLayout],
-    })
-
-    this.computePipeline = this.device.createComputePipeline({
-      label: 'SuperSampling Compute Pipeline',
-      layout: pipelineLayout,
-      compute: {
-        module: shaderModule,
-        entryPoint: 'main',
-      },
     })
 
     this.computeParamsBuffer = this.device.createBuffer({
@@ -241,6 +252,32 @@ export class CLICanvas {
     })
 
     this.updateComputeParams()
+  }
+
+  private getComputePipeline(): GPUComputePipeline {
+    this.initComputeCommon()
+
+    const isAscii = this.superSample === SuperSampleType.ASCII
+    const key = isAscii ? `ascii:${this.asciiChars}` : 'quadrant'
+
+    let pipeline = this.computePipelines.get(key)
+    if (!pipeline) {
+      const shaderModule = this.device.createShaderModule({
+        label: `SuperSampling Compute Shader (${key})`,
+        code: isAscii ? asciiShader(WORKGROUP_SIZE, this.asciiChars) : SUPERSAMPLING_COMPUTE_SHADER,
+      })
+      pipeline = this.device.createComputePipeline({
+        label: `SuperSampling Compute Pipeline (${key})`,
+        layout: this.computePipelineLayout!,
+        compute: {
+          module: shaderModule,
+          entryPoint: 'main',
+        },
+      })
+      this.computePipelines.set(key, pipeline)
+    }
+
+    return pipeline
   }
 
   private updateComputeParams(): void {
@@ -303,14 +340,9 @@ export class CLICanvas {
       this.updateComputeBuffers(this.width, this.height)
     }
 
-    await this.initComputePipeline()
+    const computePipeline = this.getComputePipeline()
 
-    if (
-      !this.computePipeline ||
-      !this.computeBindGroupLayout ||
-      !this.computeOutputBuffer ||
-      !this.computeParamsBuffer
-    ) {
+    if (!this.computeBindGroupLayout || !this.computeOutputBuffer || !this.computeParamsBuffer) {
       throw new Error('Compute pipeline not initialized')
     }
 
@@ -335,7 +367,7 @@ export class CLICanvas {
     const computePass = commandEncoder.beginComputePass({
       label: 'SuperSampling Compute Pass',
     })
-    computePass.setPipeline(this.computePipeline)
+    computePass.setPipeline(computePipeline)
     computePass.setBindGroup(0, bindGroup)
 
     // Must match the WGSL calculation exactly: (params.width + 1u) / 2u
@@ -399,7 +431,7 @@ export class CLICanvas {
     const texture = this.gpuCanvasContext.getCurrentTexture()
     this.gpuCanvasContext.switchTextures()
 
-    if (this.superSample === SuperSampleType.GPU) {
+    if (this.superSample === SuperSampleType.GPU || this.superSample === SuperSampleType.ASCII) {
       await this.runComputeShaderSuperSampling(texture, buffer)
       return
     }
