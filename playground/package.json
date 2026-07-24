@@ -13,6 +13,7 @@
     "@opentui/core": "^0.4.3",
     "@tresjs/core": "^5.8.3",
     "@vue-termui/three": "workspace:*",
+    "shaders": "^3.0.442",
     "three": "0.180.0",
     "vue-router": "^5.2.0",
     "vue-termui": "workspace:*"
