@@ -74,6 +74,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
         width: 16,
         height: 8,
         superSample: SuperSampleType.ASCII,
+        asciiStyle: 'ramp',
         backgroundColor: RED,
       })
       await engine.init()
@@ -102,6 +103,42 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       test.renderer.destroy()
     },
   )
+
+  it('renders through the shape-vector ASCII path by default', { timeout: 30_000 }, async () => {
+    const test = await createTestRenderer({ width: 16, height: 8 })
+    const engine = new ThreeCliRenderer(test.renderer, {
+      width: 16,
+      height: 8,
+      superSample: SuperSampleType.ASCII,
+      backgroundColor: RED,
+    })
+    await engine.init()
+    expect(engine.getAsciiStyle()).toBe('shape')
+
+    const buffer = test.renderer.nextRenderBuffer
+    await engine.drawScene(new Scene(), buffer, 0)
+
+    const { char, fg, bg } = buffer.buffers
+    // a uniform red clear has the same sampling vector in every cell, so
+    // every cell picks the same printable ASCII glyph (which one depends on
+    // the coverage table), with the hue normalized into fg
+    const glyph = char[0]!
+    expect(glyph).toBeGreaterThan(0x20)
+    expect(glyph).toBeLessThan(0x7f)
+    expect(char[1]).toBe(glyph)
+    expect(fg[0]!).toBeGreaterThan(230)
+    expect(fg[1]!).toBeLessThan(25)
+    expect(bg[0]!).toBeLessThan(25)
+
+    // switching styles resizes the render target (4x8 -> 2x2 per cell) and
+    // swaps pipelines without breaking the next frame
+    engine.setAsciiStyle('ramp')
+    await engine.drawScene(new Scene(), buffer, 0)
+    expect(String.fromCodePoint(char[0]!)).toBe(':')
+
+    engine.destroy()
+    test.renderer.destroy()
+  })
 
   it(
     'survives toggling supersampling while a readback map is in flight',

@@ -1,0 +1,79 @@
+<!doctype html>
+<!--
+Generates the raw glyph coverage table for src/shaders/glyph-coverage.ts
+(the shape-vector ASCII mode, after https://alexharri.com/blog/ascii-rendering).
+
+Each glyph is rasterized in a monospace font and its ink coverage measured in
+6 cell regions: 2 columns x 3 rows, with row bands 3/8, 2/8, 3/8 of the cell
+height to mirror the shader's 4x8-pixel cell layout. Values are raw mean
+alpha in [0, 1]; per-component normalization happens at shader build time
+over the active charset.
+
+Regenerate with agent-browser:
+  agent-browser open file://$PWD/scripts/glyph-coverage.html
+  agent-browser eval 'window.__COVERAGE_TS'
+then paste the result into src/shaders/glyph-coverage.ts.
+-->
+<meta charset="utf-8" />
+<pre id="out">computing…</pre>
+<script>
+  const ASCII = Array.from({ length: 0x7f - 0x20 }, (_, i) => String.fromCharCode(0x20 + i))
+  // extra glyphs used by playground ramps (braille density steps + shade blocks)
+  const EXTRA = [...'⠁⠃⠇⡇⣇⣧⣷⣿░▒▓█']
+  const CHARSET = [...ASCII, ...EXTRA]
+
+  const FONT_SIZE = 96
+  const FONT = `${FONT_SIZE}px Menlo, Consolas, 'DejaVu Sans Mono', monospace`
+  // row bands as fractions of cell height, matching the shader's 3px/2px/3px
+  // split of an 8px-tall cell
+  const ROW_BANDS = [0, 3 / 8, 5 / 8, 1]
+
+  // Terminals tile █ with no gaps, so its ink box defines the cell's vertical
+  // extent (the font bounding box overshoots it and would skew every vector).
+  function measureCell() {
+    const ctx = document.createElement('canvas').getContext('2d')
+    ctx.font = FONT
+    const block = ctx.measureText('█')
+    return {
+      width: Math.ceil(ctx.measureText('M').width),
+      // baseline offset from the cell top
+      ascent: Math.ceil(block.actualBoundingBoxAscent),
+      height: Math.ceil(block.actualBoundingBoxAscent + block.actualBoundingBoxDescent),
+    }
+  }
+
+  function coverage(char, cell) {
+    const canvas = document.createElement('canvas')
+    canvas.width = cell.width
+    canvas.height = cell.height
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    ctx.font = FONT
+    ctx.fillStyle = '#fff'
+    ctx.fillText(char, 0, cell.ascent)
+
+    const alpha = ctx.getImageData(0, 0, cell.width, cell.height).data
+    const sums = new Float64Array(6)
+    const counts = new Float64Array(6)
+    const midX = cell.width / 2
+    const yBands = ROW_BANDS.map((f) => f * cell.height)
+    for (let y = 0; y < cell.height; y++) {
+      const row = y < yBands[1] ? 0 : y < yBands[2] ? 1 : 2
+      for (let x = 0; x < cell.width; x++) {
+        const i = row * 2 + (x < midX ? 0 : 1)
+        sums[i] += alpha[(y * cell.width + x) * 4 + 3] / 255
+        counts[i]++
+      }
+    }
+    return [...sums].map((sum, i) => sum / counts[i])
+  }
+
+  const cell = measureCell()
+  const entries = CHARSET.map((char) => {
+    const vec = coverage(char, cell).map((v) => Number(v.toFixed(4)))
+    return `  ${JSON.stringify(char)}: [${vec.join(', ')}],`
+  })
+
+  window.__COVERAGE_TS = `{\n${entries.join('\n')}\n}`
+  document.getElementById('out').textContent =
+    `cell ${cell.width}x${cell.height}\n` + window.__COVERAGE_TS
+</script>
