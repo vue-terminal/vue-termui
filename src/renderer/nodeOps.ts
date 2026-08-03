@@ -16,6 +16,7 @@ import {
 import type { RendererOptions } from '@vue/runtime-core'
 import { propToOptionalBoolean } from '../components/utils'
 import { installDomEventCompat } from './dom-events'
+import { ImageRenderable } from '../components/Image'
 
 /**
  * Simplified renderable used as an invisible anchor for comment nodes and text
@@ -43,6 +44,7 @@ export type TuiElementTag =
   | 'tui-tab-select'
   | 'tui-markdown'
   | 'tui-scroll-box'
+  | 'tui-image'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -150,6 +152,12 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           }
           return new MarkdownRenderable(ctx, { syntaxStyle })
         }
+        case 'tui-image':
+          return new ImageRenderable(ctx, {
+            imageData: props?.imageData ?? null,
+            displayWidth: props?.displayWidth,
+            displayHeight: props?.displayHeight,
+          })
         default:
           throw new Error(`[vue-termui] Unknown element type: <${tag}>`)
       }

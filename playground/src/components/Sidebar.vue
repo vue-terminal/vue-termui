@@ -24,6 +24,7 @@ const exit = useExit()
 // only way to close the app now that Ctrl+C is disabled (see main.ts).
 const items = [
   { label: 'Home', to: '/' },
+  { label: 'Image', to: '/image' },
   { label: 'Text & styles', to: '/text-styles' },
   { label: 'Markdown', to: '/markdown' },
   { label: 'Markdown themes', to: '/markdown-themes' },
