@@ -23,9 +23,8 @@ export interface ImageRenderableOptions {
 /**
  * Terminal-native image renderable.
  *
- * Overrides `renderSelf` to draw RGBA8 pixel data via OpenTUI's
- * `drawSuperSampleBuffer`, which auto-selects the best protocol:
- *   **Kitty Graphics → Sixel → SGR Pixels → Unicode half-blocks**
+ * Draws RGBA8 pixel data with Unicode half-block cells. Each terminal cell
+ * represents two vertical source pixels.
  *
  * @internal — instantiated by `createNodeOps` for `<tui-image>`.
  */
@@ -35,7 +34,7 @@ export class ImageRenderable extends VRenderable {
   constructor(ctx: RenderContext, options: ImageRenderableOptions = {}) {
     super(ctx, {
       width: options.displayWidth ?? options.imageData?.width ?? 0,
-      height: options.displayHeight ?? options.imageData?.height ?? 0,
+      height: options.displayHeight ?? Math.ceil((options.imageData?.height ?? 0) / 2),
     })
     if (options.imageData) this._imageData = options.imageData
   }
@@ -45,7 +44,10 @@ export class ImageRenderable extends VRenderable {
   /** @internal */
   set imageData(value: ImageData | null) {
     this._imageData = value
-    if (value) { this.width = value.width; this.height = value.height }
+    if (value) {
+      this.width = value.width
+      this.height = Math.ceil(value.height / 2)
+    }
     this.requestRender()
   }
 
@@ -63,27 +65,6 @@ export class ImageRenderable extends VRenderable {
     if (!this._imageData?.data.length) return
     const { data, width: w, height: h } = this._imageData
 
-    // Check terminal capabilities before choosing a render path.
-    // drawSuperSampleBuffer does NOT throw on unsupported terminals — it
-    // emits raw Kitty/Sixel escape sequences that show as garbled text.
-    const caps = this.ctx.capabilities
-    const supportsPixels = caps && (caps.kitty_graphics || caps.sixel || caps.sgr_pixels)
-
-    if (supportsPixels) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(buffer as any).drawSuperSampleBuffer(
-          this.x, this.y, data.buffer, data.byteLength, 'rgba8unorm', w * 4,
-        )
-        return
-      } catch {
-        // fall through to text fallback
-      }
-    }
-
-    // Pure text fallback: draw with setCell + half-block characters.
-    // Uses ▄ which renders foreground (bottom) + background (top),
-    // giving 2 pixels per terminal row. Works on ANY terminal.
     const cellW = this.width || w
     const cellH = this.height || Math.ceil(h / 2)
 
@@ -97,11 +78,11 @@ export class ImageRenderable extends VRenderable {
         const topPx = this.samplePixel(data, w, h, srcX, topY)
         const botPx = this.samplePixel(data, w, h, srcX, botY)
 
-        // ▄ = lower half block: fg=bottom pixel, bg=top pixel
+        // Lower half block: fg = bottom pixel, bg = top pixel.
         buffer.setCell(
           this.x + cx,
           this.y + cy,
-          '▄',
+          '\u2584',
           botPx,
           topPx,
           0,
@@ -115,10 +96,10 @@ export class ImageRenderable extends VRenderable {
    * Returns an RGBA object compatible with OpenTUI's setCell.
    */
   private samplePixel(data: Uint8Array, w: number, _h: number, x: number, y: number): RGBA {
-    x = Math.min(x, w - 1)
-    y = Math.max(0, y)
+    x = Math.max(0, Math.min(x, w - 1))
+    y = Math.max(0, Math.min(y, Math.floor(data.length / (w * 4)) - 1))
     const off = (y * w + x) * 4
-    return RGBA.fromValues(data[off]!, data[off + 1]!, data[off + 2]!, data[off + 3]!)
+    return RGBA.fromInts(data[off]!, data[off + 1]!, data[off + 2]!, data[off + 3]!)
   }
 }
 
@@ -133,7 +114,7 @@ export interface ImageProps {
 }
 
 /**
- * Renders an image in the terminal via OpenTUI's native pixel pipeline.
+ * Renders raw RGBA8 image data in the terminal.
  *
  * Pre-scale images with `sharp` (or any decoder) before passing RGBA8
  * pixel data:

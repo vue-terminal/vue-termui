@@ -1,8 +1,12 @@
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import VueRouter from 'vue-router/vite'
 import vueTermui from 'vue-termui/vite'
 
 export default defineConfig({
+  resolve: {
+    alias: [{ find: /^vue-termui$/, replacement: fileURLToPath(new URL('../src/index.ts', import.meta.url)) }],
+  },
   plugins: [
     // ⚠️ VueRouter() must come before the Vue SFC plugin (provided by
     // vueTermui()). File-based routes live in src/pages; demos under

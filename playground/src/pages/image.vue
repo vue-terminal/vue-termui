@@ -1,58 +1,71 @@
 <script setup lang="ts">
 import { Box, Image, Newline, Text } from 'vue-termui'
+import type { ImageData } from 'vue-termui'
 
-// Generate a test checkerboard pattern (no external image needed).
-function checkerboard(
-  cellSize: number,
-  cols: number,
-  rows: number,
-  c1: [number, number, number],
-  c2: [number, number, number],
-) {
-  const w = cellSize * cols
-  const h = cellSize * rows
-  const data = new Uint8Array(w * h * 4)
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const off = (y * w + x) * 4
-      const [r, g, b] = (Math.floor(x / cellSize) + Math.floor(y / cellSize)) % 2 === 0 ? c1 : c2
-      data[off] = r; data[off + 1] = g; data[off + 2] = b; data[off + 3] = 255
-    }
-  }
-  return { data, width: w, height: h }
-}
+type RGB = readonly [number, number, number]
 
-function gradient(w: number, h: number) {
-  const data = new Uint8Array(w * h * 4)
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const off = (y * w + x) * 4
-      data[off] = Math.round(255 * x / (w - 1))
-      data[off + 1] = Math.round(255 * (1 - y / (h - 1)))
-      data[off + 2] = 128
+function image(width: number, height: number, paint: (x: number, y: number) => RGB): ImageData {
+  const data = new Uint8Array(width * height * 4)
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const off = (y * width + x) * 4
+      const [r, g, b] = paint(x, y)
+      data[off] = r
+      data[off + 1] = g
+      data[off + 2] = b
       data[off + 3] = 255
     }
   }
-  return { data, width: w, height: h }
+
+  return { data, width, height }
 }
 
-const pattern = checkerboard(4, 8, 4, [0, 200, 100], [20, 40, 20])
-const rainbow = gradient(16, 8)
+function previewImage(width: number, height: number): ImageData {
+  const centerX = (width - 1) / 2
+  const centerY = (height - 1) / 2
+
+  return image(width, height, (x, y) => {
+    const dx = x - centerX
+    const dy = y - centerY
+    const distance = Math.sqrt(dx * dx + dy * dy)
+    const wave = (Math.sin(distance * 0.95) + 1) / 2
+
+    return [
+      Math.round(30 + (x / (width - 1)) * 170),
+      Math.round(210 - distance * 8),
+      Math.round(90 + wave * 130),
+    ]
+  })
+}
+
+const preview = previewImage(24, 10)
 </script>
 
 <template>
-  <Box flexDirection="column" borderStyle="rounded" :padding="1">
-    <Text bold fg="#42b883">Image</Text>
+  <Box
+    flexDirection="column"
+    borderStyle="rounded"
+    borderColor="#3f7d5c"
+    :padding="1"
+    :gap="1"
+    :width="56"
+  >
+    <Text bold fg="#42b883">Image Component</Text>
+    <Text dim>Single compact RGBA sample rendered through vue-termui Image.</Text>
     <Newline />
-    <Text dim>Checkerboard (32×16 px):</Text>
-    <Image :data="pattern" />
-    <Newline />
-    <Text dim>Gradient (16×8 px):</Text>
-    <Image :data="rainbow" />
-    <Newline />
-    <Text dim>
-      Terminal supports Kitty/Sixel/SGR? → native pixels.
-      Otherwise → grayscale half-block fallback.
-    </Text>
+
+    <Box
+      flexDirection="column"
+      borderStyle="single"
+      borderColor="#385246"
+      :padding="1"
+      :gap="1"
+      :width="50"
+    >
+      <Text bold fg="#e8fff3">Preview</Text>
+      <Text dim>24 x 10 RGBA pixels</Text>
+      <Image :data="preview" />
+    </Box>
   </Box>
 </template>

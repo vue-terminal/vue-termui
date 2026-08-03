@@ -68,6 +68,25 @@ describe('Image', () => {
     test.renderer.destroy()
   })
 
+  it('uses half the source pixel height as the natural terminal height', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 40, height: 10 })
+    const img = makeImageData(8, 5)
+
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup: () => () => h(Image, { data: img }),
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await test.renderOnce()
+
+    const child = test.renderer.root.getChildren()[0] as ImageRenderable
+    expect(child.displayHeight).toBe(3)
+    test.renderer.destroy()
+  })
+
   it('updates reactively when data changes', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 40, height: 10 })
     const dataRef = ref(makeImageData(4, 2))
