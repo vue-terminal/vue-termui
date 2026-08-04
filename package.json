@@ -65,7 +65,8 @@
   },
   "dependencies": {
     "@opentui/core": "^0.4.3",
-    "@vue/runtime-core": "^3.5.40"
+    "@vue/runtime-core": "^3.5.40",
+    "jimp": "1.6.1"
   },
   "devDependencies": {
     "@posva/prompts": "^2.4.4",

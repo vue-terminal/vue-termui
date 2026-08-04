@@ -6,12 +6,30 @@ import { createTuiApp } from '../renderer/index'
 import { Image } from './Image'
 import { ImageRenderable } from './Image'
 import type { TestRendererSetup } from '@opentui/core/testing'
+import { decodeImage } from './Image'
+import type { ImageData } from './Image'
 
-function makeImageData(w = 4, h = 2): { data: Uint8Array; width: number; height: number } {
+function makeImageData(w = 4, h = 2): ImageData {
   return { data: new Uint8Array(w * h * 4), width: w, height: h }
 }
 
 describe('Image', () => {
+  it('decodes common image buffers into tightly packed RGBA8 data', async () => {
+    const png = Uint8Array.from(
+      Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/lY5i3wAAAABJRU5ErkJggg==',
+        'base64',
+      ),
+    )
+
+    const image = await decodeImage(png)
+
+    expect(image.width).toBe(1)
+    expect(image.height).toBe(1)
+    expect(image.data).toBeInstanceOf(Uint8Array)
+    expect(image.data).toHaveLength(4)
+  })
+
   it('creates an ImageRenderable when data is provided', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 40, height: 10 })
     const img = makeImageData()
