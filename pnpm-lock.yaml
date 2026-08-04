@@ -14,6 +14,9 @@ importers:
       '@vue/runtime-core':
         specifier: ^3.5.40
         version: 3.5.40
+      jimp:
+        specifier: 1.6.1
+        version: 1.6.1
     devDependencies:
       '@posva/prompts':
         specifier: ^2.4.4
