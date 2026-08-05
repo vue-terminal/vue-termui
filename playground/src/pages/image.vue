@@ -1,9 +1,22 @@
 <script setup lang="ts">
 import { fileURLToPath } from 'node:url'
-import { Box, decodeImage, Image, Newline, ref, Text } from 'vue-termui'
-import type { ImageData } from 'vue-termui'
+import { Box, decodeImage, Image, ref, TabSelect, Text } from 'vue-termui'
+import type { ImageData, TabSelectOption } from 'vue-termui'
 
 const imagePath = fileURLToPath(new URL('../assets/sprites/ClaudeCode.png', import.meta.url))
+
+const TAB_WIDTH = 9
+
+// TabSelectRenderable left-aligns labels; pad with spaces to center them
+// within the tab (content area = tabWidth - 2).
+const center = (label: string) => ' '.repeat(Math.floor((TAB_WIDTH - 2 - label.length) / 2)) + label
+
+const tabs: TabSelectOption[] = [
+  { name: center('Block'), description: '1×2 px per cell (character rendering)' },
+  { name: center('Kitty'), description: 'kitty graphics protocol (real pixels)' },
+  { name: center('Sixel'), description: 'sixel protocol (real pixels)' },
+]
+const tab = ref(0)
 
 // Fit the source into the inner box width; decodeImage resizes (aspect kept)
 // and flattens transparency onto white by default.
@@ -29,11 +42,30 @@ decodeImage(imagePath, { width: TARGET_WIDTH })
     borderColor="#3f7d5c"
     :padding="1"
     :gap="1"
-    :width="56"
+    :width="60"
   >
-    <Text bold fg="#42b883">Image Component</Text>
-    <Text dim>ClaudeCode.png decoded and resized with jimp.</Text>
-    <Newline />
+    <Box flexDirection="row" justifyContent="space-between" alignItems="center">
+      <Text bold fg="#42b883">Image Component</Text>
+
+      <!-- ‹ › hint that ←/→ switches tabs; Kitty/Sixel are placeholders -->
+      <Box flexDirection="row" alignItems="center">
+        <Text dim>‹</Text>
+        <TabSelect
+          v-model="tab"
+          :options="tabs"
+          autofocus
+          :width="TAB_WIDTH * 3"
+          :tabWidth="TAB_WIDTH"
+          textColor="#a0a0a0"
+          :showDescription="false"
+          :showUnderline="false"
+          selectedTextColor="#42b883"
+          selectedBackgroundColor="#2c3e50"
+          focusedBackgroundColor="#1a1a1a"
+        />
+        <Text dim>›</Text>
+      </Box>
+    </Box>
 
     <Box
       flexDirection="column"
@@ -41,11 +73,12 @@ decodeImage(imagePath, { width: TARGET_WIDTH })
       borderColor="#385246"
       :padding="1"
       :gap="1"
-      :width="50"
+      :width="56"
     >
-      <Text bold fg="#e8fff3">Preview</Text>
-      <Text dim>{{ status }}</Text>
-      <Image v-if="preview" :data="preview" />
+      <Text v-if="tab === 0" dim>{{ status }}</Text>
+      <Image v-if="tab === 0 && preview" :data="preview" />
+      <Text v-if="tab === 1" dim>Kitty graphics protocol — under development</Text>
+      <Text v-if="tab === 2" dim>Sixel protocol — under development</Text>
     </Box>
   </Box>
 </template>
