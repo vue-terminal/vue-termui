@@ -36,7 +36,7 @@ export type { ProgressBarProps } from './components/ProgressBar'
 export { Markdown, SyntaxStyle } from './components/Markdown'
 export type { MarkdownProps, StyleDefinitionInput } from './components/Markdown'
 export { Image, decodeImage } from './components/Image'
-export type { ImageProps } from './components/Image'
+export type { DecodeImageOptions, ImageProps } from './components/Image'
 export type { ImageData } from './components/Image'
 export type { ImageSource } from './components/Image'
 export type {

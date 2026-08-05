@@ -173,6 +173,14 @@ Wrapping an OpenTUI renderable (e.g. `TabSelect`, done as the template). Don't r
   keybinding); the component owns `onSubmit` and re-emits it as `submit` with the
   text. To reset the editor, remount it with a `:key`.
 - `ProgressBar` is a `Box`+`Text` composite (OpenTUI has no native progress bar).
+- `Image` renders RGBA8 data with half-block cells (2 vertical pixels per
+  cell). `decodeImage(source, { width, height, background })` decodes
+  PNG/JPEG/GIF/BMP/TIFF via `jimp` (**a real dependency**, dynamically
+  imported so apps that never use images don't pay its load cost), optionally
+  resizing with aspect preserved and flattening transparency onto `background`
+  (default white — cells are opaque; `background: false` keeps alpha). The
+  renderable area-averages when downsampled via `displayWidth`/`displayHeight`,
+  which are "explicit" once set and survive later `imageData` updates.
 - `Link` / `TextTransform` are NOT ported yet — they need TextNode-with-link/
   transform support threaded through `nodeOps` (text-node children don't carry
   per-node link/style). Tracked in `todos.json` (phase 7).

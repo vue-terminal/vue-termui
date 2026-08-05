@@ -157,6 +157,7 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
             imageData: props?.imageData ?? null,
             displayWidth: props?.displayWidth,
             displayHeight: props?.displayHeight,
+            background: props?.background,
           })
         default:
           throw new Error(`[vue-termui] Unknown element type: <${tag}>`)
