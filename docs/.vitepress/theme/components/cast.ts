@@ -1,22 +1,18 @@
-// asciinema cast parser, supporting both v2 and v3. A cast is newline-delimited
-// JSON: the first line is a header object, every following line is an event
-// tuple `[time, code, data]`. We normalize both versions to absolute-time `"o"`
-// (output) events for playback.
-//
-// v2: https://docs.asciinema.org/manual/asciicast/v2/  — absolute timestamps,
-//     grid as top-level `width`/`height`.
-// v3: https://docs.asciinema.org/manual/asciicast/v3/  — event times are
-//     intervals since the previous event, grid nested under `term`.
+// asciinema v3 cast parser: https://docs.asciinema.org/manual/asciicast/v3/
+// A cast is newline-delimited JSON: the first line is a header object, every
+// following line an event tuple `[interval, code, data]` where `interval` is the
+// seconds elapsed since the previous event. We accumulate those into absolute
+// times and keep only the `"o"` (output) events playback needs.
 
 export interface CastHeader {
-  version: number
-  width: number
-  height: number
+  /** Terminal grid, from the header's `term`. */
+  cols: number
+  rows: number
   title?: string
 }
 
 export interface CastEvent {
-  /** Seconds since the recording started (absolute, normalized from v3 deltas). */
+  /** Seconds since the recording started, accumulated from the event intervals. */
   time: number
   data: string
 }
@@ -30,35 +26,37 @@ export interface Cast {
 
 interface RawHeader {
   version?: number
-  width?: number
-  height?: number
   title?: string
   term?: { cols?: number; rows?: number }
 }
 
 export function parseCast(text: string): Cast {
-  const lines = text.split('\n').filter((line) => line.trim().length > 0)
+  const lines = text
+    .split('\n')
+    // `#`-prefixed lines are comments; blank ones are noise.
+    .filter((line) => line.trim().length > 0 && !line.startsWith('#'))
   const headerLine = lines[0]
   if (!headerLine) throw new Error('Empty cast: missing header line')
 
   const raw = JSON.parse(headerLine) as RawHeader
-  const version = raw.version ?? 2
-  // v3 nests the grid under `term`; v2 keeps it top-level.
-  const width = (version >= 3 ? raw.term?.cols : raw.width) ?? 0
-  const height = (version >= 3 ? raw.term?.rows : raw.height) ?? 0
+  if (raw.version !== 3) {
+    throw new Error(
+      `Unsupported asciicast version ${raw.version}: record with asciinema 3, which writes v3 by default.`,
+    )
+  }
 
   const events: CastEvent[] = []
-  // v3 times are intervals since the previous event, so accumulate over *every*
-  // event (including input/resize/marker); v2 times are already absolute.
+  // Intervals are relative to the previous event, so the clock advances over
+  // *every* event (input, resize, marker…) even though only output is kept.
   let clock = 0
   for (const line of lines.slice(1)) {
-    const [time, code, data] = JSON.parse(line) as [number, string, string]
-    clock = version >= 3 ? clock + time : time
+    const [interval, code, data] = JSON.parse(line) as [number, string, string]
+    clock += interval
     if (code === 'o') events.push({ time: clock, data })
   }
 
   return {
-    header: { version, width, height, title: raw.title },
+    header: { cols: raw.term?.cols ?? 0, rows: raw.term?.rows ?? 0, title: raw.title },
     events,
     duration: events.length > 0 ? events[events.length - 1]!.time : 0,
   }

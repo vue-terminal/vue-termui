@@ -10,34 +10,29 @@ terminal session emits and replay it here.
 1. **Record** a session from the terminal `playground/` (which runs real
    vue-termui apps) with [asciinema](https://asciinema.org/) — the standard
    terminal recorder. It captures the raw ANSI the session emits into an
-   [asciinema v2](https://docs.asciinema.org/manual/asciicast/v2/) `.cast` file.
+   [asciicast v3](https://docs.asciinema.org/manual/asciicast/v3/) `.cast` file.
 2. **Replay** here: `src/casts/*.cast` are auto-discovered, parsed, and streamed
    into xterm.js — a stateful VT parser, so replaying the output events in order
    reproduces the session exactly, colors and all.
 
 ## Record a session
 
-Requires asciinema (`brew install asciinema`). A helper wraps the invocation:
+Recordings must be asciicast v3, which is what asciinema (v3+,
+`brew install asciinema`) writes by default:
 
 ```sh
-session-player/scripts/record.sh <name> [route]
-# e.g.
-session-player/scripts/record.sh styled-text /text-styles
+pnpm --filter playground build # prod build: boots instantly, route comes from argv
+asciinema rec --idle-time-limit 2 \
+  -c "node --experimental-ffi --disable-warning=ExperimentalWarning playground/dist/main.js /text-styles" \
+  session-player/src/casts/text-styles.cast
 ```
 
 Drive the app in your terminal, then quit with `Ctrl+C`. The cast lands in
-`src/casts/<name>.cast` and shows up in the player automatically.
+`src/casts/` and shows up in the player automatically. Casts embedded in the docs
+live in `docs/public/casts/` instead, played by `<SessionPlayer src="…" />`.
 
-Under the hood it runs the playground's prod build under asciinema:
-
-```sh
-asciinema rec -f asciicast-v2 --idle-time-limit 2 \
-  -c "node --experimental-ffi … playground/dist/main.js <route>" \
-  src/casts/<name>.cast
-```
-
-`-f asciicast-v2` matters: v2 stores absolute timestamps, which the player
-expects (v3 — asciinema's default — uses relative deltas).
+Use the editor below the player to trim and resize a recording, then **Save
+.cast** to download the edited copy (v3 again) and replace the original with it.
 
 ## Run the player
 
