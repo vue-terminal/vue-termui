@@ -33,28 +33,34 @@ export function trimCast(cast: Cast, start: number, end: number): Cast {
 }
 
 /** Return a copy of the cast with a different terminal grid. */
-export function resizeCast(cast: Cast, width: number, height: number): Cast {
+export function resizeCast(cast: Cast, cols: number, rows: number): Cast {
   return {
-    header: { ...cast.header, width, height },
+    header: { ...cast.header, cols, rows },
     events: cast.events.map((event) => ({ ...event })),
     duration: cast.duration,
   }
 }
 
 /**
- * Serialize a cast back to asciicast v2 text (the inverse of `parseCast`). Only
+ * Serialize a cast back to asciicast v3 text (the inverse of `parseCast`). Only
  * the normalized fields survive a parse→serialize round-trip: the header carries
- * version/grid/title and every event becomes an absolute-time `"o"` tuple.
+ * the grid and title, and every event becomes an `"o"` tuple timed as the interval
+ * since the previous one.
  */
 export function serializeCast(cast: Cast): string {
-  const header: { version: number; width: number; height: number; title?: string } = {
-    version: 2,
-    width: cast.header.width,
-    height: cast.header.height,
+  const header: { version: number; term: { cols: number; rows: number }; title?: string } = {
+    version: 3,
+    term: { cols: cast.header.cols, rows: cast.header.rows },
   }
   if (cast.header.title != null) header.title = cast.header.title
 
   const lines = [JSON.stringify(header)]
-  for (const event of cast.events) lines.push(JSON.stringify([event.time, 'o', event.data]))
+  let previous = 0
+  for (const event of cast.events) {
+    // Rounded to microseconds to keep float noise out of the file.
+    const interval = Math.round((event.time - previous) * 1e6) / 1e6
+    lines.push(JSON.stringify([interval, 'o', event.data]))
+    previous = event.time
+  }
   return lines.join('\n') + '\n'
 }

@@ -182,8 +182,8 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 function cols(): number {
-  const w = castData.value?.header.width ?? 0
-  return w > 0 ? w : 80
+  const c = castData.value?.header.cols ?? 0
+  return c > 0 ? c : 80
 }
 
 // Learn the per-column pixel width from `.xterm-screen` (the fixed cols × cell
@@ -242,8 +242,8 @@ function applyCast(next: Cast): void {
   const wasPlaying = playing.value
   pause()
   term.resize(
-    next.header.width > 0 ? next.header.width : 80,
-    next.header.height > 0 ? next.header.height : 24,
+    next.header.cols > 0 ? next.header.cols : 80,
+    next.header.rows > 0 ? next.header.rows : 24,
   )
   term.reset()
   writtenIndex = 0
@@ -296,8 +296,8 @@ async function start(): Promise<void> {
   term = new Terminal({
     // Fall back to a sane grid when a cast was recorded without a real terminal
     // size (e.g. asciinema under a sizeless pty reports 0), else xterm opens blank.
-    cols: cast.header.width > 0 ? cast.header.width : 80,
-    rows: cast.header.height > 0 ? cast.header.height : 24,
+    cols: cast.header.cols > 0 ? cast.header.cols : 80,
+    rows: cast.header.rows > 0 ? cast.header.rows : 24,
     fontSize: BASE_FONT_SIZE,
     fontFamily,
     cursorBlink: false,

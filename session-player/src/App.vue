@@ -14,9 +14,9 @@ interface Recording {
   local?: boolean
 }
 
-// Auto-discover every recorded session bundled under src/casts. Each .cast is
-// produced by the asciinema recorder (session-player/scripts/record.sh). Using
-// `?url` keeps them out of the bundle — the player fetches each one on demand.
+// Auto-discover every recorded session bundled under src/casts (asciinema
+// recordings — see the README). Using `?url` keeps them out of the bundle: the
+// player fetches each one on demand.
 const modules = import.meta.glob('./casts/*.cast', {
   query: '?url',
   import: 'default',
@@ -81,8 +81,8 @@ const baseCast = ref<Cast | null>(null)
 
 const trimStart = ref(0)
 const trimEnd = ref(0)
-const width = ref(80)
-const height = ref(24)
+const cols = ref(80)
+const rows = ref(24)
 
 watch(
   current,
@@ -110,8 +110,8 @@ watch(baseCast, (cast) => {
   if (!cast) return
   trimStart.value = 0
   trimEnd.value = cast.duration
-  width.value = cast.header.width || 80
-  height.value = cast.header.height || 24
+  cols.value = cast.header.cols || 80
+  rows.value = cast.header.rows || 24
 })
 
 // The live, edited cast fed to the player: trim first (rebases time), then apply
@@ -121,8 +121,8 @@ const editedCast = computed<Cast | null>(() => {
   if (!cast) return null
   return resizeCast(
     trimCast(cast, trimStart.value, trimEnd.value),
-    Math.max(1, width.value),
-    Math.max(1, height.value),
+    Math.max(1, cols.value),
+    Math.max(1, rows.value),
   )
 })
 
@@ -145,8 +145,8 @@ function resetEdits(): void {
   if (!cast) return
   trimStart.value = 0
   trimEnd.value = cast.duration
-  width.value = cast.header.width || 80
-  height.value = cast.header.height || 24
+  cols.value = cast.header.cols || 80
+  rows.value = cast.header.rows || 24
 }
 
 const isEdited = computed(() => {
@@ -155,8 +155,8 @@ const isEdited = computed(() => {
   return (
     trimStart.value !== 0 ||
     trimEnd.value !== cast.duration ||
-    width.value !== (cast.header.width || 80) ||
-    height.value !== (cast.header.height || 24)
+    cols.value !== (cast.header.cols || 80) ||
+    rows.value !== (cast.header.rows || 24)
   )
 })
 
@@ -245,16 +245,16 @@ function download(): void {
 
         <div class="editor-row">
           <label class="field">
-            <span class="field-label">Width</span>
-            <input v-model.number="width" type="number" min="1" max="500" />
+            <span class="field-label">Cols</span>
+            <input v-model.number="cols" type="number" min="1" max="500" />
           </label>
           <label class="field">
-            <span class="field-label">Height</span>
-            <input v-model.number="height" type="number" min="1" max="200" />
+            <span class="field-label">Rows</span>
+            <input v-model.number="rows" type="number" min="1" max="200" />
           </label>
 
           <span class="summary">
-            {{ width }}×{{ height }} · {{ formatSeconds(trimmedDuration) }}
+            {{ cols }}×{{ rows }} · {{ formatSeconds(trimmedDuration) }}
           </span>
 
           <span class="spacer" />
@@ -270,9 +270,9 @@ function download(): void {
     <section v-else class="empty">
       <p>
         No recordings yet. Drop a <code>.cast</code> file here, click <b>Open .cast…</b>, or record
-        one:
+        one with <a href="https://asciinema.org/">asciinema</a> into <code>src/casts/</code> — see
+        the README.
       </p>
-      <pre><code>session-player/scripts/record.sh styled-text /text-styles</code></pre>
     </section>
 
     <div v-if="dragging" class="dropzone">Drop .cast file to play</div>

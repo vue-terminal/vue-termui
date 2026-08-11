@@ -5,7 +5,7 @@ import { resizeCast, serializeCast, trimCast } from './cast-edit'
 
 function makeCast(): Cast {
   return {
-    header: { version: 2, width: 80, height: 24, title: 'demo' },
+    header: { cols: 80, rows: 24, title: 'demo' },
     events: [
       { time: 0, data: 'a' },
       { time: 1, data: 'b' },
@@ -31,7 +31,7 @@ describe('trimCast', () => {
 
   it('preserves the grid and title', () => {
     const out = trimCast(makeCast(), 1, 2)
-    expect(out.header).toEqual({ version: 2, width: 80, height: 24, title: 'demo' })
+    expect(out.header).toEqual({ cols: 80, rows: 24, title: 'demo' })
   })
 
   it('does not prepend an empty prefix when start is 0', () => {
@@ -53,8 +53,8 @@ describe('trimCast', () => {
 describe('resizeCast', () => {
   it('changes only the grid dimensions', () => {
     const out = resizeCast(makeCast(), 120, 40)
-    expect(out.header.width).toBe(120)
-    expect(out.header.height).toBe(40)
+    expect(out.header.cols).toBe(120)
+    expect(out.header.rows).toBe(40)
     expect(out.events).toEqual(makeCast().events)
   })
 })
@@ -63,14 +63,31 @@ describe('serializeCast', () => {
   it('round-trips through parseCast', () => {
     const cast = makeCast()
     const round = parseCast(serializeCast(cast))
-    expect(round.header.width).toBe(80)
-    expect(round.header.height).toBe(24)
+    expect(round.header).toEqual(cast.header)
     expect(round.events).toEqual(cast.events)
     expect(round.duration).toBe(cast.duration)
   })
 
-  it('writes a v2 header on the first line', () => {
+  it('writes a v3 header on the first line', () => {
     const [headerLine] = serializeCast(makeCast()).split('\n')
-    expect(JSON.parse(headerLine!)).toEqual({ version: 2, width: 80, height: 24, title: 'demo' })
+    expect(JSON.parse(headerLine!)).toEqual({
+      version: 3,
+      term: { cols: 80, rows: 24 },
+      title: 'demo',
+    })
+  })
+
+  it('writes event times as intervals since the previous event', () => {
+    const events = serializeCast(makeCast())
+      .trim()
+      .split('\n')
+      .slice(1)
+      .map((line) => JSON.parse(line))
+    expect(events).toEqual([
+      [0, 'o', 'a'],
+      [1, 'o', 'b'],
+      [1, 'o', 'c'],
+      [1, 'o', 'd'],
+    ])
   })
 })
