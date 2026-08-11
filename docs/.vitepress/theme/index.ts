@@ -2,6 +2,7 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { defineAsyncComponent, h } from 'vue'
 import AnimatedLogo from './components/AnimatedLogo.vue'
+import SessionPlayerLoading from './components/SessionPlayerLoading.vue'
 import './styles/vars.css'
 
 const theme: Theme = {
@@ -16,7 +17,10 @@ const theme: Theme = {
     // embed a player; use it in markdown wrapped in <ClientOnly> (browser-only).
     app.component(
       'SessionPlayer',
-      defineAsyncComponent(() => import('./components/SessionPlayer.vue')),
+      defineAsyncComponent({
+        loader: () => import('./components/SessionPlayer.vue'),
+        loadingComponent: SessionPlayerLoading,
+      }),
     )
   },
 }
