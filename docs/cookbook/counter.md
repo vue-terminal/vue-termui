@@ -5,7 +5,7 @@ The "hello world" of interactive apps: a number you change with the keyboard. It
 Here's a recording of it running in a real terminal, replayed right here in the browser:
 
 <ClientOnly>
-  <SessionPlayer src="/casts/tres.cast" />
+  <SessionPlayer src="/casts/counter.cast" />
 </ClientOnly>
 
 ```vue
