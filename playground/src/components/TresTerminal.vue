@@ -8,12 +8,23 @@
 // whose only job is to drive Tres's ready/dispose lifecycle.
 //
 // Caveats: Tres's own render loop rides requestAnimationFrame off `window`,
-// which doesn't exist here — useLoop callbacks never fire; animate with
-// onFrame from @vue-termui/three instead. Pointer events never fire either.
+// which doesn't exist here, so it never ticks by itself — the terminal's frame
+// callback drives its hooks instead (see below), which is what makes useLoop
+// (and anything built on it, like @tresjs/rapier's <Physics>) work. Pointer
+// events never fire.
 import { TresCanvasContext, type TresContext, type TresRenderer } from '@tresjs/core'
-import { Three, type ThreeProps, type ThreeRenderable } from '@vue-termui/three'
-import type { OrthographicCamera, PerspectiveCamera } from 'three'
-import { computed, shallowRef, toRaw, type PropType } from 'vue-termui'
+import { onFrame, Three, type ThreeProps, type ThreeRenderable } from '@vue-termui/three'
+import type { Mesh, OrthographicCamera, PerspectiveCamera } from 'three'
+import {
+  computed,
+  getCurrentScope,
+  onBeforeUnmount,
+  onMounted,
+  onScopeDispose,
+  shallowRef,
+  toRaw,
+  type PropType,
+} from 'vue-termui'
 
 defineOptions({ inheritAttrs: false })
 
@@ -84,6 +95,68 @@ const three = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 // no counter-measure is needed here.
 const renderable = computed(() => three.value?.renderable ?? null)
 defineExpose({ renderable })
+
+// Teardown order: the terminal destroys <Three>'s renderable — and with it
+// three's WebGPU renderer and its node cache — before Tres tears the scene graph
+// down, and a material disposed after that throws inside three ("Cannot read
+// properties of undefined (reading 'usedTimes')"). Tres swallows that while
+// unmounting its own nodes, but not in the canvas teardown that sweeps whatever
+// is left in the scene — e.g. everything under a <Suspense> boundary, which it
+// never unmounts, so leaving a page with one logs the error. Free the GPU
+// resources here instead, while the renderer is still alive; Tres's own pass
+// then finds nothing left to release.
+onBeforeUnmount(() => {
+  context.value?.scene.value.traverse((object) => {
+    const { geometry, material } = object as Partial<Mesh>
+    geometry?.dispose()
+    for (const entry of Array.isArray(material) ? material : [material]) entry?.dispose()
+  })
+})
+
+// Tres's loop rides @vueuse's useRafFn, which needs `window` to resume, so in a
+// TTY it stays paused and every useLoop() callback would be dead code. The loop
+// only hands out registrars (`on`), never its `trigger`, so replace them with
+// ones that mirror each callback into a set onFrame can walk.
+type LoopContext = { delta: number; elapsed: number }
+type LoopCallback = (context: LoopContext) => void
+
+const beforeLoopCallbacks = new Set<LoopCallback>()
+const loopCallbacks = new Set<LoopCallback>()
+
+function registerInto(callbacks: Set<LoopCallback>) {
+  return (callback: LoopCallback) => {
+    callbacks.add(callback)
+    const off = () => callbacks.delete(callback)
+    // same contract as @vueuse's createEventHook: a callback registered from a
+    // component goes away with it
+    if (getCurrentScope()) onScopeDispose(off)
+    return { off }
+  }
+}
+
+const canvasContext = shallowRef<{ context: TresContext } | null>(null)
+
+// onMounted, not @ready: Tres mounts the slot from its ready handler (a tick
+// later), so this lands before any child — even one registering during setup —
+// can reach the untouched hooks.
+onMounted(() => {
+  const loop = canvasContext.value?.context.renderer.loop
+  if (!loop) return
+  loop.onBeforeLoop = registerInto(beforeLoopCallbacks)
+  loop.onLoop = registerInto(loopCallbacks)
+})
+
+let elapsed = 0
+onFrame((deltaMs) => {
+  const delta = deltaMs / 1000
+  elapsed += delta
+  const loopContext = { delta, elapsed }
+  // iterate over copies: a callback may register or unregister another one
+  for (const callback of [...beforeLoopCallbacks]) callback(loopContext)
+  // <Three> draws once this returns, so onRender callbacks run right *before*
+  // the frame they belong to instead of right after it
+  for (const callback of [...loopCallbacks]) callback(loopContext)
+})
 </script>
 
 <template>
@@ -94,7 +167,12 @@ defineExpose({ renderable })
     :rendererOptions="props.rendererOptions"
     v-bind="$attrs"
   />
-  <TresCanvasContext :canvas="canvas" :renderer="createStubRenderer" @ready="onReady">
+  <TresCanvasContext
+    ref="canvasContext"
+    :canvas="canvas"
+    :renderer="createStubRenderer"
+    @ready="onReady"
+  >
     <slot />
   </TresCanvasContext>
 </template>
