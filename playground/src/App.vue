@@ -94,6 +94,8 @@ const focusedElement = useCurrentFocusedElement()
     >
       <Text>↹ cycle focus</Text>
       <Text dim>|</Text>
+      <Text>/ filter</Text>
+      <Text dim>|</Text>
       <Text>⇧c console</Text>
       <Text dim>|</Text>
       <Text>⌃c exit</Text>
