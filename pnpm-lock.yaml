@@ -163,12 +163,18 @@ importers:
 
   playground:
     dependencies:
+      '@dimforge/rapier3d-compat':
+        specifier: 0.19.3
+        version: 0.19.3
       '@opentui/core':
         specifier: ^0.5.3
         version: 0.5.3(typescript@6.0.3)(web-tree-sitter@0.25.10)
       '@tresjs/core':
         specifier: ^5.8.3
         version: 5.8.3(three@0.180.0)(vue@3.5.41(typescript@6.0.3))
+      '@tresjs/rapier':
+        specifier: ^1.0.1
+        version: 1.0.1(@tresjs/core@5.8.3(three@0.180.0)(vue@3.5.41(typescript@6.0.3)))(three@0.180.0)(vue@3.5.41(typescript@6.0.3))
       '@vue-termui/three':
         specifier: workspace:*
         version: link:../packages/three
@@ -441,6 +447,9 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
+
+  '@dimforge/rapier3d-compat@0.19.3':
+    resolution: {integrity: sha512-mMVdSj1PRTT108s9Swbu2GQOmHbn8kbJANRV5xfczL3s0T4vkgZAuoMRgvBzQcHanpKusbC0ZJj6z3mC3aj3vg==}
 
   '@docsearch/css@4.7.0':
     resolution: {integrity: sha512-Sk5xkdRFeE7PeWjG9l4AfTwdvMfr9wHiwNNCpHXT4v4SNyNMKdHGvEILc31BgaVFGDDNbv5u/a73tofRiwbEZw==}
@@ -1732,6 +1741,13 @@ packages:
     peerDependencies:
       three: '>=0.133'
       vue: '>=3.4'
+
+  '@tresjs/rapier@1.0.1':
+    resolution: {integrity: sha512-NXBix8Lq+K+wfZFVRNRt2jtJyVwnqVbzDd9OQoJXgIW+hUd7ku8UBSL0MtVYglkyl1RDsQg7wh3i7mfsxz4iYQ==}
+    peerDependencies:
+      '@tresjs/core': ^5.3.2
+      three: '>=0.169'
+      vue: '>=3.4.0'
 
   '@tsconfig/node24@24.0.4':
     resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
@@ -4214,6 +4230,8 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
+  '@dimforge/rapier3d-compat@0.19.3': {}
+
   '@docsearch/css@4.7.0': {}
 
   '@docsearch/js@4.7.0': {}
@@ -5149,6 +5167,14 @@ snapshots:
       '@vue/devtools-api': 8.1.5
       '@vueuse/core': 14.3.0(vue@3.5.41(typescript@6.0.3))
       radashi: 12.9.1
+      three: 0.180.0
+      vue: 3.5.41(typescript@6.0.3)
+
+  '@tresjs/rapier@1.0.1(@tresjs/core@5.8.3(three@0.180.0)(vue@3.5.41(typescript@6.0.3)))(three@0.180.0)(vue@3.5.41(typescript@6.0.3))':
+    dependencies:
+      '@dimforge/rapier3d-compat': 0.19.3
+      '@tresjs/core': 5.8.3(three@0.180.0)(vue@3.5.41(typescript@6.0.3))
+      '@vueuse/core': 14.4.0(vue@3.5.41(typescript@6.0.3))
       three: 0.180.0
       vue: 3.5.41(typescript@6.0.3)
 
