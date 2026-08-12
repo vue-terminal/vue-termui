@@ -1,4 +1,4 @@
-import type { RGBA } from '@opentui/core'
+import type { BorderStyle as OpenTUIBorderStyle, RGBA } from '@opentui/core'
 
 /**
  * A color accepted by OpenTUI: a hex/name string or an {@link RGBA} instance.
@@ -42,6 +42,9 @@ export type Position = 'static' | 'relative' | 'absolute'
 export type Overflow = 'visible' | 'hidden' | 'scroll'
 
 /**
- * Border preset understood by OpenTUI.
+ * Border preset understood by OpenTUI: `'single' | 'double' | 'rounded' |
+ * 'heavy'` (aliased so it cannot drift). There is no `'none'` style — hide
+ * borders with `border: false`, or `border`/`outerBorder`/`showBorders` on
+ * `<TextTable>`.
  */
-export type BorderStyle = 'single' | 'double' | 'rounded' | 'heavy' | 'none'
+export type BorderStyle = OpenTUIBorderStyle

@@ -12,6 +12,8 @@ import {
   TextareaRenderable,
   TextNodeRenderable,
   TextRenderable,
+  TextTableRenderable,
+  type TextTableOptions,
 } from '@opentui/core'
 import type { RendererOptions } from '@vue/runtime-core'
 import { propToOptionalBoolean } from '../components/utils'
@@ -43,6 +45,7 @@ export type TuiElementTag =
   | 'tui-tab-select'
   | 'tui-markdown'
   | 'tui-scroll-box'
+  | 'tui-text-table'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -137,6 +140,22 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
             scrollX: propToOptionalBoolean(props?.scrollX),
             scrollY: propToOptionalBoolean(props?.scrollY),
           })
+        case 'tui-text-table': {
+          // These color/attribute options are constructor-only on
+          // `TextTableRenderable` (no setters), so they must be read here
+          // instead of riding the patchProp path. `undefined` values keep the
+          // renderable's defaults.
+          const options = props as TextTableOptions | null
+          return new TextTableRenderable(ctx, {
+            fg: options?.fg,
+            bg: options?.bg,
+            backgroundColor: options?.backgroundColor,
+            borderBackgroundColor: options?.borderBackgroundColor,
+            attributes: options?.attributes,
+            selectionBg: options?.selectionBg,
+            selectionFg: options?.selectionFg,
+          })
+        }
         case 'tui-markdown': {
           // `MarkdownRenderable` requires a `syntaxStyle` up front, so read it
           // from the props here rather than deferring to patchProp. The

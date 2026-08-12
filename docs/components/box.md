@@ -67,15 +67,15 @@ Both `margin` and `padding` expand into per-axis and per-side shorthands:
 
 ## Appearance
 
-| Prop                 | Type                                                             | Description                  |
-| -------------------- | ---------------------------------------------------------------- | ---------------------------- |
-| `backgroundColor`    | `ColorInput`                                                     | Fill color                   |
-| `border`             | `boolean`                                                        | Draw a border                |
-| `borderStyle`        | `'single'` \| `'double'` \| `'rounded'` \| `'heavy'` \| `'none'` | Border preset                |
-| `borderColor`        | `ColorInput`                                                     | Border color                 |
-| `focusedBorderColor` | `ColorInput`                                                     | Border color while focused   |
-| `title`              | `string`                                                         | Text shown in the top border |
-| `titleAlignment`     | `'left'` \| `'center'` \| `'right'`                              | Title position               |
+| Prop                 | Type                                                 | Description                                            |
+| -------------------- | ---------------------------------------------------- | ------------------------------------------------------ |
+| `backgroundColor`    | `ColorInput`                                         | Fill color                                             |
+| `border`             | `boolean`                                            | Draw a border                                          |
+| `borderStyle`        | `'single'` \| `'double'` \| `'rounded'` \| `'heavy'` | Border preset (hide the border with `:border="false"`) |
+| `borderColor`        | `ColorInput`                                         | Border color                                           |
+| `focusedBorderColor` | `ColorInput`                                         | Border color while focused                             |
+| `title`              | `string`                                             | Text shown in the top border                           |
+| `titleAlignment`     | `'left'` \| `'center'` \| `'right'`                  | Title position                                         |
 
 `ColorInput` is a hex/name string or an OpenTUI `RGBA` instance.
 
