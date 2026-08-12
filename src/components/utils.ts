@@ -35,7 +35,7 @@ import type {
  *
  * @example
  * ```ts
- * export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent({ … })
+ * export const Input: TuiComponent<InputProps, InputElement> = defineComponent({ … })
  * ```
  */
 export type TuiComponent<Props, El extends BaseRenderable> = DefineComponent<

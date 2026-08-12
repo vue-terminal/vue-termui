@@ -49,6 +49,12 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, Re
 }
 
 /**
+ * The terminal element behind {@link Input}, as exposed by template refs and
+ * `$el`.
+ */
+export type InputElement = InputRenderable
+
+/**
  * Single-line text input mapping to OpenTUI's `InputRenderable`. Supports
  * `v-model` for the text value.
  *
@@ -68,7 +74,7 @@ export interface InputProps extends Omit<InputRenderableOptions, 'onSubmit'>, Re
  * </template>
  * ```
  */
-export const Input: TuiComponent<InputProps, InputRenderable> = defineComponent({
+export const Input: TuiComponent<InputProps, InputElement> = defineComponent({
   name: 'Input',
   inheritAttrs: false,
   props: {

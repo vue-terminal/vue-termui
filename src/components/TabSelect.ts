@@ -84,6 +84,12 @@ export interface TabSelectProps
 }
 
 /**
+ * The terminal element behind {@link TabSelect}, as exposed by template refs
+ * and `$el`.
+ */
+export type TabSelectElement = TabSelectRenderable
+
+/**
  * A horizontal, tab-based single-choice control mapping to OpenTUI's
  * `TabSelectRenderable`. `v-model` binds the highlighted index; `changed` fires
  * on every highlight move and `selected` fires when the user commits a tab
@@ -104,7 +110,7 @@ export interface TabSelectProps
  * </template>
  * ```
  */
-export const TabSelect: TuiComponent<TabSelectProps, TabSelectRenderable> = defineComponent({
+export const TabSelect: TuiComponent<TabSelectProps, TabSelectElement> = defineComponent({
   name: 'TabSelect',
   inheritAttrs: false,
   props: {

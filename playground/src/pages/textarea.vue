@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { KeyEvent } from '@opentui/core'
-import { Box, ref, Text, Textarea } from 'vue-termui'
+import { Box, type KeyEvent, ref, Text, Textarea } from 'vue-termui'
 
 const notes = ref('')
 const submitted = ref('')

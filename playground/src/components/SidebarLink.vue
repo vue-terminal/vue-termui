@@ -7,14 +7,20 @@
 // `selected` is the Sidebar's own cursor, which survives a page stealing focus:
 // a focused link is always selected too, but the selection stays visible (dimmer)
 // while the filter Input holds focus.
-import type { BoxRenderable } from '@opentui/core'
-import { Box, Text, computed, shallowRef, useCurrentFocusedElement } from 'vue-termui'
+import {
+  Box,
+  type BoxElement,
+  computed,
+  shallowRef,
+  Text,
+  useCurrentFocusedElement,
+} from 'vue-termui'
 
 defineProps<{ label: string; selected?: boolean }>()
 
 // The backing OpenTUI renderable. Bound to `<Box>`, the ref receives the
 // component's public instance, so unwrap its `$el` to reach the renderable.
-const el = shallowRef<BoxRenderable>()
+const el = shallowRef<BoxElement>()
 const currentFocused = useCurrentFocusedElement()
 const focused = computed(() => !!el.value && currentFocused.value === el.value)
 

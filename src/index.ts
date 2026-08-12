@@ -16,25 +16,25 @@ export { useInterval, useTimeout } from './composables/timing'
 export type { RemoveListener } from './utils/types'
 
 export { Box } from './components/Box'
-export type { BoxProps } from './components/Box'
+export type { BoxElement, BoxProps } from './components/Box'
 export { Text } from './components/Text'
-export type { TextProps } from './components/Text'
+export type { TextElement, TextProps } from './components/Text'
 export { Newline } from './components/Newline'
 export type { NewlineProps } from './components/Newline'
 export { Input } from './components/Input'
-export type { InputProps } from './components/Input'
+export type { InputElement, InputProps } from './components/Input'
 export { Textarea } from './components/Textarea'
-export type { TextareaProps } from './components/Textarea'
+export type { TextareaElement, TextareaProps } from './components/Textarea'
 export { Select } from './components/Select'
-export type { SelectOption, SelectProps } from './components/Select'
+export type { SelectElement, SelectOption, SelectProps } from './components/Select'
 export { TabSelect } from './components/TabSelect'
-export type { TabSelectOption, TabSelectProps } from './components/TabSelect'
+export type { TabSelectElement, TabSelectOption, TabSelectProps } from './components/TabSelect'
 export { ScrollBox } from './components/ScrollBox'
-export type { ScrollBoxProps } from './components/ScrollBox'
+export type { ScrollBoxElement, ScrollBoxProps } from './components/ScrollBox'
 export { ProgressBar } from './components/ProgressBar'
 export type { ProgressBarProps } from './components/ProgressBar'
 export { Markdown, SyntaxStyle } from './components/Markdown'
-export type { MarkdownProps, StyleDefinitionInput } from './components/Markdown'
+export type { MarkdownElement, MarkdownProps, StyleDefinitionInput } from './components/Markdown'
 export type {
   Align,
   BorderStyle,
@@ -42,8 +42,10 @@ export type {
   Dimension,
   FlexDirection,
   Justify,
+  MouseEvent,
   Overflow,
   Position,
+  TuiElement,
 } from './components/types'
 
 // Styled-text helpers for building inline multi-color/attribute runs within a
@@ -62,6 +64,7 @@ export {
   strikethrough,
   StyledText,
 } from '@opentui/core'
+export type { TextChunk } from '@opentui/core'
 
 export {
   createApp,

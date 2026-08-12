@@ -1,4 +1,4 @@
-import { type MarkdownOptions, SyntaxStyle } from '@opentui/core'
+import { type MarkdownOptions, type MarkdownRenderable, SyntaxStyle } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
 import { optionalBooleanProps } from './utils'
 
@@ -26,6 +26,11 @@ export interface MarkdownProps extends MarkdownOptions {
    */
   syntaxStyle: SyntaxStyle
 }
+
+/**
+ * The terminal element behind {@link Markdown}, as exposed by template refs.
+ */
+export type MarkdownElement = MarkdownRenderable
 
 /**
  * Renders a block of Markdown, mapping to OpenTUI's `MarkdownRenderable`. Pass

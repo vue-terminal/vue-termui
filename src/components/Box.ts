@@ -27,6 +27,12 @@ import { useCurrentFocusedElement } from '../composables/focus'
 export interface BoxProps extends BoxOptions, RenderableEventProps {}
 
 /**
+ * The terminal element behind {@link Box}, as exposed by template refs and
+ * `$el`.
+ */
+export type BoxElement = BoxRenderable
+
+/**
  * A flexbox container — the terminal equivalent of a `<div>`. Maps to OpenTUI's
  * `BoxRenderable`, which owns layout (real flexbox), borders, padding/margin and
  * background natively, so {@link BoxProps} are forwarded to it unchanged.
@@ -41,7 +47,7 @@ export interface BoxProps extends BoxOptions, RenderableEventProps {}
  * </Box>
  * ```
  */
-export const Box: TuiComponent<BoxProps, BoxRenderable> = defineComponent({
+export const Box: TuiComponent<BoxProps, BoxElement> = defineComponent({
   name: 'Box',
   inheritAttrs: false,
   props: {

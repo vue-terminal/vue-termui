@@ -21,11 +21,11 @@ import {
   onUnmounted,
   shallowRef,
   useRenderer,
+  type BoxElement,
   type DefineComponent,
   type PropType,
   type VNode,
 } from 'vue-termui'
-import type { BoxRenderable } from '@opentui/core'
 
 // Runs the shaders.com runtime (shaders/js) headless in the terminal: the
 // library renders into OpenTUI's CLICanvas (a fake <canvas> backed by Dawn
@@ -245,7 +245,7 @@ export const ShadersView: DefineComponent<ShadersViewProps> = defineComponent({
     shaderOptions: Object as PropType<ShadersViewProps['shaderOptions']>,
   },
   setup(props, { attrs, expose }) {
-    const box = shallowRef<BoxRenderable | null>(null)
+    const box = shallowRef<BoxElement | null>(null)
     const renderable = shallowRef<ShadersRenderable | null>(null)
     const renderer = useRenderer()
 

@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import type { TextChunk } from '@opentui/core'
-import { bold, fg, StyledText } from '@opentui/core'
-import { Box, computed, onUnmounted, ref, Text } from 'vue-termui'
+import {
+  bold,
+  Box,
+  computed,
+  fg,
+  onUnmounted,
+  ref,
+  StyledText,
+  Text,
+  type TextChunk,
+} from 'vue-termui'
 import { buildFrames, type Seg, WHITE } from './logo-frames'
 
 const FRAME_MS = 80

@@ -1,4 +1,3 @@
-import type { BoxRenderable } from '@opentui/core'
 import {
   defineComponent,
   h,
@@ -7,6 +6,7 @@ import {
   shallowRef,
   useRenderer,
   watch,
+  type BoxElement,
   type DefineComponent,
   type PropType,
   type VNode,
@@ -42,7 +42,7 @@ export const CameraView: DefineComponent<CameraViewProps> = defineComponent({
     error: (message: string) => typeof message === 'string',
   },
   setup(props, { attrs, expose, emit }) {
-    const box = shallowRef<BoxRenderable | null>(null)
+    const box = shallowRef<BoxElement | null>(null)
     const renderable = shallowRef<CameraRenderable | null>(null)
     const renderer = useRenderer()
 

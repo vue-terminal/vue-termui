@@ -25,10 +25,18 @@ import {
   type DirectionalLight,
   type PerspectiveCamera,
 } from 'three'
-import { Box, computed, onKeyDown, ref, shallowRef, Text, useTerminalSize } from 'vue-termui'
+import {
+  Box,
+  computed,
+  type MouseEvent,
+  onKeyDown,
+  ref,
+  shallowRef,
+  Text,
+  useTerminalSize,
+} from 'vue-termui'
 import { asciiRamps } from '../../ascii-ramps'
 import TresTerminal from '../../components/TresTerminal.vue'
-import type { MouseEvent } from '@opentui/core'
 
 const { height: rows } = useTerminalSize()
 const sceneHeight = computed(() => Math.max(8, rows.value - 10))

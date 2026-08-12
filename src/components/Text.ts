@@ -1,4 +1,4 @@
-import { TextAttributes, type TextOptions } from '@opentui/core'
+import { TextAttributes, type TextOptions, type TextRenderable } from '@opentui/core'
 import { type FunctionalComponent, h } from '@vue/runtime-core'
 
 /**
@@ -41,6 +41,11 @@ export interface TextProps extends TextOptions {
    */
   strikethrough?: boolean
 }
+
+/**
+ * The terminal element behind {@link Text}, as exposed by template refs.
+ */
+export type TextElement = TextRenderable
 
 /**
  * Folds the boolean style props into OpenTUI's single `attributes` bitmask.

@@ -39,6 +39,12 @@ export interface ScrollBoxProps
 }
 
 /**
+ * The terminal element behind {@link ScrollBox}, as exposed by template refs
+ * and `$el`.
+ */
+export type ScrollBoxElement = ScrollBoxRenderable
+
+/**
  * A scrollable container mapping to OpenTUI's `ScrollBoxRenderable`. Children
  * overflow into a scrollable content area with automatic scrollbars. Focus it
  * (it is focusable by default) to scroll with the keyboard: arrows/`hjkl` by
@@ -62,7 +68,7 @@ export interface ScrollBoxProps
  * </template>
  * ```
  */
-export const ScrollBox: TuiComponent<ScrollBoxProps, ScrollBoxRenderable> = defineComponent({
+export const ScrollBox: TuiComponent<ScrollBoxProps, ScrollBoxElement> = defineComponent({
   name: 'ScrollBox',
   inheritAttrs: false,
   props: {

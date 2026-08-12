@@ -76,6 +76,12 @@ export interface SelectProps
 }
 
 /**
+ * The terminal element behind {@link Select}, as exposed by template refs and
+ * `$el`.
+ */
+export type SelectElement = SelectRenderable
+
+/**
  * A scrollable single-choice list mapping to OpenTUI's `SelectRenderable`.
  * `v-model` binds the highlighted index; `select` fires when the user commits a
  * choice (Enter) with the option and its index.
@@ -92,7 +98,7 @@ export interface SelectProps
  * </template>
  * ```
  */
-export const Select: TuiComponent<SelectProps, SelectRenderable> = defineComponent({
+export const Select: TuiComponent<SelectProps, SelectElement> = defineComponent({
   name: 'Select',
   inheritAttrs: false,
   props: {

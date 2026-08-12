@@ -46,6 +46,12 @@ export interface TextareaProps
 }
 
 /**
+ * The terminal element behind {@link Textarea}, as exposed by template refs
+ * and `$el`.
+ */
+export type TextareaElement = TextareaRenderable
+
+/**
  * Multi-line text editor mapping to OpenTUI's `TextareaRenderable`. Supports
  * `v-model` for the text value and cursor/selection/undo out of the box.
  *
@@ -70,7 +76,7 @@ export interface TextareaProps
  * </template>
  * ```
  */
-export const Textarea: TuiComponent<TextareaProps, TextareaRenderable> = defineComponent({
+export const Textarea: TuiComponent<TextareaProps, TextareaElement> = defineComponent({
   name: 'Textarea',
   inheritAttrs: false,
   props: {
