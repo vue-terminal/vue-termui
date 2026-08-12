@@ -87,6 +87,7 @@ const sceneHeight = computed(() => Math.max(8, rows.value - 9))
       :renderer-options="{
         focalLength: 8,
         superSample: SuperSampleType.ASCII,
+        asciiStyle: 'shape',
         backgroundColor: RGBA.fromValues(0, 0, 0, 1),
       }"
     />

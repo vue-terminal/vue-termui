@@ -2,7 +2,7 @@
 // Port of opentui's shader-cube-demo (trimmed: no buffer post-processing
 // filters): a phong-shaded cube with procedural TextureUtils materials, an
 // orbiting point light with visualizer, and live material/light cycling.
-import { onFrame, RGBA, TextureUtils, Three } from '@vue-termui/three'
+import { onFrame, RGBA, SuperSampleType, TextureUtils, Three } from '@vue-termui/three'
 import {
   AmbientLight,
   BoxGeometry,
@@ -181,7 +181,10 @@ const sceneHeight = computed(() => Math.max(8, rows.value - 11))
       :camera="camera"
       width="100%"
       :height="sceneHeight"
-      :renderer-options="{ focalLength: 8, backgroundColor: RGBA.fromValues(0, 0, 0, 1) }"
+      :renderer-options="{
+        focalLength: 8,
+        backgroundColor: RGBA.fromValues(0, 0, 0, 1),
+      }"
     />
   </Box>
 </template>
