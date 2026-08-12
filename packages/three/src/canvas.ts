@@ -1,7 +1,13 @@
 import { RGBA, type OptimizedBuffer } from '@opentui/core'
-import { asciiShader, DEFAULT_ASCII_RAMP } from './shaders/ascii'
-import { ASCII_SHAPE_CELL, asciiShapeShader, DEFAULT_ASCII_CONTRAST } from './shaders/ascii-shape'
-import { DEFAULT_ASCII_CHARSET } from './shaders/glyph-coverage'
+import {
+  asciiCharsFor,
+  cellSizeFor,
+  resolveRenderMode,
+  type RenderMode,
+  type RenderModeState,
+} from './render-mode'
+import { asciiShader } from './shaders/ascii'
+import { asciiShapeShader } from './shaders/ascii-shape'
 import { supersamplingShader } from './shaders/supersampling'
 import type { WebGPUModule } from './webgpu'
 
@@ -12,33 +18,12 @@ import type { WebGPUModule } from './webgpu'
 const WORKGROUP_SIZE = 4
 const SUPERSAMPLING_COMPUTE_SHADER = supersamplingShader(WORKGROUP_SIZE)
 
-export enum SuperSampleType {
-  NONE = 'none',
-  GPU = 'gpu',
-  CPU = 'cpu',
+export interface CLICanvasOptions {
   /**
-   * GPU compute path like {@link SuperSampleType.GPU}, but each pixel block
-   * becomes a text glyph instead of a quadrant block character. See
-   * {@link AsciiStyle} for how the glyph is chosen.
+   * How rendered pixels become terminal cells.
+   * @default 'gpu'
    */
-  ASCII = 'ascii',
-}
-
-/**
- * How {@link SuperSampleType.ASCII} picks a glyph per cell.
- *
- * - `'shape'` (default): matches the light distribution inside a 4x8 pixel
- *   block against per-glyph shape vectors, with contrast enhancement for
- *   sharp edges (after https://alexharri.com/blog/ascii-rendering). The
- *   charset is an unordered glyph pool.
- * - `'ramp'`: maps a 2x2 pixel block's average luminance onto the charset,
- *   ordered darkest to brightest.
- */
-export type AsciiStyle = 'ramp' | 'shape'
-
-export enum SuperSampleAlgorithm {
-  STANDARD = 0,
-  PRE_SQUEEZED = 1,
+  mode?: RenderMode | RenderModeState
 }
 
 type GPUCanvasContextMock = InstanceType<WebGPUModule['GPUCanvasContextMock']>
@@ -61,11 +46,10 @@ export class CLICanvas {
 
   public superSampleDrawTimeMs: number = 0
   public mapAsyncTimeMs: number = 0
-  public superSample: SuperSampleType = SuperSampleType.GPU
 
   // Compute shader super sampling. Pipelines are cached per shader variant
-  // ('quadrant' or 'ascii:<ramp>') so toggling modes or ramps at runtime only
-  // compiles each variant once.
+  // ('quadrant' or 'ascii:<style>:<charset>') so toggling modes or charsets at
+  // runtime only compiles each variant once.
   private computePipelines = new Map<string, GPUComputePipeline>()
   private computePipelineLayout: GPUPipelineLayout | null = null
   private computeBindGroupLayout: GPUBindGroupLayout | null = null
@@ -74,10 +58,7 @@ export class CLICanvas {
   private computeReadbackBuffer: MappedRangePtrBuffer | null = null
   private updateScheduled: boolean = false
   private screenshotGPUBuffer: GPUBuffer | null = null
-  private superSampleAlgorithm: SuperSampleAlgorithm = SuperSampleAlgorithm.STANDARD
-  private asciiChars?: string
-  private asciiStyle: AsciiStyle = 'shape'
-  private asciiContrast: number = DEFAULT_ASCII_CONTRAST
+  private mode: RenderModeState
   private destroyed: boolean = false
 
   constructor(
@@ -85,25 +66,17 @@ export class CLICanvas {
     device: GPUDevice,
     width: number,
     height: number,
-    superSample: SuperSampleType,
-    sampleAlgo: SuperSampleAlgorithm = SuperSampleAlgorithm.STANDARD,
-    asciiChars?: string,
-    asciiStyle: AsciiStyle = 'shape',
-    asciiContrast: number = DEFAULT_ASCII_CONTRAST,
+    options: CLICanvasOptions = {},
   ) {
     this.device = device
     this.width = width
     this.height = height
-    this.superSample = superSample
+    this.mode = resolveRenderMode(options.mode)
     this.gpuCanvasContext = new webgpu.GPUCanvasContextMock(
       this as unknown as HTMLCanvasElement,
       width,
       height,
     )
-    this.superSampleAlgorithm = sampleAlgo
-    this.asciiChars = asciiChars
-    this.asciiStyle = asciiStyle
-    this.asciiContrast = asciiContrast
   }
 
   /**
@@ -111,65 +84,27 @@ export class CLICanvas {
    * shape-vector ASCII, 2x2 for everything else.
    */
   public get cellSize(): { width: number; height: number } {
-    return this.superSample === SuperSampleType.ASCII && this.asciiStyle === 'shape'
-      ? ASCII_SHAPE_CELL
-      : { width: 2, height: 2 }
+    return cellSizeFor(this.mode)
   }
 
   public destroy(): void {
     this.destroyed = true
   }
 
-  public setSuperSampleAlgorithm(superSampleAlgorithm: SuperSampleAlgorithm): void {
-    this.superSampleAlgorithm = superSampleAlgorithm
-    this.scheduleUpdateComputeBuffers()
-  }
-
-  public getSuperSampleAlgorithm(): SuperSampleAlgorithm {
-    return this.superSampleAlgorithm
-  }
-
   /**
-   * Charset used by {@link SuperSampleType.ASCII}: a glyph pool for the
-   * `'shape'` style, a darkest-to-brightest ramp for `'ramp'`. Takes effect
-   * on the next frame (new charsets compile a new compute pipeline).
+   * Switches render mode, merging `mode`'s options over the current ones. The
+   * caller owns the render size: modes differ in {@link cellSize}, so a switch
+   * that changes it must be followed by a resize to the matching render
+   * dimensions. Takes effect on the next frame (a new charset or style
+   * compiles a new compute pipeline).
    */
-  public setAsciiChars(asciiChars: string): void {
-    this.asciiChars = asciiChars
-  }
-
-  public getAsciiChars(): string {
-    return this.asciiChars ?? this.defaultAsciiChars
-  }
-
-  private get defaultAsciiChars(): string {
-    return this.asciiStyle === 'shape' ? DEFAULT_ASCII_CHARSET : DEFAULT_ASCII_RAMP
-  }
-
-  /**
-   * Glyph selection style for {@link SuperSampleType.ASCII}. The caller owns
-   * the render size: switching styles changes {@link cellSize}, so it must be
-   * followed by a resize to the matching render dimensions.
-   */
-  public setAsciiStyle(asciiStyle: AsciiStyle): void {
-    this.asciiStyle = asciiStyle
-  }
-
-  public getAsciiStyle(): AsciiStyle {
-    return this.asciiStyle
-  }
-
-  /**
-   * Contrast-enhancement exponent for the `'shape'` ASCII style (1 disables
-   * enhancement). Takes effect on the next frame.
-   */
-  public setAsciiContrast(asciiContrast: number): void {
-    this.asciiContrast = asciiContrast
+  public setMode(mode: RenderMode | RenderModeState): void {
+    this.mode = resolveRenderMode(mode, this.mode)
     this.updateComputeParams()
   }
 
-  public getAsciiContrast(): number {
-    return this.asciiContrast
+  public getMode(): Readonly<RenderModeState> {
+    return this.mode
   }
 
   getContext(type: string): GPUCanvasContextMock {
@@ -199,10 +134,6 @@ export class CLICanvas {
 
   dispatchEvent(event: Event): void {
     console.error('dispatchEvent mockCanvas', event)
-  }
-
-  public setSuperSample(superSample: SuperSampleType): void {
-    this.superSample = superSample
   }
 
   public async saveToFile(filePath: string): Promise<void> {
@@ -318,9 +249,10 @@ export class CLICanvas {
   private getComputePipeline(): GPUComputePipeline {
     this.initComputeCommon()
 
-    const isAscii = this.superSample === SuperSampleType.ASCII
-    const chars = this.getAsciiChars()
-    const key = isAscii ? `ascii:${this.asciiStyle}:${chars}` : 'quadrant'
+    const isAscii = this.mode.name === 'ascii'
+    const { style, chars } = this.mode.ascii
+    const charset = asciiCharsFor(style, chars)
+    const key = isAscii ? `ascii:${style}:${charset}` : 'quadrant'
 
     let pipeline = this.computePipelines.get(key)
     if (!pipeline) {
@@ -328,9 +260,9 @@ export class CLICanvas {
         label: `SuperSampling Compute Shader (${key})`,
         code: !isAscii
           ? SUPERSAMPLING_COMPUTE_SHADER
-          : this.asciiStyle === 'shape'
-            ? asciiShapeShader(WORKGROUP_SIZE, chars)
-            : asciiShader(WORKGROUP_SIZE, chars),
+          : style === 'shape'
+            ? asciiShapeShader(WORKGROUP_SIZE, charset)
+            : asciiShader(WORKGROUP_SIZE, charset),
       })
       pipeline = this.device.createComputePipeline({
         label: `SuperSampling Compute Pipeline (${key})`,
@@ -347,7 +279,7 @@ export class CLICanvas {
   }
 
   private updateComputeParams(): void {
-    if (!this.computeParamsBuffer || this.superSample === SuperSampleType.NONE) return
+    if (!this.computeParamsBuffer || this.mode.name === 'none') return
 
     // this.width/height are render dimensions (cellSize x terminal size when
     // super sampling)
@@ -357,10 +289,10 @@ export class CLICanvas {
 
     uint32View[0] = this.width
     uint32View[1] = this.height
-    uint32View[2] = this.superSampleAlgorithm
+    uint32View[2] = this.mode.gpu.algorithm === 'pre-squeezed' ? 1 : 0
     // 4th word is padding for the quadrant shader, the contrast exponent for
     // ascii 'shape'
-    float32View[3] = this.asciiContrast
+    float32View[3] = this.mode.ascii.contrast
 
     this.device.queue.writeBuffer(this.computeParamsBuffer, 0, paramsData)
   }
@@ -370,7 +302,7 @@ export class CLICanvas {
   }
 
   private updateComputeBuffers(width: number, height: number): void {
-    if (this.superSample === SuperSampleType.NONE) return
+    if (this.mode.name === 'none') return
     this.updateComputeParams()
 
     // 48 bytes per cell (2 vec4f + u32 + 3 padding u32s, 16-byte aligned).
@@ -503,7 +435,7 @@ export class CLICanvas {
     const texture = this.gpuCanvasContext.getCurrentTexture()
     this.gpuCanvasContext.switchTextures()
 
-    if (this.superSample === SuperSampleType.GPU || this.superSample === SuperSampleType.ASCII) {
+    if (this.mode.name === 'gpu' || this.mode.name === 'ascii') {
       await this.runComputeShaderSuperSampling(texture, buffer)
       return
     }
@@ -539,7 +471,7 @@ export class CLICanvas {
         return
       }
 
-      if (this.superSample === SuperSampleType.CPU) {
+      if (this.mode.name === 'cpu') {
         // getMappedRangePtr registers a mapped range too — only request it on
         // the branch that uses it, or the getMappedRange below would overlap
         const bufPtr = textureBuffer.getMappedRangePtr(0, textureBuffer.size)

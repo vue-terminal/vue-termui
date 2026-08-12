@@ -3,7 +3,7 @@ import { RGBA } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { Scene } from 'three'
 import { describe, expect, it } from 'vitest'
-import { SuperSampleType, ThreeCliRenderer } from './WGPURenderer'
+import { ThreeCliRenderer } from './WGPURenderer'
 
 // OptimizedBuffer fg/bg hold 4 entries per cell with 0-255 channel values
 const RED = RGBA.fromValues(1, 0, 0, 1)
@@ -23,7 +23,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       const engine = new ThreeCliRenderer(test.renderer, {
         width: 16,
         height: 8,
-        superSample: SuperSampleType.NONE,
+        mode: 'none',
         backgroundColor: RED,
       })
       await engine.init()
@@ -73,8 +73,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       const engine = new ThreeCliRenderer(test.renderer, {
         width: 16,
         height: 8,
-        superSample: SuperSampleType.ASCII,
-        asciiStyle: 'ramp',
+        mode: { name: 'ascii', options: { style: 'ramp' } },
         backgroundColor: RED,
       })
       await engine.init()
@@ -90,12 +89,13 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       expect(fg[1]!).toBeLessThan(25)
       expect(bg[0]!).toBeLessThan(25)
 
-      // full toggle cycle returns to ascii and still renders (the quadrant and
-      // ascii pipelines swap without rebuilding buffers)
+      // full cycle returns to ascii and still renders (the quadrant and ascii
+      // pipelines swap without rebuilding buffers), with the 'ramp' style kept
       for (const expected of ['none', 'cpu', 'gpu', 'ascii']) {
-        engine.toggleSuperSampling()
-        expect(engine.getSuperSample()).toBe(expected)
+        engine.cycleMode()
+        expect(engine.getMode().name).toBe(expected)
       }
+      expect(engine.getMode().ascii.style).toBe('ramp')
       await engine.drawScene(new Scene(), buffer, 0)
       expect(String.fromCodePoint(char[0]!)).toBe(':')
 
@@ -109,11 +109,11 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
     const engine = new ThreeCliRenderer(test.renderer, {
       width: 16,
       height: 8,
-      superSample: SuperSampleType.ASCII,
+      mode: 'ascii',
       backgroundColor: RED,
     })
     await engine.init()
-    expect(engine.getAsciiStyle()).toBe('shape')
+    expect(engine.getMode().ascii.style).toBe('shape')
 
     const buffer = test.renderer.nextRenderBuffer
     await engine.drawScene(new Scene(), buffer, 0)
@@ -132,7 +132,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
 
     // switching styles resizes the render target (4x8 -> 2x2 per cell) and
     // swaps pipelines without breaking the next frame
-    engine.setAsciiStyle('ramp')
+    engine.setMode({ name: 'ascii', options: { style: 'ramp' } })
     await engine.drawScene(new Scene(), buffer, 0)
     expect(String.fromCodePoint(char[0]!)).toBe(':')
 
@@ -148,7 +148,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       const engine = new ThreeCliRenderer(test.renderer, {
         width: 16,
         height: 8,
-        superSample: SuperSampleType.NONE,
+        mode: 'none',
         backgroundColor: RED,
       })
       await engine.init()
@@ -160,7 +160,7 @@ describe.skipIf(process.env.CI)('ThreeCliRenderer', () => {
       const originalMapAsync = readback.mapAsync.bind(readback)
       readback.mapAsync = (...args: Parameters<GPUBuffer['mapAsync']>) => {
         const pending = originalMapAsync(...args)
-        engine.toggleSuperSampling()
+        engine.cycleMode()
         return pending
       }
 
