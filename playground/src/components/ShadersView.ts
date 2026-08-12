@@ -7,7 +7,7 @@ import {
   type RenderableOptions,
   type RenderContext,
 } from '@opentui/core'
-import { CLICanvas, setupWebGPU, SuperSampleType } from '@vue-termui/three'
+import { CLICanvas, setupWebGPU } from '@vue-termui/three'
 import {
   createShader,
   type PresetConfig,
@@ -170,13 +170,9 @@ export class ShadersRenderable extends Renderable {
 
     this.renderWidth = Math.max(1, this.width) * 2
     this.renderHeight = Math.max(1, this.height) * 2
-    const canvas = new CLICanvas(
-      webgpu,
-      device,
-      this.renderWidth,
-      this.renderHeight,
-      SuperSampleType.GPU,
-    )
+    const canvas = new CLICanvas(webgpu, device, this.renderWidth, this.renderHeight, {
+      mode: 'gpu',
+    })
 
     // DOM surface expected by createShader; sizes must track the render size
     Object.defineProperties(canvas, {

@@ -81,7 +81,7 @@ onKeyDown((key) => {
   else if (key.name === 'e') camera.rotateY(-0.1)
   else if (key.name === 'z') camera.translateZ(0.1)
   else if (key.name === 'x') camera.translateZ(-0.1)
-  else if (key.name === 'u') three.value?.renderable?.renderer.toggleSuperSampling()
+  else if (key.name === 'u') three.value?.renderable?.renderer.cycleMode()
   else if (key.name === 'r') {
     camera.position.set(0, 0, 2)
     camera.rotation.set(0, 0, 0)

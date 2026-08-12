@@ -33,7 +33,7 @@ export interface ThreeProps {
 
   /**
    * Options for the underlying {@link ThreeCliRenderer} (`backgroundColor`,
-   * `superSample`, `focalLength`, …). Read once when the renderable mounts.
+   * `mode`, `focalLength`, …). Read once when the renderable mounts.
    */
   rendererOptions?: ThreeRenderableOptions['renderer']
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The TresJS docs demo scene (cone/box/sphere floating over a plane), but
-// drawn through SuperSampleType.ASCII: by default the 'shape' style matches
+// drawn through the 'ascii' render mode: by default the 'shape' style matches
 // each cell's light distribution against glyph shape vectors (after
 // https://alexharri.com/blog/ascii-rendering); 'ramp' maps luminance to glyph
 // density. Colors only carry the hue either way. Same hand-rolled orbit
@@ -13,8 +13,9 @@
 import {
   onFrame,
   RGBA,
-  SuperSampleType,
+  type AsciiModeOptions,
   type AsciiStyle,
+  type RenderModeName,
   type ThreeRenderable,
 } from '@vue-termui/three'
 import {
@@ -36,7 +37,7 @@ const tres = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 
 const backgroundColor = RGBA.fromValues(0, 0, 0, 1)
 
-const mode = ref<SuperSampleType>(SuperSampleType.ASCII)
+const mode = ref<RenderModeName>('ascii')
 const style = ref<AsciiStyle>('shape')
 const contrast = ref(2)
 // full charset by default: the shape style picks glyphs by ink position, so
@@ -119,21 +120,30 @@ function zoomCamera(event: MouseEvent) {
   applyOrbit()
 }
 
+// options merge over the ones already in use, so each key sends only its own
+// field; naming the ascii mode also selects it when another one is active
+function setAsciiOptions(options: AsciiModeOptions) {
+  const renderer = tres.value?.renderable?.renderer
+  if (!renderer) return
+  renderer.setMode({ name: 'ascii', options })
+  mode.value = renderer.getMode().name
+}
+
 onKeyDown((key) => {
   const renderer = tres.value?.renderable?.renderer
   if (!renderer) return
   if (key.name === 'm') {
-    renderer.toggleSuperSampling()
-    mode.value = renderer.getSuperSample()
+    renderer.cycleMode()
+    mode.value = renderer.getMode().name
   } else if (key.name === 'a') {
     rampIndex.value = (rampIndex.value + 1) % asciiRamps.length
-    renderer.setAsciiChars(asciiRamps[rampIndex.value]!.chars)
+    setAsciiOptions({ chars: asciiRamps[rampIndex.value]!.chars })
   } else if (key.name === 's') {
     style.value = style.value === 'shape' ? 'ramp' : 'shape'
-    renderer.setAsciiStyle(style.value)
+    setAsciiOptions({ style: style.value })
   } else if (key.name === 'c') {
     contrast.value = (contrast.value % 4) + 1
-    renderer.setAsciiContrast(contrast.value)
+    setAsciiOptions({ contrast: contrast.value })
   }
 })
 
@@ -189,8 +199,7 @@ onFrame((deltaMs) => {
         :rendererOptions="{
           backgroundColor,
           shadows: true,
-          superSample: SuperSampleType.ASCII,
-          asciiChars: asciiRamps[rampIndex]!.chars,
+          mode: { name: 'ascii', options: { chars: asciiRamps[rampIndex]!.chars } },
         }"
       >
         <TresPerspectiveCamera

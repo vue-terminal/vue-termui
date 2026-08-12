@@ -11,7 +11,6 @@ import {
   rendererInjectionKey,
   type Component,
 } from 'vue-termui'
-import { SuperSampleType } from '../canvas'
 import { ThreeRenderable } from '../ThreeRenderable'
 import { Three } from './Three'
 
@@ -51,7 +50,7 @@ describe('Three', () => {
         h(Three, {
           scene,
           camera,
-          rendererOptions: { superSample: SuperSampleType.NONE },
+          rendererOptions: { mode: 'none' },
         }),
       )
       await nextTick()

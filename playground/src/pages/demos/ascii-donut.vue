@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // donut.c homage: a spinning torus rendered as colored ASCII through the
-// SuperSampleType.ASCII compute shader (luminance → glyph ramp).
-import { onFrame, RGBA, SuperSampleType, Three, type ThreeRenderable } from '@vue-termui/three'
+// 'ascii' render mode's compute shader (luminance → glyph ramp).
+import { onFrame, RGBA, Three, type RenderModeName, type ThreeRenderable } from '@vue-termui/three'
 import {
   AmbientLight,
   Color,
@@ -42,7 +42,7 @@ const camera = new PerspectiveCamera(45, 1, 0.1, 100)
 camera.position.set(0, 0, 4.2)
 
 const three = useTemplateRef<{ renderable: ThreeRenderable | null }>('three')
-const mode = ref<SuperSampleType>(SuperSampleType.ASCII)
+const mode = ref<RenderModeName>('ascii')
 const rampIndex = ref(0)
 const rotating = ref(true)
 
@@ -51,11 +51,13 @@ onKeyDown((key) => {
   if (key.name === 'space') {
     rotating.value = !rotating.value
   } else if (key.name === 'm' && renderer) {
-    renderer.toggleSuperSampling()
-    mode.value = renderer.getSuperSample()
+    renderer.cycleMode()
+    mode.value = renderer.getMode().name
   } else if (key.name === 'a' && renderer) {
     rampIndex.value = (rampIndex.value + 1) % asciiRamps.length
-    renderer.setAsciiChars(asciiRamps[rampIndex.value]!.chars)
+    // charsets belong to the ascii mode, so setting one selects it
+    renderer.setMode({ name: 'ascii', options: { chars: asciiRamps[rampIndex.value]!.chars } })
+    mode.value = renderer.getMode().name
   }
 })
 
@@ -86,8 +88,7 @@ const sceneHeight = computed(() => Math.max(8, rows.value - 9))
       :height="sceneHeight"
       :renderer-options="{
         focalLength: 8,
-        superSample: SuperSampleType.ASCII,
-        asciiStyle: 'shape',
+        mode: { name: 'ascii', options: { style: 'shape' } },
         backgroundColor: RGBA.fromValues(0, 0, 0, 1),
       }"
     />

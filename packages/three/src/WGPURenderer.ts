@@ -9,40 +9,37 @@ import {
   Scene,
 } from 'three'
 import { WebGPURenderer } from 'three/webgpu'
-import { CLICanvas, SuperSampleType, type AsciiStyle, type SuperSampleAlgorithm } from './canvas'
-import { ASCII_SHAPE_CELL, DEFAULT_ASCII_CONTRAST } from './shaders/ascii-shape'
+import { CLICanvas } from './canvas'
+import {
+  cellSizeFor,
+  cycleRenderMode,
+  resolveRenderMode,
+  type RenderMode,
+  type RenderModeState,
+} from './render-mode'
 import { setupWebGPU } from './webgpu'
 
 // Ported from @opentui/three (WGPURenderer.ts): drives three's WebGPURenderer
 // into a CLICanvas and copies the result into an OptimizedBuffer each frame.
-
-export { SuperSampleType }
 
 export interface ThreeCliRendererOptions {
   width: number
   height: number
   focalLength?: number
   backgroundColor?: RGBA
-  superSample?: SuperSampleType
   /**
-   * Charset for {@link SuperSampleType.ASCII}. With the `'shape'` style this
-   * is an unordered glyph pool (defaults to all printable ASCII); with
-   * `'ramp'` it is ordered darkest to brightest (defaults to `' .:-=+*#%@'`).
+   * How rendered pixels become terminal cells, as a bare name or a name with
+   * mode-specific options (glyph charset for `'ascii'`, cell packing for
+   * `'gpu'`). See {@link RenderMode}.
+   *
+   * @default 'gpu'
+   * @example
+   * ```ts
+   * { mode: 'ascii' }
+   * { mode: { name: 'ascii', options: { style: 'ramp', contrast: 3 } } }
+   * ```
    */
-  asciiChars?: string
-  /**
-   * Glyph selection style for {@link SuperSampleType.ASCII}: `'shape'`
-   * (default) matches glyph shapes against the light distribution in each
-   * cell; `'ramp'` maps average luminance onto the charset. See
-   * {@link AsciiStyle}.
-   */
-  asciiStyle?: AsciiStyle
-  /**
-   * Contrast-enhancement exponent for the `'shape'` ASCII style: 1 disables
-   * enhancement, higher values sharpen edges toward a cel-shaded look.
-   * Defaults to 2.
-   */
-  asciiContrast?: number
+  mode?: RenderMode
   alpha?: boolean
   /**
    * Enable shadow maps (lights/meshes still need their own
@@ -58,10 +55,7 @@ export class ThreeCliRenderer {
   private outputHeight: number
   private renderWidth: number
   private renderHeight: number
-  private superSample: SuperSampleType
-  private asciiChars?: string
-  private asciiStyle: AsciiStyle
-  private asciiContrast: number
+  private mode: RenderModeState
   private backgroundColor: RGBA = RGBA.fromValues(0, 0, 0, 1)
   private alpha: boolean = false
   private shadows: boolean = false
@@ -106,14 +100,11 @@ export class ThreeCliRenderer {
   ) {
     this.outputWidth = options.width
     this.outputHeight = options.height
-    this.superSample = options.superSample ?? SuperSampleType.GPU
-    this.asciiChars = options.asciiChars
-    this.asciiStyle = options.asciiStyle ?? 'shape'
-    this.asciiContrast = options.asciiContrast ?? DEFAULT_ASCII_CONTRAST
+    this.mode = resolveRenderMode(options.mode)
 
-    const scale = this.renderScale()
-    this.renderWidth = this.outputWidth * scale.x
-    this.renderHeight = this.outputHeight * scale.y
+    const cell = cellSizeFor(this.mode)
+    this.renderWidth = this.outputWidth * cell.width
+    this.renderHeight = this.outputHeight * cell.height
 
     this.backgroundColor = options.backgroundColor ?? RGBA.fromValues(0, 0, 0, 1)
     this.alpha = options.alpha ?? false
@@ -158,31 +149,12 @@ export class ThreeCliRenderer {
     this.doRenderStats = !this.doRenderStats
   }
 
-  // Render pixels per terminal cell: the shape-vector ASCII shader samples a
-  // 4x8 block per cell (matching the ~1:2 cell aspect, so render pixels stay
-  // square), every other supersampled mode collapses 2x2.
-  private renderScale(): { x: number; y: number } {
-    if (this.superSample === SuperSampleType.NONE) return { x: 1, y: 1 }
-    if (this.superSample === SuperSampleType.ASCII && this.asciiStyle === 'shape') {
-      return { x: ASCII_SHAPE_CELL.width, y: ASCII_SHAPE_CELL.height }
-    }
-    return { x: 2, y: 2 }
-  }
-
   async init(): Promise<void> {
     const webgpu = await setupWebGPU(this.libPath)
     this.device = await webgpu.createWebGPUDevice()
-    this.canvas = new CLICanvas(
-      webgpu,
-      this.device,
-      this.renderWidth,
-      this.renderHeight,
-      this.superSample,
-      undefined,
-      this.asciiChars,
-      this.asciiStyle,
-      this.asciiContrast,
-    )
+    this.canvas = new CLICanvas(webgpu, this.device, this.renderWidth, this.renderHeight, {
+      mode: this.mode,
+    })
 
     try {
       this.threeRenderer = new WebGPURenderer({
@@ -210,14 +182,6 @@ export class ThreeCliRenderer {
     await this.threeRenderer.init().then(() => {
       this.renderMethod = this.doDrawScene.bind(this)
     })
-  }
-
-  public getSuperSampleAlgorithm(): SuperSampleAlgorithm {
-    return this.canvas!.getSuperSampleAlgorithm()
-  }
-
-  public setSuperSampleAlgorithm(superSampleAlgorithm: SuperSampleAlgorithm): void {
-    this.canvas!.setSuperSampleAlgorithm(superSampleAlgorithm)
   }
 
   public saveToFile(filePath: string): Promise<void> {
@@ -250,9 +214,9 @@ export class ThreeCliRenderer {
     this.outputWidth = width
     this.outputHeight = height
 
-    const scale = this.renderScale()
-    this.renderWidth = this.outputWidth * scale.x
-    this.renderHeight = this.outputHeight * scale.y
+    const cell = cellSizeFor(this.mode)
+    this.renderWidth = this.outputWidth * cell.width
+    this.renderHeight = this.outputHeight * cell.height
 
     this.canvas?.setSize(this.renderWidth, this.renderHeight)
 
@@ -307,64 +271,40 @@ export class ThreeCliRenderer {
     }
   }
 
-  public toggleSuperSampling(): void {
-    if (this.superSample === SuperSampleType.NONE) {
-      this.superSample = SuperSampleType.CPU
-    } else if (this.superSample === SuperSampleType.CPU) {
-      this.superSample = SuperSampleType.GPU
-    } else if (this.superSample === SuperSampleType.GPU) {
-      this.superSample = SuperSampleType.ASCII
-    } else {
-      this.superSample = SuperSampleType.NONE
+  /**
+   * Switches render mode, merging `mode`'s options over the current ones — so
+   * `{ name: 'ascii', options: { contrast: 3 } }` keeps the charset and style
+   * already in use, and options of the other modes survive the round trip.
+   * Resizes the render target when the new mode samples a different pixel
+   * block per cell. Takes effect on the next frame.
+   */
+  public setMode(mode: RenderMode | RenderModeState): void {
+    const previousCell = cellSizeFor(this.mode)
+    this.mode = resolveRenderMode(mode, this.mode)
+    this.canvas?.setMode(this.mode)
+
+    const cell = cellSizeFor(this.mode)
+    if (cell.width !== previousCell.width || cell.height !== previousCell.height) {
+      this.setSize(this.outputWidth, this.outputHeight, true)
     }
-    this.canvas!.setSuperSample(this.superSample)
-    this.setSize(this.outputWidth, this.outputHeight, true)
   }
 
-  public getSuperSample(): SuperSampleType {
-    return this.superSample
-  }
-
-  /**
-   * Charset used by {@link SuperSampleType.ASCII}: a glyph pool for the
-   * `'shape'` style, a darkest-to-brightest ramp for `'ramp'`. Takes effect
-   * on the next frame.
-   */
-  public setAsciiChars(asciiChars: string): void {
-    this.asciiChars = asciiChars
-    this.canvas?.setAsciiChars(asciiChars)
-  }
-
-  public getAsciiChars(): string | undefined {
-    return this.canvas?.getAsciiChars() ?? this.asciiChars
+  public getMode(): Readonly<RenderModeState> {
+    return this.mode
   }
 
   /**
-   * Glyph selection style for {@link SuperSampleType.ASCII}. Switching styles
-   * resizes the render target (they sample different pixel blocks per cell).
+   * Switches to the next mode in the `none → cpu → gpu → ascii` cycle, keeping
+   * every mode's options.
    */
-  public setAsciiStyle(asciiStyle: AsciiStyle): void {
-    if (this.asciiStyle === asciiStyle) return
-    this.asciiStyle = asciiStyle
-    this.canvas?.setAsciiStyle(asciiStyle)
-    this.setSize(this.outputWidth, this.outputHeight, true)
+  public cycleMode(): void {
+    this.setMode(cycleRenderMode(this.mode))
   }
 
-  public getAsciiStyle(): AsciiStyle {
-    return this.asciiStyle
-  }
-
-  /**
-   * Contrast-enhancement exponent for the `'shape'` ASCII style (1 disables
-   * enhancement). Takes effect on the next frame.
-   */
-  public setAsciiContrast(asciiContrast: number): void {
-    this.asciiContrast = asciiContrast
-    this.canvas?.setAsciiContrast(asciiContrast)
-  }
-
-  public getAsciiContrast(): number {
-    return this.canvas?.getAsciiContrast() ?? this.asciiContrast
+  private modeLabel(): string {
+    if (this.mode.name === 'ascii') return `ascii (${this.mode.ascii.style})`
+    if (this.mode.name === 'gpu') return `gpu (${this.mode.gpu.algorithm})`
+    return this.mode.name
   }
 
   public renderStats(buffer: OptimizedBuffer): void {
@@ -375,8 +315,7 @@ export class ThreeCliRenderer {
       `  ├ MapAsync: ${this.canvas!.mapAsyncTimeMs.toFixed(2)}ms`,
       `  └ SS Draw: ${this.canvas!.superSampleDrawTimeMs.toFixed(2)}ms`,
       ` Total Draw: ${this.totalDrawTimeMs.toFixed(2)}ms`,
-      ` SuperSample: ${this.superSample}`,
-      ` SuperSample Algorithm: ${this.getSuperSampleAlgorithm()}`,
+      ` Mode: ${this.modeLabel()}`,
     ]
     const startY = 4
     const startX = 2

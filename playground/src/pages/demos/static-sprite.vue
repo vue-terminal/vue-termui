@@ -65,7 +65,7 @@ onFrame((deltaMs) => {
 })
 
 onKeyDown((key) => {
-  if (key.name === 'u') three.value?.renderable?.renderer.toggleSuperSampling()
+  if (key.name === 'u') three.value?.renderable?.renderer.cycleMode()
 })
 
 const { height: rows } = useTerminalSize()

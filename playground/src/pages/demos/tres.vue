@@ -106,7 +106,7 @@ function zoomCamera(event: MouseEvent) {
 }
 
 onKeyDown((key) => {
-  if (key.name === 'u') tres.value?.renderable?.renderer.toggleSuperSampling()
+  if (key.name === 'u') tres.value?.renderable?.renderer.cycleMode()
 })
 
 // Tres's useLoop never fires in a TTY (see TresTerminal.vue) — onFrame drives

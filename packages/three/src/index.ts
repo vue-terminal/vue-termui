@@ -6,8 +6,18 @@ export { loadWebGPU, setupWebGPU } from './webgpu'
 export type { WebGPUModule } from './webgpu'
 export { registerBunFfiHooks } from './ffi/register'
 
-export { CLICanvas, SuperSampleAlgorithm, SuperSampleType } from './canvas'
-export type { AsciiStyle } from './canvas'
+export { CLICanvas } from './canvas'
+export type { CLICanvasOptions } from './canvas'
+export { asciiCharsFor, cellSizeFor, cycleRenderMode, resolveRenderMode } from './render-mode'
+export type {
+  AsciiModeOptions,
+  AsciiStyle,
+  GpuAlgorithm,
+  GpuModeOptions,
+  RenderMode,
+  RenderModeName,
+  RenderModeState,
+} from './render-mode'
 export { DEFAULT_ASCII_RAMP } from './shaders/ascii'
 export { ASCII_SHAPE_CELL, asciiShapeShader, DEFAULT_ASCII_CONTRAST } from './shaders/ascii-shape'
 export { DEFAULT_ASCII_CHARSET, GLYPH_COVERAGE } from './shaders/glyph-coverage'

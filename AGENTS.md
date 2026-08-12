@@ -227,10 +227,17 @@ Bun lacks it and fails ESM validation at load time).
   OpenTUI's pixel-size query asynchronously after setup/resize, so
   `cliRenderer.resolution` (real cell metrics) is null at mount and the aspect
   falls back to assuming 1:2 cells — a one-shot computation stays subtly
-  stretched (~8% in Ghostty). Supersampling (`SuperSampleType`, default `GPU` —
-  the WGSL compute shader) packs 2×2 px per cell as quadrant glyphs;
-  `renderable.renderer.toggleSuperSampling()` cycles NONE→CPU→GPU (the
-  texture + tres demos bind it to `U`).
+  stretched (~8% in Ghostty).
+- **One render mode prop** (`src/render-mode.ts`): `rendererOptions.mode` is
+  either a name (`'none' | 'cpu' | 'gpu' | 'ascii'`, default `'gpu'` — the WGSL
+  compute shader packing 2×2 px per cell as quadrant glyphs) or
+  `{ name, options }` with the options that only that mode reads (`ascii`:
+  `chars`/`style`/`contrast`, `gpu`: `algorithm`). `resolveRenderMode()` merges
+  them over the current state, so a partial update keeps the rest and every
+  mode's options survive `renderer.cycleMode()` (NONE→CPU→GPU→ASCII; the
+  texture + tres demos bind it to `U`/`M`). `cellSizeFor()` is the single
+  source of render px per cell (4×8 for ascii `'shape'`, else 2×2, 1×1 for
+  `'none'`) — the renderer resizes the target when a switch changes it.
 - **Build/bundling invariant**: in app builds the 3D stack is **bundled** (so
   it shares the bundle's single `@vue/runtime-core` and `three`); only
   `bun-webgpu` stays external, resolved to an **absolute file URL** at build

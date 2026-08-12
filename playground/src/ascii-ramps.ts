@@ -1,6 +1,6 @@
 import { DEFAULT_ASCII_CHARSET, DEFAULT_ASCII_RAMP } from '@vue-termui/three'
 
-// Glyph charsets for SuperSampleType.ASCII demos. The 'ramp' style reads them
+// Glyph charsets for the 'ascii' render mode demos. The 'ramp' style reads them
 // darkest to brightest; the 'shape' style treats them as an unordered pool.
 
 // brightest-to-darkest source reversed into ramp order (darkest first)
