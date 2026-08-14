@@ -32,8 +32,6 @@ const props = defineProps({
   rendererOptions: Object as PropType<ThreeProps['rendererOptions']>,
 })
 
-const emit = defineEmits<{ ready: [context: TresContext] }>()
-
 const noop = () => {}
 const stub = {
   // domElement dims: Tres fires `ready` (and mounts the slot) once these are
@@ -47,6 +45,9 @@ const stub = {
   offsetWidth: 0,
   offsetHeight: 500,
   parentElement: null as unknown,
+  // @pmndrs/pointer-events' forwardHtmlEvents subscribes and binds these while
+  // Tres builds its context, so they have to exist even though no pointer
+  // event ever reaches them.
   addEventListener: noop,
   removeEventListener: noop,
   getBoundingClientRect: () => ({ width: 800, height: 500, top: 0, left: 0 }),
@@ -68,7 +69,11 @@ function createStubRenderer(): TresRenderer {
   } as unknown as TresRenderer
 }
 
-const context = shallowRef<TresContext | null>(null)
+// set on mount, a tick before Tres emits `ready` and mounts the slot; the
+// computeds below hold null until then and <Three> picks the scene up from
+// their watchers
+const canvasContext = shallowRef<{ context: TresContext } | null>(null)
+const context = computed(() => canvasContext.value?.context ?? null)
 const scene = computed(() => context.value?.scene.value ?? null)
 // toRaw: Tres keeps cameras in a deep ref, so activeCamera.value is a reactive
 // proxy. Handing that proxy to <Three> makes autoAspect's per-frame
@@ -81,11 +86,6 @@ const camera = computed(() =>
   ),
 )
 
-function onReady(ctx: TresContext) {
-  context.value = ctx
-  emit('ready', ctx)
-}
-
 // plain shallowRef + string ref (not useTemplateRef: its dev readonly proxy
 // would block the renderable's internal mutations)
 const three = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
@@ -94,7 +94,7 @@ const three = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 // ThreeRenderable's autoAspect re-syncs the terminal aspect every frame, so
 // no counter-measure is needed here.
 const renderable = computed(() => three.value?.renderable ?? null)
-defineExpose({ renderable })
+defineExpose({ renderable, context })
 
 // Teardown order: the terminal destroys <Three>'s renderable — and with it
 // three's WebGPU renderer and its node cache — before Tres tears the scene graph
@@ -134,13 +134,11 @@ function registerInto(callbacks: Set<LoopCallback>) {
   }
 }
 
-const canvasContext = shallowRef<{ context: TresContext } | null>(null)
-
 // onMounted, not @ready: Tres mounts the slot from its ready handler (a tick
 // later), so this lands before any child — even one registering during setup —
 // can reach the untouched hooks.
 onMounted(() => {
-  const loop = canvasContext.value?.context.renderer.loop
+  const loop = context.value?.renderer.loop
   if (!loop) return
   loop.onBeforeLoop = registerInto(beforeLoopCallbacks)
   loop.onLoop = registerInto(loopCallbacks)
@@ -167,12 +165,7 @@ onFrame((deltaMs) => {
     :rendererOptions="props.rendererOptions"
     v-bind="$attrs"
   />
-  <TresCanvasContext
-    ref="canvasContext"
-    :canvas="canvas"
-    :renderer="createStubRenderer"
-    @ready="onReady"
-  >
+  <TresCanvasContext ref="canvasContext" :canvas="canvas" :renderer="createStubRenderer">
     <slot />
   </TresCanvasContext>
 </template>

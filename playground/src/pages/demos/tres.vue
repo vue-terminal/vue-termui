@@ -116,9 +116,10 @@ onKeyDown((key) => {
   if (key.name === 'u') tres.value?.renderable?.renderer.cycleMode()
 })
 
-// Tres's useLoop never fires in a TTY (see TresTerminal.vue) — onFrame drives
-// the orbit instead. Plain shallowRef + string ref for the same readonly-proxy
-// reason as the camera above.
+// onFrame, not Tres's useLoop: that one needs the Tres context, which only
+// exists inside the canvas subtree — this page sits above it. Both ride the
+// same terminal frame callback (see TresTerminal.vue). Plain shallowRef +
+// string ref for the same readonly-proxy reason as the camera above.
 const orbitLight = shallowRef<DirectionalLight | null>(null)
 // radius clears everything: tallest geometry tops out at ~6.75 (cone at y=6)
 // under the circle's apex, and at y=0 the circle sits at z=±8, past the 10x10
