@@ -5,12 +5,13 @@
 // gone is everything that only exists in a browser — the tweakpane controls and
 // HTML overlays, the bloom pass, the GLSL grass with its canvas trample map, the
 // exhaust particle VFX (a raw-GLSL ShaderMaterial, which three's WebGPU renderer
-// would need as a node material), the GLTF models (see components/car-model) and
-// gamepad support.
+// would need as a node material) and the GLTF models (see components/car-model).
 //
 // Keyboard, not mouse: the original binds boost/jump/rear-view to mouse buttons,
 // which a TTY reports without press-and-hold semantics. Held keys instead come
-// from the Kitty keyboard protocol (see components/held-keys).
+// from the Kitty keyboard protocol (see components/held-keys). The pad bindings
+// are the original's, read through SDL rather than the Gamepad API (see
+// components/gamepad).
 //
 // ../../../rapier-init runs Rapier's solver once before the terminal renderer
 // boots, which it has to (see that module) — importing it here is what makes
@@ -40,6 +41,7 @@ import { asciiRamps } from '../../../ascii-ramps'
 import TresTerminal from '../../../components/TresTerminal.vue'
 import CameraRig from './components/CameraRig.vue'
 import CarComponent from './components/CarComponent.vue'
+import { useCarGamepad } from './components/gamepad'
 import { useHeldKeys } from './components/held-keys'
 import SceneLighting from './components/SceneLighting.vue'
 import SceneWorld from './components/SceneWorld.vue'
@@ -47,8 +49,20 @@ import SceneWorld from './components/SceneWorld.vue'
 // Sim runs 2x real time: the car tune (incl. effective gravity) expects it
 const SIM_SPEED = 2
 
+// Pad tuning the lab exposed through tweakpane
+const PAD_STEER_SENSITIVITY = 1.25
+const PAD_STEER_EXPO = 0.3
+const PAD_DEADZONE = 0.15
+
+const pad = useCarGamepad({
+  steerSensitivity: PAD_STEER_SENSITIVITY,
+  steerExpo: PAD_STEER_EXPO,
+  stickDeadzone: PAD_DEADZONE,
+})
+
 const { height: rows } = useTerminalSize()
-const sceneHeight = computed(() => Math.max(8, rows.value - 11))
+// the two pad lines in the template only exist while one is connected
+const sceneHeight = computed(() => Math.max(8, rows.value - (pad.connected ? 13 : 11)))
 
 const tres = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 const carRef = shallowRef<InstanceType<typeof CarComponent> | null>(null)
@@ -112,7 +126,7 @@ function onPress(name: string, press: () => void) {
   )
 }
 
-const rearView = computed(() => held.has('t'))
+const rearView = computed(() => held.has('t') || pad.rearViewHeld)
 
 // Axes derived from the full pressed-key state: releasing one key of an opposing
 // pair no longer zeroes the axis while the other is still held
@@ -127,28 +141,48 @@ watchEffect(() => {
   const movement = carRef.value?.movement
   if (!movement) return
 
-  // On the ground the throttle axis drives; in the air it pitches, RL-style
-  movement.forward = MathUtils.clamp(forwardAxis.value, -1, 1)
-  movement.right = MathUtils.clamp(steerAxis.value, -1, 1)
+  // RL pad semantics: triggers drive on the ground, stick Y pitches in the air
+  const padForward = carRef.value?.grounded === false ? pad.pitch : pad.forward
+  movement.forward = MathUtils.clamp(forwardAxis.value + padForward, -1, 1)
+  movement.right = MathUtils.clamp(steerAxis.value + pad.right, -1, 1)
   movement.roll = Number(held.has('e')) - Number(held.has('q'))
-  movement.boost = held.has('x') ? 1 : 0
+  movement.boost = held.has('x') || pad.boost ? 1 : 0
   movement.brake = held.has('c') ? 1 : 0
-  movement.jumpHeld = held.has('space')
-  movement.slide = held.has('z')
-  movement.reset = held.has('r')
+  movement.jumpHeld = held.has('space') || pad.jumpHeld
+  movement.slide = held.has('z') || pad.slide
+  movement.reset = held.has('r') || pad.resetHeld
 })
 
-onPress('space', () => {
+function requestJump() {
   const movement = carRef.value?.movement
   if (movement) movement.jump = true
-})
+}
 
-onPress('r', () => {
+function resetScene() {
   worldRef.value?.reset?.()
   // Respawning far away snaps the camera via teleport detection; resetting near
   // the spawn doesn't, so force the pan back behind the car
   rigRef.value?.resync?.()
-})
+}
+
+onPress('space', requestJump)
+onPress('r', resetScene)
+
+/** Rising edge of a pad button, the `whenever()` the original used. */
+function onPadPress(read: () => boolean, press: () => void) {
+  watch(read, (down) => {
+    if (down) press()
+  })
+}
+
+onPadPress(() => pad.jumpHeld, requestJump)
+onPadPress(() => pad.resetHeld, resetScene)
+onPadPress(
+  () => pad.ballCamPressed,
+  () => {
+    ballCam.value = !ballCam.value
+  },
+)
 
 // options merge over the ones already in use, so each key sends only its own
 // field; naming the ascii mode also selects it when another one is active
@@ -192,6 +226,8 @@ const SAMPLE_INTERVAL = 250
 const fps = ref(0)
 const speed = ref(0)
 const airborne = ref(false)
+// Pad analog readout, the live half of the original's bottom-left indicator
+const padAxes = ref('')
 let sinceSample = 0
 let frames = 0
 onFrame((deltaMs) => {
@@ -201,6 +237,11 @@ onFrame((deltaMs) => {
   fps.value = Math.round((frames * 1000) / sinceSample)
   speed.value = Math.abs(carRef.value?.speed?.() ?? 0)
   airborne.value = carRef.value?.grounded === false
+  padAxes.value = pad.connected
+    ? `RT ${pad.throttle.toFixed(2)} · LT ${pad.brake.toFixed(2)} · stick ${pad.stickX.toFixed(
+        2,
+      )}, ${pad.stickY.toFixed(2)}`
+    : ''
   sinceSample = 0
   frames = 0
 })
@@ -220,6 +261,16 @@ onFrame((deltaMs) => {
     <Text dim
       >M mode ({{ mode }}) · N style ({{ style }}) · L chars ({{ asciiRamps[rampIndex]!.name }}) · K
       contrast ({{ contrast }})</Text
+    >
+    <!-- Pad bindings and live state, the original's two indicator cards. Kept to
+    about the width of the key hints above so neither line wraps — a wrapped line
+    also costs the scene a row that sceneHeight does not account for. -->
+    <Text v-if="pad.connected" dim
+      >Pad: RT/LT drive · stick steer · A jump · B/RB boost · LB slide · Y ball cam · X rear · Sel
+      reset</Text
+    >
+    <Text v-if="pad.connected" dim
+      >🎮 {{ pad.id }} · {{ padAxes }} · pressed: {{ pad.pressedButtons.join(', ') || '—' }}</Text
     >
     <Box
       :border="true"

@@ -2,13 +2,12 @@
 // Port of the TresJS lab's rapier-car CarComponent. Rapier's
 // DynamicRayCastVehicleController does the driving (suspension, steering,
 // engine force per wheel) and flight.ts adds the Rocket-League-style air game;
-// both are unchanged from the original.
+// both are unchanged from the original, as is the `car.glb` artwork (see
+// ./models for what loading it in Node needs).
 //
-// Two departures, both about running in a terminal:
-// - the car artwork is built from primitives (see ./car-model) instead of a
-//   Draco-compressed GLTF, which needs a Worker to decode
-// - the lab's `useControls` tweakpane bindings are the plain constants they
-//   default to
+// Two departures: the lab's `useControls` tweakpane bindings are the plain
+// constants they default to, and the model is loaded with a plain promise rather
+// than `useGLTF`, so the component needs no Suspense boundary of its own.
 import {
   type DynamicRayCastVehicleController,
   Quaternion,
@@ -27,8 +26,8 @@ import {
   type Vector3Like,
 } from 'three'
 import { nextTick, onUnmounted, reactive, shallowRef, watch } from 'vue-termui'
-import { createCarModel } from './car-model'
 import { AIR_TUNING_DEFAULTS, createFlight } from './flight'
+import { loadModel } from './models'
 
 const SIM_DT = 1 / 60
 const FALL_RESET_Y = -8
@@ -42,8 +41,6 @@ const WHEEL_OFFSETS = [
   { x: -1, y: 0.45, z: 1.5, mirrorX: true, radius: 0.6 },
   { x: 1, y: 0.45, z: 1.5, mirrorX: false, radius: 0.6 },
 ] as const
-// Radius the wheel prototype is modelled at, so each clone scales to its own
-const WHEEL_MODEL_RADIUS = 0.5
 const FRICTION_SLIP = 1
 const SIDE_FRICTION_STIFFNESS = 3
 // Powerslide: side grip drops so the rear kicks out while steering
@@ -120,7 +117,10 @@ defineExpose({
   speed: () => forwardSpeed,
 })
 
-const carModel = createCarModel()
+const carModel = shallowRef<Group | null>(null)
+void loadModel('car.glb').then((scene) => {
+  carModel.value = scene
+})
 
 const chassisModel = shallowRef<Group | null>(null)
 const wheelModels = shallowRef<Group[]>([])
@@ -589,12 +589,12 @@ function updateCarControl(dt = SIM_DT) {
 }
 
 watch(
-  () => chassisRef.value?.instance,
-  (chassis) => {
-    if (!chassis) return
+  [carModel, () => chassisRef.value?.instance],
+  ([car, chassis]) => {
+    if (!car || !chassis) return
 
-    const chassisGroup = carModel.getObjectByName('chassis') as Group | null
-    const wheelGroup = carModel.getObjectByName('wheel-front-right') as Group | null
+    const chassisGroup = car.getObjectByName('chassis') as Group | null
+    const wheelGroup = car.getObjectByName('wheel-front-right') as Group | null
 
     if (!chassisModel.value && chassisGroup) {
       const lightParts = Object.keys(LIGHT_CONFIG) as LightKey[]
@@ -603,7 +603,7 @@ watch(
 
       // Keep light parts glued to the chassis visual even if exported as siblings
       lightParts.forEach((key) => {
-        const part = carModel.getObjectByName(LIGHT_CONFIG[key].name)
+        const part = car.getObjectByName(LIGHT_CONFIG[key].name)
         if (part && part.parent !== chassisGroup) {
           chassisGroup.attach(part)
         }
@@ -619,13 +619,14 @@ watch(
       WHEEL_OFFSETS.forEach((offset, index) => {
         const mount = new Group()
         const visual = wheelGroup.clone()
+        const scale = 0.5 + offset.radius
 
         mount.name = `wheel-${index}`
         mount.position.set(offset.x, offset.y, offset.z)
         visual.position.set(0, 0, 0)
         visual.rotation.set(0, 0, 0)
         visual.quaternion.identity()
-        visual.scale.setScalar(offset.radius / WHEEL_MODEL_RADIUS)
+        visual.scale.setScalar(scale)
         mount.add(visual)
 
         wheelMounts[index] = mount

@@ -6,5 +6,7 @@ packages:
 ignoreWorkspaceRootCheck: true
 strictPeerDependencies: false
 allowBuilds:
+  # downloads the prebuilt SDL2 library (the playground's gamepad support)
+  '@kmamal/sdl': true
   esbuild: true
   simple-git-hooks: true
