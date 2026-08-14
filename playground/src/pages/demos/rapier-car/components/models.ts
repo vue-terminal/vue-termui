@@ -17,6 +17,8 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { Mesh, MeshStandardMaterial, type Group, type Object3D } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { shallowRef, type ShallowRef } from 'vue-termui'
+import { createBallModel, createCarModel, createReflectorModel } from './simple-models'
 
 /**
  * The models paint several parts as pure metal (`metalness: 1`), which reads as
@@ -55,4 +57,49 @@ export async function loadModel(file: string): Promise<Group> {
   })
   tameMetals(gltf.scene)
   return gltf.scene
+}
+
+/**
+ * Which set of models the scene draws: the demo's own GLTFs, or the primitive
+ * stand-ins from ./simple-models.
+ *
+ * It is threaded through the scene as a prop rather than provide/inject: the
+ * components that read it live inside `<TresCanvasContext>`, which mounts the
+ * slot through Tres's own renderer, and injections from the page above it do not
+ * reach that subtree.
+ */
+export type ModelStyle = 'gltf' | 'simple'
+
+type ModelName = 'car' | 'ball' | 'reflector'
+
+const GLTF_FILES: Record<ModelName, string> = {
+  car: 'car.glb',
+  ball: 'ball.glb',
+  reflector: 'low_poly_reflector.glb',
+}
+
+const SIMPLE_BUILDERS: Record<ModelName, () => Group> = {
+  car: createCarModel,
+  ball: createBallModel,
+  reflector: createReflectorModel,
+}
+
+/**
+ * The scene graph for one model in the given style. Always a ref, filled in
+ * synchronously for the primitives and on load for the GLTFs, so components have
+ * a single code path. Read once: the style comes from the route, which remounts
+ * the scene when it changes.
+ */
+export function useModel(name: ModelName, style: ModelStyle): ShallowRef<Group | null> {
+  const model = shallowRef<Group | null>(null)
+
+  if (style === 'simple') {
+    model.value = SIMPLE_BUILDERS[name]()
+  } else {
+    void loadModel(GLTF_FILES[name]).then((scene) => {
+      model.value = scene
+    })
+  }
+
+  return model
 }

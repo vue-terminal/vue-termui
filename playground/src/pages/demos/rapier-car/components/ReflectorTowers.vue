@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // The lab's corner floodlights, on the original `low_poly_reflector.glb` (see
-// ./models for what loading it in Node needs).
+// ./models for what loading it in Node needs, and for the primitive mast the
+// `simple` page draws instead).
 import { Color, Mesh, type Object3D, type SpotLight } from 'three'
-import { shallowRef } from 'vue-termui'
-import { loadModel } from './models'
+import { shallowRef, watch } from 'vue-termui'
+import { useModel, type ModelStyle } from './models'
 
 type ArrayVec3 = [number, number, number]
 
@@ -32,18 +33,27 @@ const CORNERS = (
   yaw: Math.atan2(x, z),
 }))
 
+const props = defineProps<{ modelStyle: ModelStyle }>()
+
+const reflector = useModel('reflector', props.modelStyle)
 const towers = shallowRef<Object3D[]>([])
 
-void loadModel('low_poly_reflector.glb').then((scene) => {
-  scene.traverse((child: Object3D) => {
-    if (child instanceof Mesh) {
-      child.castShadow = true
-      child.receiveShadow = true
-    }
-  })
+watch(
+  reflector,
+  (scene) => {
+    if (!scene) return
 
-  towers.value = CORNERS.map(() => scene.clone(true))
-})
+    scene.traverse((child: Object3D) => {
+      if (child instanceof Mesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+
+    towers.value = CORNERS.map(() => scene.clone(true))
+  },
+  { immediate: true },
+)
 
 // Aim each spotlight at the arena center: the target rides as a child of the
 // light so the group yaw orients it, no manual scene bookkeeping needed

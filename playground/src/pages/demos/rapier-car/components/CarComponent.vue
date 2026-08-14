@@ -3,11 +3,12 @@
 // DynamicRayCastVehicleController does the driving (suspension, steering,
 // engine force per wheel) and flight.ts adds the Rocket-League-style air game;
 // both are unchanged from the original, as is the `car.glb` artwork (see
-// ./models for what loading it in Node needs).
+// ./models for what loading it in Node needs, and for the primitive stand-in the
+// `simple` page draws instead).
 //
 // Two departures: the lab's `useControls` tweakpane bindings are the plain
-// constants they default to, and the model is loaded with a plain promise rather
-// than `useGLTF`, so the component needs no Suspense boundary of its own.
+// constants they default to, and the model arrives through a ref rather than
+// `useGLTF`, so the component needs no Suspense boundary of its own.
 import {
   type DynamicRayCastVehicleController,
   Quaternion,
@@ -27,7 +28,7 @@ import {
 } from 'three'
 import { nextTick, onUnmounted, reactive, shallowRef, watch } from 'vue-termui'
 import { AIR_TUNING_DEFAULTS, createFlight } from './flight'
-import { loadModel } from './models'
+import { useModel, type ModelStyle } from './models'
 
 const SIM_DT = 1 / 60
 const FALL_RESET_Y = -8
@@ -117,10 +118,9 @@ defineExpose({
   speed: () => forwardSpeed,
 })
 
-const carModel = shallowRef<Group | null>(null)
-void loadModel('car.glb').then((scene) => {
-  carModel.value = scene
-})
+const props = defineProps<{ modelStyle: ModelStyle }>()
+
+const carModel = useModel('car', props.modelStyle)
 
 const chassisModel = shallowRef<Group | null>(null)
 const wheelModels = shallowRef<Group[]>([])

@@ -11,9 +11,12 @@ import { type ExposedRigidBody, RigidBody } from '@tresjs/rapier'
 import { BoxGeometry, MeshStandardMaterial, Object3D, type InstancedMesh } from 'three'
 import { shallowRef, watch } from 'vue-termui'
 import BallComponent from './BallComponent.vue'
+import type { ModelStyle } from './models'
 import ReflectorTowers from './ReflectorTowers.vue'
 
 type ArrayVec3 = [number, number, number]
+
+const props = defineProps<{ modelStyle: ModelStyle }>()
 
 const ballRef = shallowRef<InstanceType<typeof BallComponent> | null>(null)
 
@@ -173,10 +176,10 @@ watch(trackMarkInstancedMeshRef, (mesh) => {
   </TresMesh>
 
   <!-- Ball -->
-  <BallComponent ref="ballRef" />
+  <BallComponent ref="ballRef" :model-style="props.modelStyle" />
 
   <!-- Corner floodlights -->
-  <ReflectorTowers />
+  <ReflectorTowers :model-style="props.modelStyle" />
 
   <!-- Boxes -->
   <RigidBody type="fixed" :friction="0.9" :restitution="0.5" collider="convexHull">

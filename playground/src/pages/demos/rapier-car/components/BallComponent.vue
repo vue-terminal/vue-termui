@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // Port of the lab's BallComponent, on the original `ball.glb` (see ./models for
-// what loading it in Node needs), including the pulsing emissive "bubble"
-// material.
+// what loading it in Node needs, and for the primitive sphere the `simple` page
+// draws instead), including the pulsing emissive "bubble" material.
 import { CoefficientCombineRule, Quaternion, Vector3 } from '@dimforge/rapier3d-compat'
 import { useLoop } from '@tresjs/core'
 import { BallCollider, type ExposedRigidBody, RigidBody } from '@tresjs/rapier'
 import { Mesh, MeshStandardMaterial, type Object3D } from 'three'
 import { shallowRef, watch } from 'vue-termui'
-import { loadModel } from './models'
+import { useModel, type ModelStyle } from './models'
 
 const BALL_RADIUS = 2.94
 const FALL_RESET_Y = -8
@@ -20,38 +20,45 @@ const BUBBLE_EMISSIVE_MIN = 0.6
 const BUBBLE_EMISSIVE_MAX = 2.4
 
 const ballRef = shallowRef<ExposedRigidBody | null>(null)
+const props = defineProps<{ modelStyle: ModelStyle }>()
+
+const ballScene = useModel('ball', props.modelStyle)
 const ballModel = shallowRef<Object3D | null>(null)
 let bubbleMaterial: MeshStandardMaterial | null = null
 
-void loadModel('ball.glb').then((scene) => {
-  const ball = scene.getObjectByName('ball')
-  if (!ball) return
+watch(
+  ballScene,
+  (scene) => {
+    const ball = scene?.getObjectByName('ball')
+    if (!ball) return
 
-  ball.position.set(0, 0, 0)
-  ball.rotation.set(0, 0, 0)
-  ball.scale.set(1, 1, 1)
+    ball.position.set(0, 0, 0)
+    ball.rotation.set(0, 0, 0)
+    ball.scale.set(1, 1, 1)
 
-  ball.traverse((child: Object3D) => {
-    if (!(child instanceof Mesh)) return
+    ball.traverse((child: Object3D) => {
+      if (!(child instanceof Mesh)) return
 
-    child.castShadow = true
-    child.receiveShadow = true
+      child.castShadow = true
+      child.receiveShadow = true
 
-    const materials = Array.isArray(child.material) ? child.material : [child.material]
-    for (const material of materials) {
-      if (!(material instanceof MeshStandardMaterial)) continue
-      if (material.name !== BUBBLE_MATERIAL) continue
+      const materials = Array.isArray(child.material) ? child.material : [child.material]
+      for (const material of materials) {
+        if (!(material instanceof MeshStandardMaterial)) continue
+        if (material.name !== BUBBLE_MATERIAL) continue
 
-      // HDR emissive so the browser demo's bloom pass (threshold 1) picks the
-      // pulse up; here it just stays the brightest thing in the arena
-      material.toneMapped = false
-      material.emissiveIntensity = BUBBLE_EMISSIVE_MIN
-      bubbleMaterial = material
-    }
-  })
+        // HDR emissive so the browser demo's bloom pass (threshold 1) picks the
+        // pulse up; here it just stays the brightest thing in the arena
+        material.toneMapped = false
+        material.emissiveIntensity = BUBBLE_EMISSIVE_MIN
+        bubbleMaterial = material
+      }
+    })
 
-  ballModel.value = ball
-})
+    ballModel.value = ball
+  },
+  { immediate: true },
+)
 
 function reset() {
   const body = ballRef.value?.instance
