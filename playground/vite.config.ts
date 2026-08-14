@@ -9,6 +9,9 @@ export default defineConfig({
     // src/pages/demos map to /demos/*.
     VueRouter({
       routesFolder: 'src/pages',
+      // A demo that needs several components keeps them in its own folder
+      // (src/pages/demos/<demo>/components); they are not pages.
+      exclude: ['**/components/**'],
       // A terminal app needs all routes in the single CLI bundle anyway, so
       // import pages synchronously. This also avoids dynamic `import()`, which
       // Vite wraps in a browser-only `__vitePreload` helper.

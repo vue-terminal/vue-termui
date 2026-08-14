@@ -77,6 +77,7 @@ const items = [
   { label: 'TresJS scene (3D)', to: '/demos/tres' },
   { label: 'TresJS ASCII (3D)', to: '/demos/tres-ascii' },
   { label: 'TresJS physics (3D)', to: '/demos/tres-physics' },
+  { label: 'Rapier car (3D)', to: '/demos/rapier-car' },
   { label: 'Camera (webcam)', to: '/demos/camera' },
   { label: 'Domino tiles', to: '/demos/dominos' },
 ] as const
