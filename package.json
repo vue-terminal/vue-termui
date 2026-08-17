@@ -64,7 +64,7 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.3",
+    "@opentui/core": "^0.5.3",
     "@vue/runtime-core": "^3.5.40"
   },
   "devDependencies": {

@@ -45,7 +45,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.3",
+    "@opentui/core": "^0.5.3",
     "bun-webgpu": "0.1.7",
     "jimp": "1.6.1"
   },

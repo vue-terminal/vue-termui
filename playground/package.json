@@ -10,7 +10,7 @@
     "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.3",
+    "@opentui/core": "^0.5.3",
     "@tresjs/core": "^5.8.3",
     "@vue-termui/three": "workspace:*",
     "shaders": "^3.0.442",

@@ -10,7 +10,7 @@
     "start": "node --experimental-ffi --disable-warning=ExperimentalWarning dist/main.js"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.1",
+    "@opentui/core": "^0.5.3",
     "vue": "^3.5.17",
     "vue-termui": "latest"
   },
