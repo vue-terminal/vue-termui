@@ -37,6 +37,14 @@ export { ProgressBar } from './components/ProgressBar'
 export type { ProgressBarProps } from './components/ProgressBar'
 export { Markdown, SyntaxStyle } from './components/Markdown'
 export type { MarkdownElement, MarkdownProps, StyleDefinitionInput } from './components/Markdown'
+export { Image, ImageLoadError, NativeImage } from './components/Image'
+export type {
+  ImageElement,
+  ImageFit,
+  ImageProps,
+  ImageProtocol,
+  ImageSource,
+} from './components/Image'
 export type {
   Align,
   BorderStyle,
