@@ -10,6 +10,8 @@ export { useFocusManager, useCurrentFocusedElement } from './composables/focus'
 export type { UseFocusManagerReturn } from './composables/focus'
 export { onKeyDown, onKeyUp } from './composables/keyboard'
 export type { KeyEvent } from './composables/keyboard'
+export { onPaste } from './composables/paste'
+export type { PasteEvent, PasteKind, PasteMetadata } from './composables/paste'
 export { onResize, useTerminalSize, useTitle } from './composables/screen'
 export type { TerminalSize } from './composables/screen'
 export { useInterval, useTimeout } from './composables/timing'
@@ -65,6 +67,10 @@ export {
   StyledText,
 } from '@opentui/core'
 export type { TextChunk } from '@opentui/core'
+
+// A paste carries raw bytes (it can be binary); this turns them into a string.
+// Re-exported so apps reach the pasted text without importing `@opentui/core`.
+export { decodePasteBytes } from '@opentui/core'
 
 export {
   createApp,

@@ -88,7 +88,7 @@ useTitle(() => `${project.value} — dashboard`)
 
 ## Cleanup, for free
 
-Every composable here registers its cleanup on the current [effect scope](https://vuejs.org/api/reactivity-advanced.html#effectscope), which is the component's setup scope. That means listeners and timers are removed when the component unmounts — no manual `onUnmounted` needed. The same is true of `onKeyDown` / `onKeyUp` ([Handling Input](./input)) and the focus composables ([Focus Management](./focus)).
+Every composable here registers its cleanup on the current [effect scope](https://vuejs.org/api/reactivity-advanced.html#effectscope), which is the component's setup scope. That means listeners and timers are removed when the component unmounts — no manual `onUnmounted` needed. The same is true of `onKeyDown` / `onKeyUp` / `onPaste` ([Handling Input](./input)) and the focus composables ([Focus Management](./focus)).
 
 ## Summary
 
@@ -104,3 +104,4 @@ Every composable here registers its cleanup on the current [effect scope](https:
 | `useCurrentFocusedElement()`    | Reactive currently focused element ([docs](./focus)) |
 | `useFocusManager()`             | App-wide focus state ([docs](./focus))               |
 | `onKeyDown(fn)` / `onKeyUp(fn)` | Keyboard listeners ([docs](./input))                 |
+| `onPaste(fn)`                   | App-wide paste listener ([docs](./input#paste))      |

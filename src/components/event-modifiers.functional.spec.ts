@@ -10,7 +10,7 @@
 //
 // The ONLY implementation-tracking line is the compiler config in `compileRender`
 // (`nodeTransforms`); everything else is the shipping behavior.
-import { SyntaxStyle } from '@opentui/core'
+import { decodePasteBytes, SyntaxStyle } from '@opentui/core'
 import { MouseButtons } from '@opentui/core/testing'
 import { compile } from '@vue/compiler-dom'
 import * as RuntimeCore from '@vue/runtime-core'
@@ -28,6 +28,7 @@ import { Textarea } from './Textarea'
 import type { Renderable } from '@opentui/core'
 import type { TestRendererSetup } from '@opentui/core/testing'
 import type { VNode } from '@vue/runtime-core'
+import type { PasteEvent } from '../composables/paste'
 
 // The compiled render function pulls helpers off a `Vue` object: vnode helpers
 // come from the same `@vue/runtime-core` the renderer uses, and the DOM guard
@@ -271,6 +272,42 @@ describe('event modifiers (functional)', () => {
       // Click the outer box away from the inner one: only the outer fires.
       await test.mockMouse.click(15, 5, MouseButtons.LEFT)
       expect(onOuter).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('paste', () => {
+    it('@paste receives the pasted bytes', async () => {
+      const onPaste = vi.fn()
+      const el = await mount('<Box focusable :width="20" :height="4" @paste="onPaste" />', {
+        onPaste,
+      })
+      el.focus()
+
+      await test.mockInput.pasteBracketedText('hello\nworld')
+
+      expect(onPaste).toHaveBeenCalledTimes(1)
+      const event = onPaste.mock.calls[0]![0] as PasteEvent
+      expect(decodePasteBytes(event.bytes)).toBe('hello\nworld')
+    })
+
+    // OpenTUI registers a renderable's paste handler as part of focusing it, so
+    // the element event is focus-gated — unlike the global `onPaste` composable.
+    it('@paste stays silent while the element is blurred', async () => {
+      const onPaste = vi.fn()
+      const el = await mount('<Box focusable :width="20" :height="4" @paste="onPaste" />', {
+        onPaste,
+      })
+
+      await test.mockInput.pasteBracketedText('while blurred')
+      expect(onPaste).toHaveBeenCalledTimes(0)
+
+      el.focus()
+      await test.mockInput.pasteBracketedText('while focused')
+      expect(onPaste).toHaveBeenCalledTimes(1)
+
+      el.blur()
+      await test.mockInput.pasteBracketedText('blurred again')
+      expect(onPaste).toHaveBeenCalledTimes(1)
     })
   })
 })

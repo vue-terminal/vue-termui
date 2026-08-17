@@ -4,6 +4,7 @@ import type {
   KeyEvent as OpenTuiKeyEvent,
   MarkdownRenderable,
   MouseEvent as OpenTuiMouseEvent,
+  PasteEvent as OpenTuiPasteEvent,
   Renderable,
   ScrollBoxRenderable,
   SelectRenderable,
@@ -12,12 +13,14 @@ import type {
   TextareaRenderable,
 } from '@opentui/core'
 import { describe, expectTypeOf, it } from 'vitest'
+import { decodePasteBytes, onPaste } from '../index'
 import type {
   BoxElement,
   InputElement,
   KeyEvent,
   MarkdownElement,
   MouseEvent,
+  PasteEvent,
   ScrollBoxElement,
   SelectElement,
   TabSelectElement,
@@ -47,5 +50,16 @@ describe('public event mirrors', () => {
   it('accept the engine events, so handlers typed with them just work', () => {
     expectTypeOf<OpenTuiMouseEvent>().toExtend<MouseEvent>()
     expectTypeOf<OpenTuiKeyEvent>().toExtend<KeyEvent>()
+    expectTypeOf<OpenTuiPasteEvent>().toExtend<PasteEvent>()
+  })
+})
+
+// `PasteEvent.bytes` is a `Uint8Array`, so apps need the decoder to reach the
+// pasted text; it must stay reachable without importing `@opentui/core`.
+describe('paste public surface', () => {
+  it('exposes the composable and the byte decoder', () => {
+    expectTypeOf(onPaste).parameter(0).parameter(0).toExtend<PasteEvent>()
+    expectTypeOf(decodePasteBytes).toBeCallableWith(new Uint8Array())
+    expectTypeOf(decodePasteBytes(new Uint8Array())).toBeString()
   })
 })
