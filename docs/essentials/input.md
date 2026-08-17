@@ -108,6 +108,71 @@ OpenTUI listeners are camelCase — `@mouseDown`, `@keyDown`. The all-lowercase 
 
 Available handlers include `@mouseDown`, `@mouseUp`, `@mouseMove`, `@mouseOver`, `@mouseOut`, `@mouseDrag`, `@mouseDrop` and `@mouseScroll`. Because the handler is on the element, you know exactly _which_ box was interacted with — no hit-testing of global coordinates required.
 
+## Paste
+
+A paste arrives as a **single event** instead of a burst of keystrokes, so multi-line clipboard content is one value rather than something you have to reassemble.
+
+This needs a terminal that supports **bracketed paste**. It's detected automatically — no configuration — but where it's missing a paste is indistinguishable from fast typing and only key events fire.
+
+Paste is the one input that is available on _both_ surfaces: globally, and per element.
+
+### Globally, with `onPaste`
+
+```vue
+<script setup lang="ts">
+import { decodePasteBytes, onPaste, ref } from 'vue-termui'
+
+const pasted = ref('')
+onPaste((event) => {
+  pasted.value = decodePasteBytes(event.bytes)
+})
+</script>
+```
+
+Same lifetime rules as [`onKeyDown`](#keyboard): the listener is removed on unmount, and the returned function removes it early.
+
+### Per element, with `@paste`
+
+`@paste` fires only while that element is **focused** — OpenTUI registers an element's paste handler as part of focusing it:
+
+```vue
+<template>
+  <Box focusable :border="true" @paste="onDrop">
+    <Text>Focus me, then paste</Text>
+  </Box>
+</template>
+```
+
+### Bytes, not text
+
+`event.bytes` is a `Uint8Array`, because a paste can carry binary payloads. `decodePasteBytes` turns it into a string:
+
+```ts
+onPaste((event) => {
+  const text = decodePasteBytes(event.bytes)
+  console.log(`pasted ${text.length} chars`)
+})
+```
+
+Some terminals also report `event.metadata`, with a `mimeType` and a `kind` of `'text'`, `'binary'` or `'unknown'`.
+
+### Overriding the default insert
+
+A focused `Input` or `Textarea` inserts pasted text itself. Global listeners run **before** the focused element sees the event, so `preventDefault()` suppresses that insert and leaves the paste entirely to you:
+
+```ts
+onPaste((event) => {
+  const text = decodePasteBytes(event.bytes)
+  if (text.includes('\n')) {
+    // keep multi-line pastes out of a single-line Input
+    event.preventDefault()
+    showMultilineWarning()
+  }
+})
+```
+
+`stopPropagation()` also stops the element from receiving it.
+
 ## Event modifiers
 
 `@keyDown` and the `@mouse*` events on components support Vue-style modifiers, so you can filter and manage events declaratively instead of branching inside the handler. These are Vue's own modifiers — vue-termui just makes terminal key/mouse events carry the fields Vue looks at, so no extra setup is needed.
