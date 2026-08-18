@@ -185,6 +185,52 @@ describe('focus composables', () => {
     test.renderer.destroy()
   })
 
+  it('skips focusables inside a hidden container when cycling', async () => {
+    const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 6 })
+    let manager: ReturnType<typeof useFocusManager> | undefined
+    const hidden = ref(true)
+    const app = createTuiApp(
+      test.renderer,
+      defineComponent({
+        setup() {
+          manager = useFocusManager()
+          // An invisible container renders none of its subtree (OpenTUI sets
+          // yoga `display: none`), so its focusable children are unreachable
+          // even though their own `visible` flag is still true.
+          return () =>
+            h('tui-box', null, [
+              h('tui-box', { focusable: true }),
+              h('tui-box', { visible: !hidden.value }, [h('tui-box', { focusable: true })]),
+              h('tui-box', { focusable: true }),
+            ])
+        },
+      }),
+    )
+    app.mount()
+    await nextTick()
+    await nextTick()
+
+    const [first, container, third] = test.renderer.root.getChildren()[0]!.getChildren()
+    const buried = container!.getChildren()[0]!
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(first)
+
+    manager!.focusNext()
+    await nextTick()
+    expect(manager!.focused.value).toBe(third)
+
+    // Showing the container puts its child back in the cycle.
+    hidden.value = false
+    await nextTick()
+    manager!.focusPrevious()
+    await nextTick()
+    expect(manager!.focused.value).toBe(buried)
+
+    test.renderer.destroy()
+  })
+
   it('collects focusables depth-first, so a focusable parent precedes its child', async () => {
     const test: TestRendererSetup = await createTestRenderer({ width: 20, height: 8 })
     let manager: ReturnType<typeof useFocusManager> | undefined

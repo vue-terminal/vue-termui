@@ -5,11 +5,13 @@ import { useRenderer } from '../renderer/index'
 // TODO: measure how slow this can be and improve performance with some dirty checking
 /**
  * Collect every focusable, visible, live renderable under `node`, in
- * depth-first tree order (which is the natural Tab order).
+ * depth-first tree order (which is the natural Tab order). Skips sub trees
+ * that are invisible.
  */
 function collectFocusables(node: Renderable, out: Renderable[] = []): Renderable[] {
   for (const child of node.getChildren()) {
-    if (child.focusable && child.visible && !child.isDestroyed) {
+    if (!child.visible || child.isDestroyed) continue
+    if (child.focusable) {
       out.push(child)
     }
     collectFocusables(child, out)
