@@ -10,8 +10,11 @@
     "play": "pnpm run build && pnpm run start"
   },
   "dependencies": {
+    "@dimforge/rapier3d-compat": "0.19.3",
+    "@kmamal/sdl": "^0.11.13",
     "@opentui/core": "^0.5.3",
     "@tresjs/core": "^5.8.3",
+    "@tresjs/rapier": "^1.0.1",
     "@vue-termui/three": "workspace:*",
     "shaders": "^3.0.442",
     "three": "0.180.0",

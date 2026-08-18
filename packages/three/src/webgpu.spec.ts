@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest'
-import { installBrowserGlobals } from './webgpu'
+import { afterEach, describe, expect, it } from 'vitest'
+import { installBrowserGlobals, keepNavigatorUserAgent } from './webgpu'
 
 describe('installBrowserGlobals', () => {
   it('stubs browser globals three/webgpu references unguarded in Node', () => {
@@ -17,5 +17,42 @@ describe('installBrowserGlobals', () => {
     // stubbed checks resolve to false instead of throwing.
     expect(({} as unknown) instanceof VideoFrame).toBe(false)
     expect(({} as unknown) instanceof ImageBitmap).toBe(false)
+  })
+})
+
+describe('keepNavigatorUserAgent', () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
+
+  afterEach(() => {
+    if (original) Object.defineProperty(globalThis, 'navigator', original)
+  })
+
+  /** What bun-webgpu's `setupGlobals` does to the global. */
+  function installGpuNavigator(): void {
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { ...globalThis.navigator, gpu: {} },
+      writable: true,
+      configurable: true,
+    })
+  }
+
+  it('re-attaches the userAgent the WebGPU shim drops', () => {
+    // bun-webgpu replaces the global with `{ ...navigator, gpu }`, and Node
+    // exposes `userAgent` as a prototype getter — which a spread does not copy.
+    // three's loaders read it unguarded (GLTFLoader: `userAgent.match(...)`),
+    // so losing it turns every GLTF/texture load into a TypeError.
+    const userAgent = globalThis.navigator.userAgent
+    expect(userAgent).toBeTypeOf('string')
+
+    installGpuNavigator()
+    expect((globalThis.navigator as { userAgent?: string }).userAgent).toBeUndefined()
+
+    keepNavigatorUserAgent(userAgent)
+    expect(globalThis.navigator.userAgent).toBe(userAgent)
+  })
+
+  it('leaves a navigator that kept its userAgent alone', () => {
+    keepNavigatorUserAgent('ignored')
+    expect(globalThis.navigator.userAgent).not.toBe('ignored')
   })
 })
