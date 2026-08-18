@@ -112,9 +112,10 @@ Wrapping an OpenTUI renderable (e.g. `TabSelect`, done as the template). Don't r
    `props`/`emits`/`onMounted` shape; narrow `options` to a local option type; `Omit` native options you
    manage (`options`, and `selectedIndex` if the prop path doesn't apply).
 4. **Files to touch (all of them):** `src/components/<Name>.ts` + co-located `.spec.ts` (tests **first**,
-   watch them fail); host tag in **both** `nodeOps.createElement`'s switch + `TuiElementTag`, and vite
-   `HOST_TAGS`; export component + types from `src/index.ts`; a `playground/src/pages/<name>.vue` page +
-   a `Sidebar.vue` nav entry (routes are file-based via `vue-router/auto-routes`).
+   watch them fail); host tag in **both** `nodeOps.createElement`'s switch + `TuiElementTag` (the vite
+   plugin needs nothing — it reserves the whole `tui-` prefix); export component + types from
+   `src/index.ts`; a `playground/src/pages/<name>.vue` page + a `Sidebar.vue` nav entry (routes are
+   file-based via `vue-router/auto-routes`).
 5. **Sizing (fixed-width renderables like `TabSelect`):** a native renderable given a **numeric**
    `width` ≥ its container overflows the border (its inner fills/underline bleed past). Use a
    **percentage/flex width** (`width="100%"`) — it resolves against the box _interior_ (border + padding
@@ -173,6 +174,14 @@ Wrapping an OpenTUI renderable (e.g. `TabSelect`, done as the template). Don't r
   keybinding); the component owns `onSubmit` and re-emits it as `submit` with the
   text. To reset the editor, remount it with a `:key`.
 - `ProgressBar` is a `Box`+`Text` composite (OpenTUI has no native progress bar).
+- `Image` (`ImageRenderable`) draws PNG/JPEG/WebP/GIF from a path, URL, bytes or a
+  `NativeImage` (re-exported, so apps can generate/resize sources). Its `onLoad`/
+  `onError` are **native options**, not emitter events, so `@load`/`@error` need no
+  wiring — they fall through with the other attrs. Forwarding `undefined` is safe
+  for `source`/`fit`/`protocol` (their setters map it to the default, and an unset
+  `source` deliberately blanks the image). Like every renderable it has **no
+  intrinsic size**: without `width`/`height` or a flex rule it paints nothing.
+  GIFs show their first frame only.
 - `Link` / `TextTransform` are NOT ported yet — they need TextNode-with-link/
   transform support threaded through `nodeOps` (text-node children don't carry
   per-node link/style). Tracked in `todos.json` (phase 7).
@@ -284,8 +293,9 @@ Bun lacks it and fails ESM validation at load time).
   explicitly from `vue-termui` — clearer, fully typed, and avoids maintaining
   unplugin magic against the dev server's runnable-`ssr` module runner. (Decision
   for phase 8; revisit only if the explicit-import friction becomes real.)
-- New host tags must be added in BOTH `nodeOps.createElement` and the vite
-  plugin's `HOST_TAGS` set.
+- New host tags are added in `nodeOps.createElement` and the `TuiElementTag` union
+  only: the vite plugin treats the whole `tui-` prefix as custom elements, so it
+  needs no per-tag list.
 
 Built with tsdown (`tsdown.config.ts`), outputs ESM to `dist/`. oxc toolchain:
 oxlint for linting, oxfmt for formatting.

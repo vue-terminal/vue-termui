@@ -2,6 +2,7 @@ import {
   type BaseRenderable,
   VRenderable,
   BoxRenderable,
+  ImageRenderable,
   InputRenderable,
   MarkdownRenderable,
   type Renderable,
@@ -43,6 +44,7 @@ export type TuiElementTag =
   | 'tui-tab-select'
   | 'tui-markdown'
   | 'tui-scroll-box'
+  | 'tui-image'
 
 /**
  * Builds the Vue {@link RendererOptions} that translate Vue tree mutations into
@@ -128,6 +130,8 @@ export function createNodeOps(ctx: RenderContext): RendererOptions<BaseRenderabl
           return new SelectRenderable(ctx, {})
         case 'tui-tab-select':
           return new TabSelectRenderable(ctx, {})
+        case 'tui-image':
+          return new ImageRenderable(ctx, {})
         case 'tui-scroll-box':
           // `scrollX`/`scrollY` are constructor-only: they pick the content's
           // min/max size constraints and have no setters, so they must be read

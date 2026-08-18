@@ -31,6 +31,7 @@ const exit = useExit()
 const items = [
   { label: 'Home', to: '/' },
   { label: 'Text & styles', to: '/text-styles' },
+  { label: 'Image', to: '/image' },
   { label: 'Markdown', to: '/markdown' },
   { label: 'Markdown themes', to: '/markdown-themes' },
   { label: 'Layout', to: '/layout' },
