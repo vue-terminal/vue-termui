@@ -1,3 +1,18 @@
+# [0.3.0](https://github.com/vue-terminal/vue-termui/compare/v0.2.0...v0.3.0) (2026-08-18)
+
+### Bug Fixes
+
+- keep wrapped Text from flex-shrinking over its sibling ([a12f5bb](https://github.com/vue-terminal/vue-termui/commit/a12f5bb30ecb44562a508667a70d931c968a53c7))
+- limit debug console to dev ([3245317](https://github.com/vue-terminal/vue-termui/commit/3245317a90040f07359f10ec722132b3852c431d))
+- **vite:** bundle the 3D stack, externalize bun-webgpu by file URL ([1998b9d](https://github.com/vue-terminal/vue-termui/commit/1998b9d174075ac5f07aad9518e52108b5b857d9))
+- **vite:** externalize jimp to its node ESM entry ([f2737b0](https://github.com/vue-terminal/vue-termui/commit/f2737b09cbc572c7a99915e3e434bcdee7aefcf4))
+
+### Features
+
+- add Image component ([#69](https://github.com/vue-terminal/vue-termui/issues/69)) ([6160237](https://github.com/vue-terminal/vue-termui/commit/6160237bb8d96b8ee7eb28371429a566beb5dfbb))
+- add paste event support ([ffea50c](https://github.com/vue-terminal/vue-termui/commit/ffea50caf0e57d13acff6c607e07e7ef4774a19d))
+- **vite:** keep the 3D stack external in dev and builds ([bf0b1b2](https://github.com/vue-terminal/vue-termui/commit/bf0b1b2cfe90f9928ad9377eca3aa118d13e7598))
+
 # [0.2.0](https://github.com/vue-terminal/vue-termui/compare/v0.1.0...v0.2.0) (2026-07-09)
 
 ### Bug Fixes
