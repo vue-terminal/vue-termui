@@ -8,6 +8,7 @@ import {
   onKeyDown,
   onMounted,
   onUnmounted,
+  ref,
   Text,
   useCurrentFocusedElement,
   useFocusManager,
@@ -24,7 +25,18 @@ const renderer = useRenderer()
 // whatever the current page renders). `useFocusManager` walks the render tree
 // in order and wraps around; OpenTUI doesn't cycle focus on Tab itself.
 const { focusNext, focusPrevious } = useFocusManager()
+
+// Ctrl+F unmounts the shell chrome so the routed page owns the whole terminal.
+// Unmounting, not hiding: a hidden sidebar keeps its key handlers, so `/` would
+// focus the invisible filter.
+const fullscreen = ref(false)
+
 onKeyDown((key) => {
+  if (key.name === 'f' && key.ctrl) {
+    fullscreen.value = !fullscreen.value
+    return
+  }
+
   if (key.name === 'c' && key.shift) {
     renderer.console.toggle()
     return
@@ -73,30 +85,35 @@ const focusedElement = useCurrentFocusedElement()
 </script>
 
 <template>
-  <Box>
-    <Box flexDirection="row" :padding="1" :gap="1">
-      <Sidebar />
-      <Box :flexGrow="1">
-        <Box flexDirection="column" :gap="1">
+  <!-- flexGrow to fill the terminal, so the key bar stays at the bottom. -->
+  <Box :flexGrow="1">
+    <Box flexDirection="row" :padding="fullscreen ? 0 : 1" :gap="1" :flexGrow="1">
+      <Sidebar v-if="!fullscreen" />
+      <Box flexDirection="column" :gap="1" :flexGrow="1">
+        <template v-if="!fullscreen">
           <Text>App shell: a fixed sidebar on the left and the routed page on the right.</Text>
           <Text>Focused element {{ focusedElement?.id }}</Text>
-          <RouterView />
-        </Box>
+        </template>
+        <RouterView />
       </Box>
     </Box>
     <Box
+      v-if="!fullscreen"
       flexDirection="row"
       :gap="1"
       alignItems="flex-end"
       :border="['top']"
       borderColor="#42b883"
       :paddingLeft="2"
+      :flexShrink="0"
     >
       <Text>↹ cycle focus</Text>
       <Text dim>|</Text>
       <Text>/ filter</Text>
       <Text dim>|</Text>
       <Text>⇧c console</Text>
+      <Text dim>|</Text>
+      <Text>⌃f fullscreen</Text>
       <Text dim>|</Text>
       <Text>⌃c exit</Text>
     </Box>
