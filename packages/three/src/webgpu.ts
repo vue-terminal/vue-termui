@@ -39,6 +39,29 @@ export function installBrowserGlobals(): void {
   g.ImageBitmap ??= class ImageBitmap {}
 }
 
+/**
+ * Puts `navigator.userAgent` back after the WebGPU shim replaced the global.
+ *
+ * bun-webgpu installs its adapter with `global.navigator = { ...navigator, gpu }`,
+ * and Node exposes `userAgent` as a getter on `Navigator.prototype`, which a
+ * spread does not copy — so the replacement has no `userAgent` at all. three's
+ * loaders read it without guarding (`GLTFLoader` browser-sniffs with
+ * `navigator.userAgent.match(…)` to pick an image decoder), so every GLTF load
+ * would fail with "Cannot read properties of undefined (reading 'match')".
+ *
+ * No-op when the global still has one.
+ */
+export function keepNavigatorUserAgent(userAgent: string | undefined): void {
+  const navigator = globalThis.navigator as { userAgent?: string } | undefined
+  if (!navigator || userAgent === undefined || navigator.userAgent !== undefined) return
+  Object.defineProperty(navigator, 'userAgent', {
+    value: userAgent,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  })
+}
+
 let globalsReady: Promise<WebGPUModule> | undefined
 
 /**
@@ -59,8 +82,10 @@ export function setupWebGPU(libPath?: string): Promise<WebGPUModule> {
         configurable: true,
       })
     }
+    const userAgent = globalThis.navigator?.userAgent
     installBrowserGlobals()
     await webgpu.setupGlobals({ libPath })
+    keepNavigatorUserAgent(userAgent)
     return webgpu
   }))
 }
