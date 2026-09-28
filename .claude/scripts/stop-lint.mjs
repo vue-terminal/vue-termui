@@ -26,7 +26,9 @@ if (changed.length === 0) {
 
 // Format changed files
 try {
-  execSync(`pnpm exec oxfmt ${changed.join(' ')}`, { stdio: 'pipe' })
+  execSync(`pnpm exec vp fmt --no-error-on-unmatched-pattern ${changed.join(' ')}`, {
+    stdio: 'pipe',
+  })
 } catch {}
 
 // Filter to lintable files
@@ -39,12 +41,12 @@ const files = lintable.join(' ')
 
 // Auto-fix (best-effort)
 try {
-  execSync(`pnpm exec oxlint --fix ${files}`, { stdio: 'pipe' })
+  execSync(`pnpm exec vp lint --fix ${files}`, { stdio: 'pipe' })
 } catch {}
 
 // Final lint check — exit 2 to block stop if errors remain
 try {
-  execSync(`pnpm exec oxlint ${files}`, { stdio: 'pipe' })
+  execSync(`pnpm exec vp lint ${files}`, { stdio: 'pipe' })
 } catch (e) {
   const output = e.stdout?.toString() || e.stderr?.toString() || ''
   console.log('Lint errors remain after auto-fix. Please fix:\n')

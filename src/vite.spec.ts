@@ -8,7 +8,7 @@ import {
   type Plugin,
   type ViteDevServer,
 } from 'vite'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { vueTermui } from './vite'
 import { mockConsoleError } from './__tests__/mock-console'
 

@@ -1,6 +1,6 @@
 // The parser itself lives in @vue-termui/docs (the docs own the player); it is
 // exercised from here because that package has no test runner of its own.
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { parseCast } from '@vue-termui/docs/cast'
 
 function cast(...entries: unknown[]): string {

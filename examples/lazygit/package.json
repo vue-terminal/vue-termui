@@ -5,8 +5,8 @@
   "type": "module",
   "bin": "dist/main.js",
   "scripts": {
-    "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vite",
-    "build": "vite build",
+    "dev": "NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vp dev",
+    "build": "vp build",
     "start": "node --experimental-ffi --disable-warning=ExperimentalWarning dist/main.js",
     "play": "pnpm run build && pnpm run start",
     "typecheck": "vue-tsc --noEmit"
@@ -18,9 +18,10 @@
     "@types/node": "^26.1.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "typescript": "~6.0.3",
-    "vite": "^8.1.5",
+    "vite": "catalog:",
     "vue": "^3.5.40",
-    "vue-tsc": "^3.3.7"
+    "vue-tsc": "^3.3.7",
+    "vite-plus": "catalog:"
   },
   "engines": {
     "node": ">=26.3.0"

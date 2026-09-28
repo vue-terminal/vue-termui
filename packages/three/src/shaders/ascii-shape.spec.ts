@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { asciiShapeShader } from './ascii-shape'
 import { DEFAULT_ASCII_CHARSET } from './glyph-coverage'
 

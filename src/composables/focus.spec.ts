@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, defineComponent, h, nextTick, ref } from '@vue/runtime-core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createNodeOps, createTuiApp } from '../renderer/index'
 import { Input } from '../components/Input'
 import { useCurrentFocusedElement, useFocusManager } from './focus'

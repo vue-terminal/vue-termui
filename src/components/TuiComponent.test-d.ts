@@ -1,6 +1,6 @@
 import type { InputRenderable, SelectRenderable, TextareaRenderable } from '@opentui/core'
 import { h } from '@vue/runtime-core'
-import { assertType, describe, expectTypeOf, it } from 'vitest'
+import { assertType, describe, expectTypeOf, it } from 'vite-plus/test'
 import { Input } from './Input'
 import { Select } from './Select'
 import { Textarea } from './Textarea'

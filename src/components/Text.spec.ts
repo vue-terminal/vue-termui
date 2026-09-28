@@ -2,7 +2,7 @@
 import { bold, parseColor, t, TextAttributes, TextRenderable } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Text } from './Text'
 import { mockConsoleError } from '../__tests__/mock-console'

@@ -9,7 +9,7 @@ on:
     paths:
       - 'src/**'
       - 'package.json'
-      - 'tsdown.config.ts'
+      - 'vite.config.ts'
 
   push:
     branches:
@@ -19,7 +19,7 @@ on:
     paths:
       - 'src/**'
       - 'package.json'
-      - 'tsdown.config.ts'
+      - 'vite.config.ts'
 
 jobs:
   build:
@@ -34,7 +34,7 @@ jobs:
       - uses: pnpm/action-setup@v4.4.0
       - uses: actions/setup-node@v6
         with:
-          node-version-file: package.json
+          node-version-file: .node-version
           cache: pnpm
 
       - name: Install

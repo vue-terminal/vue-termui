@@ -2,8 +2,8 @@
 // Silences `console.warn` / `console.error` during a test run and fails the test
 // if a log was emitted but never asserted with the matchers below — keeping the
 // test output clean while still forcing intentional logs to be acknowledged.
-import type { MockInstance } from 'vitest'
-import { afterEach, beforeEach, expect, vi } from 'vitest'
+import type { MockInstance } from 'vite-plus/test'
+import { afterEach, beforeEach, expect, vi } from 'vite-plus/test'
 
 interface CustomMatchers<R = unknown> {
   toHaveBeenWarned: () => R
@@ -14,9 +14,8 @@ interface CustomMatchers<R = unknown> {
   toHaveBeenErroredTimes: (n: number) => R
 }
 
-declare module 'vitest' {
-  interface Assertion<T = any> extends CustomMatchers<T> {}
-  interface AsymmetricMatchersContaining extends CustomMatchers {}
+declare module 'vite-plus/test' {
+  interface Matchers<R, T> extends CustomMatchers<R> {}
 }
 
 function createMockConsoleMethod(method: 'warn' | 'error') {

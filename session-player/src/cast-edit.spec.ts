@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import type { Cast } from '@vue-termui/docs/cast'
 import { parseCast } from '@vue-termui/docs/cast'
 import { resizeCast, serializeCast, trimCast } from './cast-edit'

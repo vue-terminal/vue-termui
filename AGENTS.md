@@ -8,13 +8,13 @@ Ground-up rewrite. The old implementation (custom renderer + yoga) lives in
 ## Commands
 
 ```bash
-pnpm build                                 # build core with tsdown
-pnpm test                                  # full suite: build + coverage + typecheck
-pnpm test:cov                              # vitest with coverage
-pnpm exec vitest run src/renderer/nodeOps.spec.ts  # single test file
-pnpm lint                                  # oxlint
-pnpm lint:fix                              # oxlint with auto-fix
-pnpm test:types                            # tsc type checking
+vp pack                                    # build core with Vite+ Pack
+vp run test                                # full suite: build + coverage + typecheck
+vp run test:cov                            # Vitest with coverage
+vp test run src/renderer/nodeOps.spec.ts   # single test file
+vp lint                                    # Oxlint
+vp run lint:fix                            # Oxlint with auto-fix
+vp run test:types                          # tsc type checking
 pnpm --filter playground dev               # run the playground (OpenTUI)
 pnpm --filter playground play              # build + run; pass a route: node dist/main.js /demos/fractal
 ```
@@ -128,8 +128,8 @@ Wrapping an OpenTUI renderable (e.g. `TabSelect`, done as the template). Don't r
    **percentage/flex width** (`width="100%"`) — it resolves against the box _interior_ (border + padding
    aware, e.g. a `width:60` `padding:1` bordered box → `56`), so the renderable clamps to it and never
    overflows, at any terminal size. Percentages work because `Box` is real flexbox (`Select` uses `40%`).
-6. **Run:** `NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' pnpm exec vitest run src/components/<Name>.spec.ts`,
-   then `pnpm test:types` + `pnpm lint`. In specs, `test.mockInput.pressArrow('left'|'right'|'up'|'down')`
+6. **Run:** `NODE_OPTIONS='--experimental-ffi --disable-warning=ExperimentalWarning' vp test run src/components/<Name>.spec.ts`,
+   then `vp run test:types` + `vp lint`. In specs, `test.mockInput.pressArrow('left'|'right'|'up'|'down')`
    / `pressEnter()` drive keyboard nav; check the renderable's default keybindings in `index.js`
    (`defaultTabSelectKeybindings`) for which keys move it.
 
@@ -262,7 +262,7 @@ Bun lacks it and fails ESM validation at load time).
   node_modules). Externalizing `@vue-termui/three` instead loads a second
   runtime-core and breaks provide/inject (`useRenderer() must be called…`).
 - Tests need the FFI env var like the core suite; the WGPU specs create real
-  GPU devices (Metal/Vulkan required). Root `vitest.config.ts` includes
+  GPU devices (Metal/Vulkan required). Root `vite.config.ts` includes
   `packages/three/src`.
 - **TresJS works in the terminal, unpatched** (`/demos/tres`, adapter:
   `playground/src/components/TresTerminal.vue`). `<TresCanvasContext>` (from
@@ -304,8 +304,8 @@ Bun lacks it and fails ESM validation at load time).
   only: the vite plugin treats the whole `tui-` prefix as custom elements, so it
   needs no per-tag list.
 
-Built with tsdown (`tsdown.config.ts`), outputs ESM to `dist/`. oxc toolchain:
-oxlint for linting, oxfmt for formatting.
+Built with Vite+ Pack (`vite.config.ts`, backed by tsdown), outputs ESM to `dist/`.
+Vite+ provides Oxlint for linting and Oxfmt for formatting.
 
 ## Docs deploy (Vercel)
 

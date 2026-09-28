@@ -2,7 +2,7 @@
 import { TextareaRenderable, parseColor } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createTuiApp } from '../renderer/index'
 import { Textarea } from './Textarea'
 import type { TestRendererSetup } from '@opentui/core/testing'

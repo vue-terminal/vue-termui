@@ -2,7 +2,7 @@
 import { createRenderer } from '@vue/runtime-core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 import { createNodeOps } from './nodeOps'
 import { mockConsoleError, mockConsoleWarn } from '../__tests__/mock-console'
 import type { TestRendererSetup } from '@opentui/core/testing'

@@ -10,7 +10,7 @@ import {
   shallowRef,
   watch,
 } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createNodeOps } from './nodeOps'
 import { createTuiApp } from './index'
 import { onKeyDown } from '../composables/keyboard'

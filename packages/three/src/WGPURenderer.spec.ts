@@ -2,7 +2,7 @@
 import { RGBA } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { Scene } from 'three'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { ThreeCliRenderer } from './WGPURenderer'
 
 // OptimizedBuffer fg/bg hold 4 entries per cell with 0-255 channel values

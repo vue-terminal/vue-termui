@@ -2,7 +2,7 @@
 import type { BoxRenderable, CliRenderer } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { PerspectiveCamera, Scene } from 'three'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import {
   createNodeOps,
   createRenderer,

@@ -2,7 +2,7 @@
 import { MarkdownRenderable, SyntaxStyle } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Markdown } from './Markdown'
 import type { Renderable } from '@opentui/core'

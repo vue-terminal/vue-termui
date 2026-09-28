@@ -12,7 +12,7 @@ import type {
   TextRenderable,
   TextareaRenderable,
 } from '@opentui/core'
-import { describe, expectTypeOf, it } from 'vitest'
+import { describe, expectTypeOf, it } from 'vite-plus/test'
 import { decodePasteBytes, onPaste } from '../index'
 import type {
   BoxElement,

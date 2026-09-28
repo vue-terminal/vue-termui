@@ -2,7 +2,7 @@
 import { SelectRenderable } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref } from '@vue/runtime-core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createTuiApp } from '../renderer/index'
 import { Select, type SelectOption } from './Select'
 import type { TestRendererSetup } from '@opentui/core/testing'

@@ -2,7 +2,7 @@
 import { createTestRenderer } from '@opentui/core/testing'
 import { CliRenderEvents } from '@opentui/core'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createTuiApp } from '../renderer/index'
 import { useRendererEvent } from './useRendererEvent'
 import type { TestRendererSetup } from '@opentui/core/testing'

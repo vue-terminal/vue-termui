@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { PerspectiveCamera } from 'three'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { ThreeRenderable } from './ThreeRenderable'
 
 describe('ThreeRenderable', () => {
