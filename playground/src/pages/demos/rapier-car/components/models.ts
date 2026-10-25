@@ -3,22 +3,34 @@
 //
 // - The published `car.glb`/`ball.glb` are Draco-compressed and DRACOLoader
 //   decodes in a Worker built from a blob URL, which does not exist here. The
-//   copies under src/assets are the same models with the compression decoded
-//   (and quantized instead), so plain GLTFLoader can read them.
-// - Their textures are stripped: GLTFLoader decodes images through
-//   `createImageBitmap`/`<img>`, neither of which Node has, and at terminal
-//   resolution a texture lands well inside a single cell anyway. Materials keep
-//   their factors, which is what actually shows.
+//   copies under src/assets are the same models with the compression decoded,
+//   so plain GLTFLoader can read them.
+// - GLTFLoader decodes images through `createImageBitmap`/`<img>`, neither of
+//   which Node has, so `NodeImagePlugin` decodes them with ./textures
+//   instead. The textures are downscaled to 512px: more is sub-cell detail.
 //
 // Everything else — node names, materials, dimensions — is untouched, so the
 // components keep using the original's `getObjectByName` calls and the tune
 // built around them (wheel radii, BALL_RADIUS, the reflector's head offset).
+import { resolveObjectURL } from 'node:buffer'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { Mesh, MeshStandardMaterial, type Group, type Object3D } from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {
+  Loader,
+  Mesh,
+  MeshStandardMaterial,
+  type DataTexture,
+  type Group,
+  type Object3D,
+} from 'three'
+import {
+  GLTFLoader,
+  type GLTFLoaderPlugin,
+  type GLTFParser,
+} from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { shallowRef, type ShallowRef } from 'vue-termui'
 import { createBallModel, createCarModel, createReflectorModel } from './simple-models'
+import { decodeTexture } from './textures'
 
 /**
  * The models paint several parts as pure metal (`metalness: 1`), which reads as
@@ -34,7 +46,43 @@ function assetPath(file: string): string {
   return fileURLToPath(new URL(`../../../../assets/models/rapier-car/${file}`, import.meta.url))
 }
 
-const loader = new GLTFLoader()
+/**
+ * Stands in for GLTFLoader's image loader. The parser hands it a blob URL of the
+ * embedded image bytes and keeps applying the glTF sampler/colorspace rules to
+ * the texture it gets back.
+ */
+class NativeImageLoader extends Loader<DataTexture> {
+  override load(
+    url: string,
+    onLoad: (texture: DataTexture) => void,
+    _onProgress?: unknown,
+    onError?: (error: unknown) => void,
+  ): void {
+    const blob = resolveObjectURL(url)
+    if (!blob) {
+      onError?.(new Error(`Unknown blob URL ${url}`))
+      return
+    }
+    blob
+      .arrayBuffer()
+      .then((bytes) => onLoad(decodeTexture(bytes)))
+      .catch((error: unknown) => onError?.(error))
+  }
+}
+
+const nativeImageLoader = new NativeImageLoader()
+
+class NodeImagePlugin implements GLTFLoaderPlugin {
+  readonly name = 'VUE_TERMUI_node_image'
+  constructor(private readonly parser: GLTFParser) {}
+
+  loadTexture(textureIndex: number) {
+    const { source } = this.parser.json.textures[textureIndex]
+    return this.parser.loadTextureImage(textureIndex, source, nativeImageLoader)
+  }
+}
+
+const loader = new GLTFLoader().register((parser) => new NodeImagePlugin(parser))
 
 function tameMetals(root: Object3D): void {
   root.traverse((child: Object3D) => {
