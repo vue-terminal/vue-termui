@@ -1,13 +1,26 @@
 <script setup lang="ts">
-// The lab's night lighting, minus cientos' <Stars> and <Environment>: the HDRI
-// only fed reflections (there is no post-processing here), and a starfield reads
-// as noise in the terminal — in the 'ascii' mode every lit pixel of empty sky
-// fills its cell with a dense glyph.
+// The lab's night lighting, minus cientos' <Stars>: a starfield reads as noise
+// in the terminal — in the 'ascii' mode every lit pixel of empty sky fills its
+// cell with a dense glyph. Its <Environment preset="shangai"> is loaded by hand
+// (cientos fetches it): the car and ball are textured metals, which without
+// something to reflect render near black.
 //
 // Intensities run above the original's. The browser demo renders through ACES
 // tone mapping at 1.35 exposure, which lifts the night midtones; the terminal
 // renderer has no tone mapping, so without the extra light the arena falls into
 // the bottom of the glyph ramp and 'ascii' cells come out blank.
+import { useTres } from '@tresjs/core'
+import { loadEnvironment } from './textures'
+
+// The original's 0.35 assumes its ACES exposure; this matches the lab's
+// thumbnail (metal ball, gold car) with no tone mapping
+const ENVIRONMENT_INTENSITY = 2
+
+const { scene } = useTres()
+void loadEnvironment('shanghai_bund_1k.hdr').then((texture) => {
+  scene.value.environment = texture
+  scene.value.environmentIntensity = ENVIRONMENT_INTENSITY
+})
 </script>
 
 <template>

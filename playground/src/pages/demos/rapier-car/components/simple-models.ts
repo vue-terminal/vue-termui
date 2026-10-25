@@ -151,7 +151,7 @@ export function createBallModel(): Group {
   ball.name = 'ball'
 
   const material = new MeshStandardMaterial({
-    color: '#dbeafe',
+    color: '#2563eb',
     emissive: '#38bdf8',
     roughness: 0.25,
     metalness: 0.1,

@@ -15,14 +15,7 @@
 import { resolveObjectURL } from 'node:buffer'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import {
-  Loader,
-  Mesh,
-  MeshStandardMaterial,
-  type DataTexture,
-  type Group,
-  type Object3D,
-} from 'three'
+import { Loader, type DataTexture, type Group } from 'three'
 import {
   GLTFLoader,
   type GLTFLoaderPlugin,
@@ -31,14 +24,6 @@ import {
 import { shallowRef, type ShallowRef } from 'vue-termui'
 import { createBallModel, createCarModel, createReflectorModel } from './simple-models'
 import { decodeTexture } from './textures'
-
-/**
- * The models paint several parts as pure metal (`metalness: 1`), which reads as
- * the environment reflection — and with no tone mapping and no env map in the
- * terminal renderer, that reflection is the black background. Cap it so those
- * parts are lit like dielectrics and stay visible.
- */
-const MAX_METALNESS = 0.25
 
 // Reads from src/assets in dev; in a build Vite rewrites this to the emitted
 // dist/assets file (https://vite.dev/guide/assets#new-url-url-import-meta-url).
@@ -84,17 +69,6 @@ class NodeImagePlugin implements GLTFLoaderPlugin {
 
 const loader = new GLTFLoader().register((parser) => new NodeImagePlugin(parser))
 
-function tameMetals(root: Object3D): void {
-  root.traverse((child: Object3D) => {
-    const mesh = child as Partial<Mesh>
-    for (const material of [mesh.material].flat()) {
-      if (material instanceof MeshStandardMaterial) {
-        material.metalness = Math.min(material.metalness, MAX_METALNESS)
-      }
-    }
-  })
-}
-
 /** Loads a `.glb` from src/assets and returns its scene. */
 export async function loadModel(file: string): Promise<Group> {
   const data = await readFile(assetPath(file))
@@ -103,7 +77,6 @@ export async function loadModel(file: string): Promise<Group> {
   const gltf = await new Promise<{ scene: Group }>((resolve, reject) => {
     loader.parse(buffer, '', resolve, reject)
   })
-  tameMetals(gltf.scene)
   return gltf.scene
 }
 

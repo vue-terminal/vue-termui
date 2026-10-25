@@ -1,9 +1,18 @@
 // Image textures in Node, where three's loaders have no decoder
 // (`createImageBitmap`/`<img>` do not exist): `NativeImage` decodes the bytes
-// into a `DataTexture`.
+// into a `DataTexture`. HDRs need no decoder, only a way past the loaders' fetch.
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { DataTexture, RGBAFormat, SRGBColorSpace, UnsignedByteType } from 'three'
+import {
+  DataTexture,
+  EquirectangularReflectionMapping,
+  LinearFilter,
+  LinearSRGBColorSpace,
+  RGBAFormat,
+  SRGBColorSpace,
+  UnsignedByteType,
+} from 'three'
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
 import { NativeImage } from 'vue-termui'
 
 /**
@@ -40,5 +49,20 @@ function assetPath(file: string): string {
 export async function loadTexture(file: string): Promise<DataTexture> {
   const texture = decodeTexture(await readFile(assetPath(file)), { flipY: true })
   texture.colorSpace = SRGBColorSpace
+  return texture
+}
+
+/** Loads an equirectangular `.hdr` from src/assets, ready for `scene.environment`. */
+export async function loadEnvironment(file: string): Promise<DataTexture> {
+  const bytes = await readFile(assetPath(file))
+  const { data, width, height, type } = new HDRLoader().parse(bytes)
+  const texture = new DataTexture(data, width, height, RGBAFormat, type)
+  // what HDRLoader.load() would set
+  texture.colorSpace = LinearSRGBColorSpace
+  texture.minFilter = texture.magFilter = LinearFilter
+  texture.generateMipmaps = false
+  texture.flipY = true
+  texture.mapping = EquirectangularReflectionMapping
+  texture.needsUpdate = true
   return texture
 }
