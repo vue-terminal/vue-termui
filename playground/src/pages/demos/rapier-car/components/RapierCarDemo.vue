@@ -3,9 +3,8 @@
 // raycast vehicle controller) rendered in the terminal. The physics, the car
 // tune, the air game and the chase camera are ports of the originals; what's
 // gone is everything that only exists in a browser — the tweakpane controls and
-// HTML overlays, the bloom pass, the GLSL grass with its canvas trample map and
-// the exhaust particle VFX (a raw-GLSL ShaderMaterial, which three's WebGPU
-// renderer would need as a node material).
+// HTML overlays, the bloom pass and the exhaust particle VFX (a raw-GLSL
+// ShaderMaterial, which three's WebGPU renderer would need as a node material).
 //
 // Keyboard, not mouse: the original binds boost/jump/rear-view to mouse buttons,
 // which a TTY reports without press-and-hold semantics. Held keys instead come
@@ -37,6 +36,7 @@ import {
   ref,
   shallowRef,
   Text,
+  onBeforeUnmount,
   useTerminalSize,
   watch,
   watchEffect,
@@ -50,6 +50,7 @@ import { useHeldKeys } from './held-keys'
 import type { ModelStyle } from './models'
 import SceneLighting from './SceneLighting.vue'
 import SceneWorld from './SceneWorld.vue'
+import { createTrampleMap } from './trample'
 
 const props = defineProps<{ modelStyle: ModelStyle }>()
 
@@ -75,6 +76,16 @@ const tres = shallowRef<{ renderable: ThreeRenderable | null } | null>(null)
 const carRef = shallowRef<InstanceType<typeof CarComponent> | null>(null)
 const worldRef = shallowRef<InstanceType<typeof SceneWorld> | null>(null)
 const rigRef = shallowRef<InstanceType<typeof CameraRig> | null>(null)
+
+// The car's trail through the grass: stamped every frame, fading back behind it
+const trample = createTrampleMap({ size: 100, resolution: 256, recovery: 0.35, stampRadius: 2 })
+onFrame((deltaMs) => {
+  trample.update(deltaMs / 1000)
+  const chassis = carRef.value?.chassisGroup()
+  if (chassis) trample.stamp(chassis.position.x, chassis.position.z)
+})
+// before unmount: the terminal's WebGPU renderer is gone by the time Tres tears down
+onBeforeUnmount(() => trample.dispose())
 
 const backgroundColor = RGBA.fromHex('#06091a')
 
@@ -295,7 +306,7 @@ onFrame((deltaMs) => {
         wrapped in a Suspense boundary -->
         <Suspense>
           <Physics :time-scale="SIM_SPEED" :gravity="[0, -9.81, 0]" :debug="debug" :pause="paused">
-            <SceneWorld ref="worldRef" :model-style="props.modelStyle" />
+            <SceneWorld ref="worldRef" :model-style="props.modelStyle" :trample="trample" />
             <CarComponent ref="carRef" :model-style="props.modelStyle" />
             <CameraRig
               ref="rigRef"

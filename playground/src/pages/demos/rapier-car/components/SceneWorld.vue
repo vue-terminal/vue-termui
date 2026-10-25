@@ -1,22 +1,27 @@
 <script setup lang="ts">
-// Port of the lab's SceneWorld: ground slab, road strip, ramps and blocks,
-// springy boundary walls, the ball and the corner floodlights.
-//
-// Dropped along with the browser-only parts: the GLSL <GrassField> and the
-// trample map it read (that one stamps into a 2D canvas), and the grid texture
-// on the ramps/blocks — a 0.5-tiles-per-unit grid lands well under one terminal
-// cell.
+// Port of the lab's SceneWorld: ground slab, grass field, road strip, grid
+// textured ramps and blocks, springy boundary walls, the ball and the corner
+// floodlights.
 import { CoefficientCombineRule } from '@dimforge/rapier3d-compat'
 import { type ExposedRigidBody, RigidBody } from '@tresjs/rapier'
-import { BoxGeometry, MeshStandardMaterial, Object3D, type InstancedMesh } from 'three'
+import {
+  BoxGeometry,
+  MeshStandardMaterial,
+  Object3D,
+  RepeatWrapping,
+  type InstancedMesh,
+} from 'three'
 import { shallowRef, watch } from 'vue-termui'
 import BallComponent from './BallComponent.vue'
+import GrassField from './GrassField.vue'
 import type { ModelStyle } from './models'
 import ReflectorTowers from './ReflectorTowers.vue'
+import { loadTexture } from './textures'
+import type { TrampleMap } from './trample'
 
 type ArrayVec3 = [number, number, number]
 
-const props = defineProps<{ modelStyle: ModelStyle }>()
+const props = defineProps<{ modelStyle: ModelStyle; trample?: TrampleMap | null }>()
 
 const ballRef = shallowRef<InstanceType<typeof BallComponent> | null>(null)
 
@@ -95,6 +100,49 @@ const BOXES: {
   },
 ]
 
+const GRID_TILES_PER_UNIT = 0.5
+
+// Scale each face's UVs to world units so the grid tiles uniformly
+// instead of stretching on elongated ramps
+function createGridBoxGeometry(width: number, height: number, depth: number) {
+  const geometry = new BoxGeometry(width, height, depth)
+  const uv = geometry.attributes.uv!
+  // BoxGeometry face order: +x, -x, +y, -y, +z, -z, 4 verts each
+  const faceDims: [number, number][] = [
+    [depth, height],
+    [depth, height],
+    [width, depth],
+    [width, depth],
+    [width, height],
+    [width, height],
+  ]
+  faceDims.forEach(([faceWidth, faceHeight], face) => {
+    for (let i = 0; i < 4; i++) {
+      const index = face * 4 + i
+      uv.setXY(
+        index,
+        uv.getX(index) * faceWidth * GRID_TILES_PER_UNIT,
+        uv.getY(index) * faceHeight * GRID_TILES_PER_UNIT,
+      )
+    }
+  })
+  return geometry
+}
+
+const boxGeometries = BOXES.map((box) =>
+  createGridBoxGeometry(box.size[0] * 2, box.size[1] * 2, box.size[2] * 2),
+)
+
+const boxMaterial = new MeshStandardMaterial({ roughness: 0.8 })
+
+void loadTexture('gridbox.png').then((texture) => {
+  texture.wrapS = RepeatWrapping
+  texture.wrapT = RepeatWrapping
+  texture.anisotropy = 8
+  boxMaterial.map = texture
+  boxMaterial.needsUpdate = true
+})
+
 const WALLS: { position: ArrayVec3; size: ArrayVec3 }[] = [
   {
     position: [0, WALL_HALF_HEIGHT, WALL_BOUNDARY],
@@ -169,6 +217,15 @@ watch(trackMarkInstancedMeshRef, (mesh) => {
     </TresMesh>
   </RigidBody>
 
+  <!-- Grass field covering the green ground, minus the road strip -->
+  <GrassField
+    :size="GROUND_HALF * 2"
+    :road-half-width="ROAD_HALF_WIDTH"
+    :road-length="ROAD_LENGTH"
+    :trample="props.trample"
+    tint="#55689b"
+  />
+
   <!-- Road surface -->
   <TresMesh receive-shadow :position="[0, 0.02, 0]">
     <TresBoxGeometry :args="[ROAD_HALF_WIDTH * 2, 0.04, ROAD_LENGTH]" />
@@ -190,9 +247,11 @@ watch(trackMarkInstancedMeshRef, (mesh) => {
       receive-shadow
       :position="box.position"
       :rotation="box.rotation ?? [0, 0, 0]"
+      :material="boxMaterial"
     >
-      <TresBoxGeometry :args="[box.size[0] * 2, box.size[1] * 2, box.size[2] * 2]" />
-      <TresMeshStandardMaterial color="#a1a1aa" :roughness="0.8" />
+      <!-- a child, not a :geometry prop: Rapier builds the convex hull from
+           whatever geometry the mesh holds when it joins the RigidBody -->
+      <primitive :object="boxGeometries[index]" attach="geometry" />
     </TresMesh>
   </RigidBody>
 

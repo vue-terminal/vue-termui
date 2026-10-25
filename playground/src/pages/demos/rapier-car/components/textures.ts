@@ -1,7 +1,9 @@
 // Image textures in Node, where three's loaders have no decoder
 // (`createImageBitmap`/`<img>` do not exist): `NativeImage` decodes the bytes
 // into a `DataTexture`.
-import { DataTexture, RGBAFormat, UnsignedByteType } from 'three'
+import { readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
+import { DataTexture, RGBAFormat, SRGBColorSpace, UnsignedByteType } from 'three'
 import { NativeImage } from 'vue-termui'
 
 /**
@@ -26,4 +28,17 @@ export function decodeTexture(
     image.dispose()
     if (image !== decoded) decoded.dispose()
   }
+}
+
+// Reads from src/assets in dev; in a build Vite rewrites this to the emitted
+// dist/assets file (https://vite.dev/guide/assets#new-url-url-import-meta-url).
+function assetPath(file: string): string {
+  return fileURLToPath(new URL(`../../../../assets/textures/rapier-car/${file}`, import.meta.url))
+}
+
+/** Loads a color texture from src/assets, oriented for regular geometry UVs. */
+export async function loadTexture(file: string): Promise<DataTexture> {
+  const texture = decodeTexture(await readFile(assetPath(file)), { flipY: true })
+  texture.colorSpace = SRGBColorSpace
+  return texture
 }
