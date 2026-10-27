@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createTuiApp } from '../renderer/index'
 import { onKeyDown } from './keyboard'
 import type { TestRendererSetup } from '@opentui/core/testing'

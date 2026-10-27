@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | { read file_path; pnpm oxfmt --no-error-on-unmatched-pattern \"$file_path\"; }"
+            "command": "jq -r '.tool_input.file_path' | { read file_path; pnpm exec vp fmt --no-error-on-unmatched-pattern \"$file_path\"; }"
           }
         ]
       }

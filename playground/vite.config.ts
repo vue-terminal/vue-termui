@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
+import { defineConfig, lazyPlugins } from 'vite-plus'
 import VueRouter from 'vue-router/vite'
 import vueTermui from 'vue-termui/vite'
 
 export default defineConfig({
-  plugins: [
+  plugins: lazyPlugins(() => [
     // ⚠️ VueRouter() must come before the Vue SFC plugin (provided by
     // vueTermui()). File-based routes live in src/pages; demos under
     // src/pages/demos map to /demos/*.
@@ -31,5 +31,5 @@ export default defineConfig({
         },
       },
     }),
-  ],
+  ]),
 })

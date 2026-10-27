@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vp dev",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
+    "preview": "vp preview",
+    "build-only": "vp build",
     "type-check": "vue-tsc --build",
-    "format": "oxfmt src/"
+    "format": "vp fmt src/"
   },
   "dependencies": {
     "@vue-termui/docs": "workspace:*",
@@ -21,11 +21,11 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/tsconfig": "^0.9.1",
     "npm-run-all2": "^9.0.2",
-    "oxfmt": "^0.54.0",
     "typescript": "~6.0.0",
-    "vite": "^8.0.16",
+    "vite": "catalog:",
     "vite-plugin-vue-devtools": "^8.1.2",
-    "vue-tsc": "^3.3.5"
+    "vue-tsc": "^3.3.5",
+    "vite-plus": "catalog:"
   },
   "engines": {
     "node": "^22.18.0 || >=24.12.0"

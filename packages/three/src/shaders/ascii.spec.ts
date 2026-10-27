@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { asciiShader, DEFAULT_ASCII_RAMP } from './ascii'
 
 describe('asciiShader', () => {

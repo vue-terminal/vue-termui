@@ -38,12 +38,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "vp pack",
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "tsdown": "^0.22.8"
+    "vite-plus": "catalog:"
   },
   "engines": {
     "node": ">=26.3.0"

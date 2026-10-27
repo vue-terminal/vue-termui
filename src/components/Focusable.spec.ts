@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick, ref, type VNode } from '@vue/runtime-core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createTuiApp } from '../renderer/index'
 import { Box } from './Box'
 import { Input } from './Input'

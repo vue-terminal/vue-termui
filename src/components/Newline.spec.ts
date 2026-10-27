@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Newline } from './Newline'
 import type { Renderable, TextRenderable } from '@opentui/core'

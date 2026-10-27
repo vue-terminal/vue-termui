@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { createTestRenderer } from '@opentui/core/testing'
 import { defineComponent, h, nextTick } from '@vue/runtime-core'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { createTuiApp } from './index'
 import { mockConsoleError } from '../__tests__/mock-console'
 import type { TestRendererSetup } from '@opentui/core/testing'

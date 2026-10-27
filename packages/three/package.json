@@ -41,7 +41,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "vp pack",
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
@@ -58,9 +58,9 @@
     "@types/three": "0.180.0",
     "@webgpu/types": "^0.1.60",
     "three": "0.180.0",
-    "tsdown": "^0.22.8",
     "typescript": "~6.0.3",
-    "vue-termui": "workspace:*"
+    "vue-termui": "workspace:*",
+    "vite-plus": "catalog:"
   },
   "engines": {
     "node": ">=26.3.0"

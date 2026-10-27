@@ -130,9 +130,9 @@ export function optionalProp<K extends string, V>(key: K, value: V | undefined):
  * @internal
  */
 export type ExtractEventsNames<Props, BaseProps> = {
-  [K in Exclude<keyof Props, keyof BaseProps> as K extends `on${infer E}`
-    ? Uncapitalize<E>
-    : never]: unknown
+  [
+    K in Exclude<keyof Props, keyof BaseProps> as K extends `on${infer E}` ? Uncapitalize<E> : never
+  ]: unknown
 }
 
 /**

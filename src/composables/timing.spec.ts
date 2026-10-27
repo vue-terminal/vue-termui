@@ -1,5 +1,5 @@
 import { effectScope } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { useInterval, useTimeout } from './timing'
 
 describe('timing composables', () => {

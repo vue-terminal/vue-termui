@@ -6,6 +6,23 @@ packages:
   - docs
 ignoreWorkspaceRootCheck: true
 strictPeerDependencies: false
+minimumReleaseAge: 10080
 allowBuilds:
   esbuild: true
   simple-git-hooks: true
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
+  vitest: 5.0.5
+  vite-plus: 1.3.0
+  '@vitest/coverage-v8': 5.0.5
+  '@vitest/ui': 5.0.5
+overrides:
+  vite@*: 'catalog:'
+  vitest@*: 'catalog:'
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'

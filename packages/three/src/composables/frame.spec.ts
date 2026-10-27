@@ -1,7 +1,7 @@
 // @vitest-environment node
 import type { CliRenderer } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import {
   createNodeOps,
   createRenderer,

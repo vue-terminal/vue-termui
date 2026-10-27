@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig, lazyPlugins } from 'vite-plus'
 import vueTermui from 'vue-termui/vite'
 
 export default defineConfig({
-  plugins: [vueTermui()],
+  plugins: lazyPlugins(() => [vueTermui()]),
 })

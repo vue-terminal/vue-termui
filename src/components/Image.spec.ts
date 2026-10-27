@@ -2,7 +2,7 @@
 import { ImageRenderable, NativeImage } from '@opentui/core'
 import { createTestRenderer } from '@opentui/core/testing'
 import { createRenderer, h, nextTick, ref } from '@vue/runtime-core'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createNodeOps } from '../renderer/nodeOps'
 import { Image } from './Image'
 import type { Renderable } from '@opentui/core'
